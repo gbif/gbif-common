@@ -7,14 +7,26 @@
     <artifactId>motherpom</artifactId>
     <version>2</version>
   </parent>
-  
+
   <groupId>org.gbif</groupId>
   <artifactId>gbif-common</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
   <name>GBIF Common</name>
   <description>Utils and other classes in use by more than one GBIF project.</description>
-	<url>http://sites.gbif.org/common-resources/gbif-common</url>
-  
+  <url>http://sites.gbif.org/common-resources/gbif-common</url>
+
+  <properties>
+    <jdkLevel>1.5</jdkLevel>
+
+    <commons-compress.version>1.0</commons-compress.version>
+    <commons-lang.version>2.5</commons-lang.version>
+    <commons-io.version>1.4</commons-io.version>
+    <guava.version>r03</guava.version>
+    <log4j.version>1.2.16</log4j.version>
+  </properties>
+
   <scm>
     <connection>scm:svn:http://gbif-common-resources.googlecode.com/svn/gbif-common/trunk</connection>
     <developerConnection>scm:svn:https://gbif-common-resources.googlecode.com/svn/gbif-common/trunk</developerConnection>
@@ -40,48 +52,36 @@
       <url>http://repository.gbif.org/content/groups/gbif</url>
     </repository>
   </repositories>
-  
+
   <build>
     <defaultGoal>install</defaultGoal>
-    <finalName>gbif-common</finalName>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-     </plugins>
   </build>
-  
+
   <dependencies>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.16</version>
-    </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>2.5</version>
+      <version>${commons-lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>1.4</version>
+      <version>${commons-io.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
-      <version>1.0</version>
-      <type>jar</type>
-      <scope>compile</scope>
+      <version>${commons-compress.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>r03</version>
+      <version>${guava.version}</version>
     </dependency>
   </dependencies>
 </project>
