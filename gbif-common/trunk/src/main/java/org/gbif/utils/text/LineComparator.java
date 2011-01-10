@@ -81,4 +81,8 @@ public class LineComparator implements Comparator<String> {
     }
   }
 
+  public Comparator<String> getColumnComparator() {
+    return comp;
+  }
+
 }
