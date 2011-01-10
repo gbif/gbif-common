@@ -87,12 +87,11 @@ public class FileUtilsTest {
    */
   @Test
   public void testSortingMac() throws IOException {
-    final int IDCOLUMN = 0;
     File source = FileUtils.getClasspathFile("sorting/LF_mac.txt");
     File sorted = File.createTempFile("sort-test", "mac.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, IDCOLUMN, "\t", '"', "\r", 1);
+    futils.sort(source, sorted, 0, "×", null, "\r", 0);
 
     assertUnixSortOrder(sorted);
   }
@@ -104,12 +103,11 @@ public class FileUtilsTest {
    */
   @Test
   public void testSortingUnix() throws IOException {
-    final int IDCOLUMN = 0;
     File source = FileUtils.getClasspathFile("sorting/LF_unix.txt");
     File sorted = File.createTempFile("sort-test", "unix.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, IDCOLUMN, "\t", '"', "\n", 1);
+    futils.sort(source, sorted, 0, "×", null, "\n", 0);
 
     assertUnixSortOrder(sorted);
 
@@ -122,12 +120,11 @@ public class FileUtilsTest {
    */
   @Test
   public void testSortingWindows() throws IOException {
-    final int IDCOLUMN = 0;
     File source = FileUtils.getClasspathFile("sorting/LF_win.txt");
     File sorted = File.createTempFile("sort-test", "windows.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, IDCOLUMN, "\t", '"', "\r\n", 1);
+    futils.sort(source, sorted, 0, "×", null, "\r\n", 0);
 
     assertUnixSortOrder(sorted);
   }
@@ -163,12 +160,11 @@ public class FileUtilsTest {
 
   @Test
   public void testSortingWithNonFirstIdColumn() throws IOException {
-    final int IDCOLUMN = 3;
     File source = FileUtils.getClasspathFile("sorting/TDB_104.csv");
     File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, IDCOLUMN, ";", null, "\n", 1);
+    futils.sort(source, sorted, 3, ";", null, "\n", 1);
 
     // read file
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
