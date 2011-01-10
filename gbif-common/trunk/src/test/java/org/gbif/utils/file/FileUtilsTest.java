@@ -35,6 +35,8 @@ import java.util.LinkedList;
  * 
  */
 public class FileUtilsTest {
+  private final String ENCODING = "UTF-8";
+
   public static void assertUnixSortOrder(File sorted) throws IOException {
     // read file
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
@@ -45,7 +47,9 @@ public class FileUtilsTest {
   public static void assertUnixSortOrder(Iterator<String> it) throws IOException {
     LinkedList<String> sorted = FileUtils.streamToList(FileUtils.classpathStream("sorting/LF_sorted.txt"));
     while (it.hasNext()) {
-      assertEquals(sorted.poll(), it.next());
+      String x = it.next();
+      System.out.println(x);
+      assertEquals(sorted.poll(), x);
     }
   }
 
@@ -56,7 +60,7 @@ public class FileUtilsTest {
     File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, IDCOLUMN, "\t", null, "\n", 0);
+    futils.sort(source, sorted, ENCODING, IDCOLUMN, "\t", null, "\n", 0);
 
     // read file
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
@@ -89,9 +93,9 @@ public class FileUtilsTest {
   public void testSortingMac() throws IOException {
     File source = FileUtils.getClasspathFile("sorting/LF_mac.txt");
     File sorted = File.createTempFile("sort-test", "mac.txt");
-    sorted.deleteOnExit();
+    // sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, 0, "×", null, "\r", 0);
+    futils.sort(source, sorted, ENCODING, 0, "×", null, "\r", 0);
 
     assertUnixSortOrder(sorted);
   }
@@ -105,9 +109,9 @@ public class FileUtilsTest {
   public void testSortingUnix() throws IOException {
     File source = FileUtils.getClasspathFile("sorting/LF_unix.txt");
     File sorted = File.createTempFile("sort-test", "unix.txt");
-    sorted.deleteOnExit();
+    // sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, 0, "×", null, "\n", 0);
+    futils.sort(source, sorted, ENCODING, 0, "×", null, "\n", 0);
 
     assertUnixSortOrder(sorted);
 
@@ -124,7 +128,7 @@ public class FileUtilsTest {
     File sorted = File.createTempFile("sort-test", "windows.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, 0, "×", null, "\r\n", 0);
+    futils.sort(source, sorted, ENCODING, 0, "×", null, "\r\n", 0);
 
     assertUnixSortOrder(sorted);
   }
@@ -136,7 +140,7 @@ public class FileUtilsTest {
     File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, IDCOLUMN, ",", '"', "\n", 1);
+    futils.sort(source, sorted, ENCODING, IDCOLUMN, ",", '"', "\n", 1);
 
     // read file
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
@@ -164,7 +168,7 @@ public class FileUtilsTest {
     File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, 3, ";", null, "\n", 1);
+    futils.sort(source, sorted, ENCODING, 3, ";", null, "\n", 1);
 
     // read file
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));

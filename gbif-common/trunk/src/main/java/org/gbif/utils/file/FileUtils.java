@@ -256,11 +256,11 @@ public class FileUtils {
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    * @throws IOException
    */
-  public void sort(File input, File sorted, int column, String columnDelimiter, Character enclosedBy,
+  public void sort(File input, File sorted, String encoding, int column, String columnDelimiter, Character enclosedBy,
       String newlineDelimiter, int ignoreHeaderLines) throws IOException {
     log.debug("sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
     // if the id is in the first column, first try sorting via unix shell as its the fastest we can get
-    if (!sortInUnix(input, sorted, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter)) {
+    if (!sortInUnix(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter)) {
       // not first column or doesnt work - maybe running on windows. Do native java sorting
       log.debug("No unix sort available, using native java sorting");
       Comparator<String> lineComparator;
@@ -269,7 +269,7 @@ public class FileUtils {
       } else {
         lineComparator = new LineComparator(column, columnDelimiter, enclosedBy);
       }
-      sortInJava(input, sorted, lineComparator, ignoreHeaderLines);
+      sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);
     }
   }
 
@@ -284,14 +284,14 @@ public class FileUtils {
    * @return The written file
    * @throws IOException
    */
-  private File sortAndWrite(File input, Comparator<String> lineComparator, int fileCount, List<String> linesToSort)
+  private File sortAndWrite(File input, String encoding, Comparator<String> lineComparator, int fileCount, List<String> linesToSort)
       throws IOException {
     Collections.sort(linesToSort, lineComparator);
     // When implementing a comparator, make it SUPER quick!!!
     // log.debug("Collections.sort took msec[" + (System.currentTimeMillis() - timer) + "] to sort records[" +
 // linesToSort.size() + "]");
     File sortFile = FileUtils.getChunkFile(input, fileCount);
-    FileWriter fw = new FileWriter(sortFile);
+    Writer fw = new OutputStreamWriter(new FileOutputStream(sortFile), encoding);
     try {
       for (String s : linesToSort) {
         fw.write(s);
@@ -314,12 +314,12 @@ public class FileUtils {
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    * @throws IOException
    */
-  public void sortInJava(File input, File sorted, Comparator<String> lineComparator, int ignoreHeaderLines)
+  public void sortInJava(File input, File sorted, String encoding, Comparator<String> lineComparator, int ignoreHeaderLines)
       throws IOException {
     log.debug("Sorting File[" + input.getAbsolutePath() + "]");
     long timer = System.currentTimeMillis();
     List<File> sortFiles = new LinkedList<File>();
-    BufferedReader br = new BufferedReader(new FileReader(input));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
     int fileCount;
     List<String> headerLines = new LinkedList<String>();
     List<String> linesToSort;
@@ -337,7 +337,7 @@ public class FileUtils {
 
           // if buffer is full, then sort and write to file
           if (linesToSort.size() == linesPerMemorySort) {
-            sortFiles.add(sortAndWrite(input, lineComparator, fileCount, linesToSort));
+            sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));
             linesToSort = new LinkedList<String>();
             fileCount++;
           }
@@ -346,7 +346,7 @@ public class FileUtils {
       }
       // catch the last lot
       if (linesToSort.size() > 0) {
-        sortFiles.add(sortAndWrite(input, lineComparator, fileCount, linesToSort));
+        sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));
       }
 
     } finally {
@@ -407,7 +407,7 @@ public class FileUtils {
    * @param ignoreHeaderLines
    * @throws IOException
    */
-  protected boolean sortInUnix(File input, File sorted, int ignoreHeaderLines, int column, String columnDelimiter,
+  protected boolean sortInUnix(File input, File sorted, String encoding, int ignoreHeaderLines, int column, String columnDelimiter,
       String lineDelimiter) throws IOException {
     boolean success = false;
     String command;

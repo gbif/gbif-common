@@ -34,6 +34,8 @@ import java.util.List;
  * 
  */
 public class ComparatorPerformance {
+  private final String ENCODING = "UTF-8";
+
   /**
    * Comparing performance for various file soring methods.
    * 
@@ -60,7 +62,7 @@ public class ComparatorPerformance {
 
     // test unix sort
     long start = System.currentTimeMillis();
-    futils.sort(source, sorted, 0, "\t", null, "\n", 0);
+    futils.sort(source, sorted, ENCODING, 0, "\t", null, "\n", 0);
     long end = System.currentTimeMillis();
     System.out.println(String.format("Sorting with unix sort took %s ms", (end - start)));
 
@@ -75,7 +77,7 @@ public class ComparatorPerformance {
         Comparator<String> comp = (Comparator<String>) cl.newInstance();
 
         start = System.currentTimeMillis();
-        futils.sortInJava(source, sorted, comp, 0);
+        futils.sortInJava(source, sorted, ENCODING, comp, 0);
         end = System.currentTimeMillis();
 
         System.out.println(String.format("Sorting with %s and %s lines in memory took %s ms", cl.getName(), linesInMen, (end - start)));
