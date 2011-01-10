@@ -32,7 +32,7 @@ public class LineComparator implements Comparator<String> {
     if (columnComparator != null) {
       this.comp = columnComparator;
     } else {
-      this.comp = new UnixSortComparator();
+      this.comp = new CCollationComparator();
     }
     tokenizer = new StrTokenizer();
     tokenizer.setEmptyTokenAsNull(true);

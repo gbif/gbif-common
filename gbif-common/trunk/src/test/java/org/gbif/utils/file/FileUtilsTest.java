@@ -18,7 +18,6 @@ package org.gbif.utils.file;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.apache.commons.io.LineIterator;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * @author markus
@@ -43,58 +43,10 @@ public class FileUtilsTest {
   }
 
   public static void assertUnixSortOrder(Iterator<String> it) throws IOException {
-    int lineNum = 0;
+    LinkedList<String> sorted = FileUtils.streamToList(FileUtils.classpathStream("sorting/LF_sorted.txt"));
     while (it.hasNext()) {
-      String line = it.next();
-      lineNum++;
-
-      if (lineNum == 1) {
-        assertEquals("HEADER_ROW", line);
-      } else if (lineNum == 2) {
-        assertEquals(" 121 iInia geoffrensis Blainville", line);
-      } else if (lineNum == 3) {
-        assertEquals("1 oOdontoceti", line);
-      } else if (lineNum == 4) {
-        assertEquals("10 gGlobicephala melaena melaena Traill", line);
-      } else if (lineNum == 5) {
-        assertEquals("100 gGlobicephala melaena melaena Traill", line);
-      } else if (lineNum == 6) {
-        assertEquals("101 gGlobicephala melaena melaena Traill", line);
-      } else if (lineNum == 7) {
-        assertEquals("11 pPontoporia Gray", line);
-      } else if (lineNum == 8) {
-        assertEquals("12 pPontoporia blainvillei Gervais and d'Orbigny", line);
-      } else if (lineNum == 9) {
-        assertEquals("120 iInia d'Orbigny", line);
-      } else if (lineNum == 10) {
-        assertEquals("121 iInia geoffrensis Blainville", line);
-      } else if (lineNum == 11) {
-        assertEquals("2 sSusuidae", line);
-      } else if (lineNum == 12) {
-        assertEquals("20 cCetacea", line);
-      } else if (lineNum == 13) {
-        assertEquals("Amphiptera", line);
-      } else if (lineNum == 14) {
-        assertEquals("Amphiptera pacifica Giglioli", line);
-      } else if (lineNum == 15) {
-        assertEquals("Anarnak Lacépède", line);
-      } else if (lineNum == 16) {
-        assertEquals("Balaena mangidach Chamisso", line);
-      } else if (lineNum == 17) {
-        assertEquals("amphiptera", line);
-      } else if (lineNum == 18) {
-        assertEquals("amphiptera pacifica Giglioli", line);
-      } else if (lineNum == 19) {
-        assertEquals("anarnak Lacépède", line);
-      } else if (lineNum == 20) {
-        assertEquals("balaena mangidach Chamisso", line);
-      } else if (lineNum == 21) {
-        assertEquals("ånarnak Lacépède", line);
-      } else {
-        fail();
-      }
+      assertEquals(sorted.poll(), it.next());
     }
-    assertEquals(21, lineNum);
   }
 
   @Test

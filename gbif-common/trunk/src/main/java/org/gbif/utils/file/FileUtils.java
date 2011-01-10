@@ -6,7 +6,9 @@ package org.gbif.utils.file;
 import org.gbif.utils.text.LineComparator;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.lf5.util.StreamUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -17,8 +19,12 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,6 +44,16 @@ public class FileUtils {
 
   public static String classpath2Filepath(String path) {
     return new File(ClassLoader.getSystemResource(path).getFile()).getAbsolutePath();
+  }
+
+  public static InputStream classpathStream(String path) throws IOException {
+    InputStream in = null;
+    // relative path. Use classpath instead
+    URL url = FileUtils.class.getClassLoader().getResource(path);
+    if (url != null) {
+      in = url.openStream();
+    }
+    return in;
   }
 
   /**
@@ -148,6 +164,24 @@ public class FileUtils {
     Writer writer = startNewUtf8File(file);
     writer.write("<?xml version='1.0' encoding='utf-8'?>\n");
     return writer;
+  }
+
+  public static LinkedList<String> streamToList(InputStream source) throws IOException {
+    return streamToList(source, "UTF-8");
+  }
+
+  public static LinkedList<String> streamToList(InputStream source, String encoding) throws IOException {
+    LinkedList<String> resultList = new LinkedList<String>();
+    try {
+      LineIterator lines = new LineIterator(new BufferedReader(new InputStreamReader(source, encoding)));
+      while (lines.hasNext()) {
+        String line = lines.nextLine();
+        resultList.add(line);
+      }
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalArgumentException("Unsupported encoding " + encoding, e);
+    }
+    return resultList;
   }
 
   public int getLinesPerMemorySort() {
@@ -280,7 +314,7 @@ public class FileUtils {
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    * @throws IOException
    */
-  private void sortInJava(File input, File sorted, Comparator<String> lineComparator, int ignoreHeaderLines)
+  public void sortInJava(File input, File sorted, Comparator<String> lineComparator, int ignoreHeaderLines)
       throws IOException {
     log.debug("Sorting File[" + input.getAbsolutePath() + "]");
     long timer = System.currentTimeMillis();
@@ -415,10 +449,14 @@ public class FileUtils {
       cmds.add(command);
       Process process = pb.start();
       // get the stdout and stderr from the command that was run
+      InputStream err = process.getErrorStream();
       int exitValue = process.waitFor();
       if (exitValue == 0) {
         log.debug("Successfully sorted file with unix sort");
         success = true;
+      } else {
+        log.warn("Error sorting file with unix sort");
+        StreamUtils.copy(err, System.err);
       }
     } catch (Exception e) {
       e.printStackTrace();
