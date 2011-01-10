@@ -126,6 +126,16 @@ public class FileUtils {
     return bbuf;
   }
 
+  /**
+   * @param linesPerMemorySort are the number of lines that should be sorted in memory, determining the number of file
+   *        segments to be sorted when doing a java file sort. Defaults to 100000, if you have memory available a higher
+   *        value increases
+   *        performance.
+   */
+  public static void setLinesPerMemorySort(int linesPerMemorySort) {
+    FileUtils.linesPerMemorySort = linesPerMemorySort;
+  }
+
   public static Writer startNewUtf8File(File file) throws IOException {
     Writer writer = null;
     org.apache.commons.io.FileUtils.touch(file);
@@ -196,16 +206,6 @@ public class FileUtils {
       sortedFileWriter.flush();
       sortedFileWriter.close();
     }
-  }
-
-  /**
-   * @param linesPerMemorySort are the number of lines that should be sorted in memory, determining the number of file
-   *        segments to be sorted when doing a java file sort. Defaults to 100000, if you have memory available a higher
-   *        value increases
-   *        performance.
-   */
-  public static void setLinesPerMemorySort(int linesPerMemorySort) {
-    FileUtils.linesPerMemorySort = linesPerMemorySort;
   }
 
   /**
@@ -332,6 +332,30 @@ public class FileUtils {
    * sorting tabs at 3rd column, numerical reverse order
    * sort -t$'\t' -k3 -o sorted.txt col2007.txt
    * 
+   * The unix based sorting is extremely efficient and more than hundred times faster than the current sortInJava method.
+   * But unfortunately the very fast native unix sort command apparently behaves differently on unix and osx and probably other OSes too.
+   * Its therefore currently disabled.
+   * 
+   * sorted on OSX:
+   * 1 Pontoporia
+   * 10 Stenodelphis
+   * 100 Delphinus frontatus
+   * 1000 Lagenorhynchus obscurus
+   * 1001 Lagenorhynchus obscurus
+   * 1002 Lagenorhynchus obscurus
+   * 1003 Lagenorhynchus obscurus
+   * 1004 Lagenorhynchus obscurus
+   * 
+   * 
+   * sorted on UNIX:
+   * 1998 Dioplodon europæus
+   * 1999 Dioplodon europæus
+   * 199 Delphinus (Steno) perspicillatus
+   * 1 Pontoporia
+   * 2000 Dioplodon europæus
+   * 2001 Neoziphius europæus
+   * 2002 Mesoplodon europæus
+   * 
    * @param input
    * @param sorted
    * @param column
@@ -344,7 +368,8 @@ public class FileUtils {
       String lineDelimiter) throws IOException {
     boolean success = false;
     String command;
-    if (column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || columnDelimiter.contains("\n")) {
+    // disable unix sorting for now - behaves differently on various OSes
+    if (true || column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || columnDelimiter.contains("\n")) {
       log.debug("Cannot use unix sort on this file");
       return false;
     }

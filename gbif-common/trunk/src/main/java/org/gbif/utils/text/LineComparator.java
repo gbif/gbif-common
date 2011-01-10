@@ -4,17 +4,36 @@ import org.apache.commons.lang.text.StrTokenizer;
 
 import java.util.Comparator;
 
+/**
+ * A comparator for delimited lines that compares the content of a given column number for all rows.
+ * This allows to sort for example tab delimited files by any column and not only the first one.
+ * 
+ * If no explicit comparator is given a string comparison is done for the actual column content.
+ * 
+ * @author markus
+ * 
+ */
 public class LineComparator implements Comparator<String> {
   private final StrTokenizer tokenizer;
   private int column;
+  private final Comparator<String> comp;
 
   public LineComparator(int column, String columnDelimiter) {
-    this(column, columnDelimiter, null);
+    this(column, columnDelimiter, null, null);
   }
 
   public LineComparator(int column, String columnDelimiter, Character quoteChar) {
+    this(column, columnDelimiter, quoteChar, null);
+  }
+
+  public LineComparator(int column, String columnDelimiter, Character quoteChar, Comparator<String> columnComparator) {
     super();
     this.column = column;
+    if (columnComparator != null) {
+      this.comp = columnComparator;
+    } else {
+      this.comp = new UnixSortComparator();
+    }
     tokenizer = new StrTokenizer();
     tokenizer.setEmptyTokenAsNull(true);
     tokenizer.setIgnoreEmptyTokens(false);
@@ -24,9 +43,9 @@ public class LineComparator implements Comparator<String> {
     tokenizer.setDelimiterString(columnDelimiter);
   }
 
-// public static LineComparator build(ArchiveFile file){
-// return new LineComparator(file.getId().getIndex(), file.getFieldsTerminatedBy(), file.getFieldsEnclosedBy());
-// }
+  public LineComparator(int column, String columnDelimiter, Comparator<String> columnComparator) {
+    this(column, columnDelimiter, null, null);
+  }
 
   public int compare(String o1, String o2) {
     if (o1 != null && o2 != null) {
@@ -50,7 +69,7 @@ public class LineComparator implements Comparator<String> {
         return -1;
       }
 
-      return s1.compareTo(s2);
+      return comp.compare(s1, s2);
     } else {
       if (o1 == null && o2 == null) {
         return 0;
