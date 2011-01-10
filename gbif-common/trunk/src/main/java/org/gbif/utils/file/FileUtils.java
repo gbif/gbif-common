@@ -209,11 +209,15 @@ public class FileUtils {
   }
 
   /**
-   * Sorts the input file into the output file using the supplied lineComparator
+   * Sorts the input file into the output file using the supplied delimited line parameters.
+   * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified column.
    * 
    * @param input To sort
-   * @param output The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
-   * @param linesPerMemorySort number of lines that will be written in memory before flushed to disk
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param column the column that keeps the values to sort on
+   * @param columnDelimiter the delimiter that seperates columns in a row
+   * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
+   * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    * @throws IOException
    */
