@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Collection of file utils.
@@ -336,29 +337,33 @@ public class FileUtils {
    * sorting tabs at 3rd column, numerical reverse order
    * sort -t$'\t' -k3 -o sorted.txt col2007.txt
    * 
-   * The unix based sorting is extremely efficient and more than hundred times faster than the current sortInJava method.
-   * But unfortunately the very fast native unix sort command apparently behaves differently on unix and osx and probably other OSes too.
-   * Its therefore currently disabled.
+   * The unix based sorting is extremely efficient and much, much faster than the current sortInJava method.
+   * It is locale aware though and we only want the native C sorting locale.
+   * See http://www.gnu.org/software/coreutils/faq/coreutils-faq.html#Sort-does-not-sort-in-normal-order_0021
    * 
-   * sorted on OSX:
-   * 1 Pontoporia
-   * 10 Stenodelphis
-   * 100 Delphinus frontatus
-   * 1000 Lagenorhynchus obscurus
-   * 1001 Lagenorhynchus obscurus
-   * 1002 Lagenorhynchus obscurus
-   * 1003 Lagenorhynchus obscurus
-   * 1004 Lagenorhynchus obscurus
+   * Example C sort oder:
+   * 
+   * 1 oOdontoceti
+   * 10 gGlobicephala melaena melaena Traill
+   * 100 gGlobicephala melaena melaena Traill
+   * 101 gGlobicephala melaena melaena Traill
+   * 11 pPontoporia Gray
+   * 12 pPontoporia blainvillei Gervais and d'Orbigny
+   * 120 iInia d'Orbigny
+   * 121 iInia geoffrensis Blainville
+   * 2 sSusuidae
+   * 20 cCetacea
+   * Amphiptera
+   * Amphiptera pacifica Giglioli
+   * Anarnak Lacépède
+   * Balaena mangidach Chamisso
+   * amphiptera
+   * amphiptera pacifica Giglioli
+   * anarnak Lacépède
+   * balaena mangidach Chamisso
+   * ånarnak Lacépède
    * 
    * 
-   * sorted on UNIX:
-   * 1998 Dioplodon europæus
-   * 1999 Dioplodon europæus
-   * 199 Delphinus (Steno) perspicillatus
-   * 1 Pontoporia
-   * 2000 Dioplodon europæus
-   * 2001 Neoziphius europæus
-   * 2002 Mesoplodon europæus
    * 
    * @param input
    * @param sorted
@@ -373,18 +378,28 @@ public class FileUtils {
     boolean success = false;
     String command;
     // disable unix sorting for now - behaves differently on various OSes
-    if (true || column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || columnDelimiter.contains("\n")) {
+    if (column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || columnDelimiter.contains("\n")) {
       log.debug("Cannot use unix sort on this file");
       return false;
     }
     // keep header rows
     try {
+      LinkedList<String> cmds = new LinkedList<String>();
+      cmds.add("/bin/sh");
+      cmds.add("-c");
+      cmds.add("");
+      ProcessBuilder pb = new ProcessBuilder(cmds);
+      Map<String, String> env = pb.environment();
+      env.clear();
+      // make sure we use the C locale for sorting
+      env.put("LC_ALL", "C");
       if (ignoreHeaderLines > 0) {
         // use
         command = "head -n " + ignoreHeaderLines + " " + input.getAbsolutePath() + " > " + sorted.getAbsolutePath();
         log.debug("Issue unix sort cmd: " + command);
-        ProcessBuilder builder = new ProcessBuilder("/bin/sh", "-c", command);
-        Process process = builder.start();
+        cmds.removeLast();
+        cmds.add(command);
+        Process process = pb.start();
         process.waitFor();
 
         // do the sorting ignoring the header rows
@@ -396,8 +411,9 @@ public class FileUtils {
       }
 
       log.debug("Issue unix sort cmd: " + command);
-      ProcessBuilder builder = new ProcessBuilder("/bin/sh", "-c", command);
-      Process process = builder.start();
+      cmds.removeLast();
+      cmds.add(command);
+      Process process = pb.start();
       // get the stdout and stderr from the command that was run
       int exitValue = process.waitFor();
       if (exitValue == 0) {
