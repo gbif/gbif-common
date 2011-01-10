@@ -403,11 +403,11 @@ public class FileUtils {
         process.waitFor();
 
         // do the sorting ignoring the header rows
-        command = "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort -b >> "
+        command = "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort >> "
             + sorted.getAbsolutePath();
       } else {
-        // do the sorting ignoring the header rows
-        command = "sort -b -o " + sorted.getAbsolutePath() + " " + input.getAbsolutePath();
+        // do sorting directly, we dont have header rows
+        command = "sort -o " + sorted.getAbsolutePath() + " " + input.getAbsolutePath();
       }
 
       log.debug("Issue unix sort cmd: " + command);
