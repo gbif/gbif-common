@@ -259,6 +259,10 @@ public class FileUtils {
   public void sort(File input, File sorted, String encoding, int column, String columnDelimiter, Character enclosedBy,
       String newlineDelimiter, int ignoreHeaderLines) throws IOException {
     log.debug("sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
+    if (encoding == null) {
+      log.warn("No encoding specified, assume UTF-8");
+      encoding = "UTF-8";
+    }
     // if the id is in the first column, first try sorting via unix shell as its the fastest we can get
     if (!sortInUnix(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter)) {
       // not first column or doesnt work - maybe running on windows. Do native java sorting
