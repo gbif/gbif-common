@@ -6,7 +6,6 @@ package org.gbif.utils.file;
 import org.gbif.utils.collection.CompactHashSet;
 import org.gbif.utils.text.LineComparator;
 
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
@@ -152,6 +151,20 @@ public class FileUtils {
 
   public static InputStream getInputStream(File source) throws FileNotFoundException {
     return new FileInputStream(source);
+  }
+
+  public static Reader getInputStreamReader(InputStream input) throws FileNotFoundException {
+    return getInputStreamReader(input, UTF8);
+  }
+
+  public static Reader getInputStreamReader(InputStream input, String encoding) throws FileNotFoundException {
+    Reader reader = null;
+    try {
+      reader = new BufferedReader(new InputStreamReader(input, encoding));
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return reader;
   }
 
   /**
