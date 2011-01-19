@@ -1,6 +1,7 @@
 package org.gbif.utils.file;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 public class InputStreamUtils {
-  private static Logger log = Logger.getLogger(InputStreamUtils.class);
+  private static Logger log = LoggerFactory.getLogger(InputStreamUtils.class);
 
   public InputStream classpathStream(String path) {
     InputStream in = null;
@@ -20,7 +21,7 @@ public class InputStreamUtils {
       try {
         in = url.openStream();
       } catch (IOException e) {
-        log.warn(e);
+        log.warn("Cant open classpath input stream " + path, e);
       }
     }
     return in;

@@ -3,7 +3,8 @@
  */
 package org.gbif.utils.file;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author tim
  */
 public class FileSplitter {
-  protected static Logger log = Logger.getLogger(FileSplitter.class);
+  protected static Logger log = LoggerFactory.getLogger(FileSplitter.class);
   public static final String SEPERATOR = "_";
   public static final int READ_AHEAD_BYTES = 256;
 

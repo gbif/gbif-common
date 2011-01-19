@@ -4,7 +4,8 @@ import static org.gbif.utils.file.FileUtils.readByteBuffer;
 
 import com.google.common.base.Charsets;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,14 +17,13 @@ import java.nio.charset.CharsetDecoder;
 
 /**
  * <p>
- * Utility class to guess the encoding of a given file or byte array. The guess is unfortunately not 100% sure.
- * Especially for 8-bit charsets. It's not possible to know which 8-bit charset is used. Except through statistical
- * analysis.
+ * Utility class to guess the encoding of a given file or byte array. The guess is unfortunately not 100% sure. Especially for 8-bit charsets. It's not possible
+ * to know which 8-bit charset is used. Except through statistical analysis.
  * </p>
  * 
  * <p>
- * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are
- * easy to find. For UTF-8 files with no BOM, if the buffer is wide enough, it's easy to guess.
+ * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are easy to find. For UTF-8 files with no BOM,
+ * if the buffer is wide enough, it's easy to guess.
  * </p>
  * 
  * <p>
@@ -41,7 +41,7 @@ import java.nio.charset.CharsetDecoder;
  * 
  */
 public class CharsetDetection {
-  private static Logger log = Logger.getLogger(CharsetDetection.class);
+  private static Logger log = LoggerFactory.getLogger(CharsetDetection.class);
   // encodings to test and very unlikely chars in that encoding
   private static final byte LF = 0x0a;
   private static final byte CR = 0x0d;
@@ -266,9 +266,8 @@ public class CharsetDetection {
    * readable text file.</p>
    * 
    * <p>
-   * If there is no BOM, this method tries to discern whether the file is UTF-8 or not. If it is not UTF-8, we assume
-   * the encoding is the default system encoding (of course, it might be any 8-bit charset, but usually, an 8-bit
-   * charset is the default one).
+   * If there is no BOM, this method tries to discern whether the file is UTF-8 or not. If it is not UTF-8, we assume the encoding is the default system
+   * encoding (of course, it might be any 8-bit charset, but usually, an 8-bit charset is the default one).
    * </p>
    * 
    * <p>
@@ -475,7 +474,7 @@ public class CharsetDetection {
         byte b = buffer[i];
         i++;
         // range 7f-9f undefined, see http://de.wikipedia.org/wiki/ISO_8859-1
-        if (b >= (byte)0x80 && b <= (byte)0x9f) {
+        if (b >= (byte) 0x80 && b <= (byte) 0x9f) {
           suspicous += UNDEFINED_PENALTY;
         }
       }
@@ -536,7 +535,7 @@ public class CharsetDetection {
         byte b = buffer[i];
         i++;
         // 5 undefined chars
-        if (b == (byte)0x81 || b == (byte)0x8d || b == (byte)0x8f || b == (byte)0x90 || b == (byte)0x9d) {
+        if (b == (byte) 0x81 || b == (byte) 0x8d || b == (byte) 0x8f || b == (byte) 0x90 || b == (byte) 0x9d) {
           suspicous += UNDEFINED_PENALTY;
         }
       }

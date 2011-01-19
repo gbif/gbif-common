@@ -9,8 +9,8 @@ import org.gbif.utils.text.LineComparator;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.log4j.lf5.util.StreamUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
 public class FileUtils {
   public static final Pattern TAB_DELIMITED = Pattern.compile("\t");
   public static final String UTF8 = "UTF8";
-  private static Logger log = Logger.getLogger(FileUtils.class);
+  private static Logger log = LoggerFactory.getLogger(FileUtils.class);
   private static int linesPerMemorySort = 100000;
 
   public static String classpath2Filepath(String path) {
@@ -717,7 +717,8 @@ public class FileUtils {
         success = true;
       } else {
         log.warn("Error sorting file with unix sort");
-        StreamUtils.copy(err, System.err);
+        InputStreamUtils isu = new InputStreamUtils();
+        System.err.append(isu.readEntireStream(err));
       }
     } catch (Exception e) {
       e.printStackTrace();

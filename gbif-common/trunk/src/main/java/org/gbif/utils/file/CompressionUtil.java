@@ -4,7 +4,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipUtils;
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,7 +31,7 @@ public class CompressionUtil {
 
   }
 
-  protected static final Logger log = Logger.getLogger(CompressionUtil.class);
+  protected static final Logger log = LoggerFactory.getLogger(CompressionUtil.class);
   static final int BUFFER = 2048;
 
   private static final void copyInputStream(InputStream in, OutputStream out) throws IOException {
