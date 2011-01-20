@@ -9,7 +9,7 @@
 
   <groupId>org.gbif</groupId>
   <artifactId>gbif-common</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>GBIF Common</name>
@@ -27,9 +27,9 @@
   </properties>
 
   <scm>
-    <connection>scm:svn:http://gbif-common-resources.googlecode.com/svn/gbif-common/tags/gbif-common-0.0.2</connection>
-    <developerConnection>scm:svn:https://gbif-common-resources.googlecode.com/svn/gbif-common/tags/gbif-common-0.0.2</developerConnection>
-    <url>http://code.google.com/p/gbif-common-resources/source/browse/#svn/gbif-common/tags/gbif-common-0.0.2</url>
+    <connection>scm:svn:http://gbif-common-resources.googlecode.com/svn/gbif-common/trunk</connection>
+    <developerConnection>scm:svn:https://gbif-common-resources.googlecode.com/svn/gbif-common/trunk</developerConnection>
+    <url>http://code.google.com/p/gbif-common-resources/source/browse/#svn/gbif-common/trunk</url>
   </scm>
 
   <issueManagement>
