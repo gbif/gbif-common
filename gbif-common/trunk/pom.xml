@@ -54,6 +54,16 @@
 
   <build>
     <defaultGoal>install</defaultGoal>
+    <plugins>
+      <!-- commons is built for 1.5 to be widely compatible -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <dependencies>
