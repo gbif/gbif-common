@@ -27,6 +27,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class CompressionUtil {
+
   public static class UnsupportedCompressionType extends RuntimeException {
 
   }
@@ -47,37 +48,32 @@ public class CompressionUtil {
   }
 
   /**
-   * Tries to decompress a file into a newly created temporary directory,
-   * trying gzip or zip regardless of the filename or its suffix.
-   * 
-   * @param compressedFile
+   * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename
+   * or its suffix.
+   *
    * @return folder containing all decompressed files
-   * @throws IOException
    */
-  public static File decompressFile(File compressedFile) throws IOException,UnsupportedCompressionType {
-	  // create empty tmp dir
-	  File dir = File.createTempFile("dwca-", null);
-	  if (dir.exists()){
-		  dir.delete();
-	  }
-      dir.mkdirs();
-      
-      // decompress
-      decompressFile(dir,compressedFile);
+  public static File decompressFile(File compressedFile) throws IOException, UnsupportedCompressionType {
+    // create empty tmp dir
+    File dir = File.createTempFile("dwca-", null);
+    if (dir.exists()) {
+      dir.delete();
+    }
+    dir.mkdirs();
+
+    // decompress
+    decompressFile(dir, compressedFile);
 
     return dir;
   }
 
   /**
    * Tries to decompress a file trying gzip or zip regardless of the filename or its suffix.
-   * 
-   * @param directory
-   * @param compressedFile
+   *
    * @return list of decompressed files or empty list if archive couldnt be decompressed
-   * @throws IOException
    */
-  public static List<File> decompressFile(File directory, File compressedFile) throws IOException,
-      UnsupportedCompressionType {
+  public static List<File> decompressFile(File directory, File compressedFile)
+    throws IOException, UnsupportedCompressionType {
     List<File> files = new ArrayList<File>();
     // first try zip
     try {
@@ -95,7 +91,6 @@ public class CompressionUtil {
   }
 
   /**
-   * @param compressedFile
    * @return boolean
    */
   private static boolean isGzip(File compressedFile) {
@@ -104,7 +99,6 @@ public class CompressionUtil {
   }
 
   /**
-   * @param compressedFile
    * @return boolean
    */
   private static boolean isZip(File compressedFile) {
@@ -171,22 +165,23 @@ public class CompressionUtil {
     return files;
   }
 
-  /** Zip a directory with all files but skipping included subdirectories.
-   * Only files directly within the directory are added to the archive.
- * @param dir the directory to zip
- * @param zipFile the zipped file
- * @throws IOException
- */
-public static void zipDir(File dir, File zipFile) throws IOException {
-	    Set<File> files = new HashSet<File>();
-	    for (File f : dir.listFiles()){
-	    	if (f.isFile()){
-	    	    files.add(f);
-	    	}
-	    }
-	    zipFiles(files, zipFile);
-	}
-  
+  /**
+   * Zip a directory with all files but skipping included subdirectories. Only files directly within the directory are
+   * added to the archive.
+   *
+   * @param dir     the directory to zip
+   * @param zipFile the zipped file
+   */
+  public static void zipDir(File dir, File zipFile) throws IOException {
+    Set<File> files = new HashSet<File>();
+    for (File f : dir.listFiles()) {
+      if (f.isFile()) {
+        files.add(f);
+      }
+    }
+    zipFiles(files, zipFile);
+  }
+
   public static void zipFile(File file, File zipFile) throws IOException {
     Set<File> files = new HashSet<File>();
     files.add(file);
