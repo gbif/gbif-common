@@ -10,12 +10,12 @@ import java.util.NoSuchElementException;
  * A HashSet implementation taken from Ontopia
  * which is both faster and more compact than java.util.HashSet
  *
- * @see <a href="http://ontopia.wordpress.com/2009/09/23/a-faster-and-more-compact-set/">Ontopia blog</a>
- * @see <a href="http://code.google.com/p/ontopia/source/browse/trunk/ontopia/src/java/net/ontopia/utils/">Ontopia
- * source</a>
- *
  *      INTERNAL: Implements the Set interface more compactly than
  *      java.util.HashSet by using a closed hashtable.
+ *
+ * @see <a href="http://ontopia.wordpress.com/2009/09/23/a-faster-and-more-compact-set/">Ontopia blog</a>
+ * @see <a href="http://code.google.com/p/ontopia/source/browse/trunk/ontopia/src/java/net/ontopia/utils/">Ontopia source</a>
+
  *
  */
 public class CompactHashSet<T> extends AbstractSet<T> {
@@ -143,7 +143,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
    * Adds the specified element to this set if it is not already
    * present.
    *
-   * @param o element to be added to this set.
+   * @param x element to be added to this set.
    * @return <tt>true</tt> if the set did not already contain the specified
    *         element.
    */
