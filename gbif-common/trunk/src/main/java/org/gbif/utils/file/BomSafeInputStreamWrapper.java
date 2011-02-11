@@ -6,9 +6,9 @@ import java.io.InputStream;
 /**
  * A wrapper for an input stream that removes any BOM sequence at the start of the file.
  * BOMs can cause XML parser to fall over with a "Content is not allowed in prolog" Exception
- * 
+ *
  * @author markus
- * 
+ *
  */
 public class BomSafeInputStreamWrapper extends InputStream {
   private static final int buffersize = 4;
@@ -17,7 +17,6 @@ public class BomSafeInputStreamWrapper extends InputStream {
   private int pointer = 0;
 
   public BomSafeInputStreamWrapper(InputStream stream) {
-    super();
     this.stream = stream;
     testForBom();
   }
@@ -40,7 +39,7 @@ public class BomSafeInputStreamWrapper extends InputStream {
       } else if (CharsetDetection.hasUTF8Bom(buffer)) {
         pointer = 3;
       }
-    } catch (IOException e) {
+    } catch (IOException ignored) {
     }
   }
 

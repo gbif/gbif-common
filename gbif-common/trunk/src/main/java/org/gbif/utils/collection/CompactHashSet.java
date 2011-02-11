@@ -1,5 +1,6 @@
 package org.gbif.utils.collection;
 
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -8,15 +9,16 @@ import java.util.NoSuchElementException;
 /**
  * A HashSet implementation taken from Ontopia
  * which is both faster and more compact than java.util.HashSet
- * 
- * @See http://ontopia.wordpress.com/2009/09/23/a-faster-and-more-compact-set/
- * @See http://code.google.com/p/ontopia/source/browse/trunk/ontopia/src/java/net/ontopia/utils/
- * 
+ *
+ * @see <a href="http://ontopia.wordpress.com/2009/09/23/a-faster-and-more-compact-set/">Ontopia blog</a>
+ * @see <a href="http://code.google.com/p/ontopia/source/browse/trunk/ontopia/src/java/net/ontopia/utils/">Ontopia
+ * source</a>
+ *
  *      INTERNAL: Implements the Set interface more compactly than
  *      java.util.HashSet by using a closed hashtable.
- * 
+ *
  */
-public class CompactHashSet<T> extends java.util.AbstractSet<T> {
+public class CompactHashSet<T> extends AbstractSet<T> {
 
   private class CompactHashIterator implements Iterator<T> {
     private int index;
@@ -115,7 +117,7 @@ public class CompactHashSet<T> extends java.util.AbstractSet<T> {
   /**
    * Constructs a new set containing the elements in the specified
    * collection.
-   * 
+   *
    * @param c the collection whose elements are to be placed into this set.
    */
   public CompactHashSet(Collection c) {
@@ -140,7 +142,7 @@ public class CompactHashSet<T> extends java.util.AbstractSet<T> {
   /**
    * Adds the specified element to this set if it is not already
    * present.
-   * 
+   *
    * @param o element to be added to this set.
    * @return <tt>true</tt> if the set did not already contain the specified
    *         element.
@@ -216,7 +218,7 @@ public class CompactHashSet<T> extends java.util.AbstractSet<T> {
 
   /**
    * Returns <tt>true</tt> if this set contains the specified element.
-   * 
+   *
    * @param o element whose presence in this set is to be tested.
    * @return <tt>true</tt> if this set contains the specified element.
    */
@@ -269,7 +271,7 @@ public class CompactHashSet<T> extends java.util.AbstractSet<T> {
   /**
    * Returns an iterator over the elements in this set. The elements
    * are returned in no particular order.
-   * 
+   *
    * @return an Iterator over the elements in this set.
    * @see ConcurrentModificationException
    */
