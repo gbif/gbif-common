@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -439,6 +440,16 @@ public class FileUtils {
     String protocol = url.getProtocol() == null || url.getProtocol().equalsIgnoreCase("http") ? "" : "/__" + url.getProtocol() + "__";
     String domain = url.getAuthority() == null ? "__domainless" : url.getAuthority();
     return domain + protocol + url.getFile();
+  }
+
+  public static File url2file(URL url) {
+    File f = null;
+    try {
+      f = new File(url.toURI());
+    } catch (URISyntaxException e) {
+      f = new File(url.getPath());
+    }
+    return f;
   }
 
   public int getLinesPerMemorySort() {
