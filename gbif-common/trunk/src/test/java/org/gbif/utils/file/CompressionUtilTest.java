@@ -16,8 +16,6 @@
 
 package org.gbif.utils.file;
 
-import org.gbif.utils.file.CompressionUtil;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -106,5 +104,10 @@ public class CompressionUtilTest {
     result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
     assertEquals(2, result.size());
     assureEqualContent(result, metaContent, dataContent);
+
+    FileUtils.cleanDirectory(tmpDir);
+    testArchiveFile = classpathFile("compression/cate.zip");
+    result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
+    assertEquals(3, result.size());
   }
 }
