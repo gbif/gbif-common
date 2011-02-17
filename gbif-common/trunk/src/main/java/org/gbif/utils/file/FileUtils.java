@@ -121,6 +121,26 @@ public class FileUtils {
     copyStreams(in, new FileOutputStream(out));
   }
 
+  public static File createTempDir() throws IOException {
+    return createTempDir("gbif-futil", ".tmp");
+  }
+
+  /**
+   * @param prefix The prefix string to be used in generating the file's name; must be at least three characters long
+   * @param suffix The suffix string to be used in generating the file's name; may be null, in which case the suffix ".tmp" will be used
+   * @return
+   */
+  public static File createTempDir(String prefix, String suffix) throws IOException {
+    File dir = File.createTempFile(prefix, suffix);
+    if (!(dir.delete())) {
+      throw new IOException("Could not delete temp file: " + dir.getAbsolutePath());
+    }
+    if (!(dir.mkdir())) {
+      throw new IOException("Could not create temp directory: " + dir.getAbsolutePath());
+    }
+    return dir;
+  }
+
   /**
    * escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n
    * 
