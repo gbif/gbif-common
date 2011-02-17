@@ -30,6 +30,18 @@ public class CompressionUtil {
 
   public static class UnsupportedCompressionType extends RuntimeException {
 
+    public UnsupportedCompressionType() {
+      super();
+    }
+
+    public UnsupportedCompressionType(String arg0) {
+      super(arg0);
+    }
+
+    public UnsupportedCompressionType(String arg0, Throwable arg1) {
+      super(arg0, arg1);
+    }
+
   }
 
   protected static final Logger log = LoggerFactory.getLogger(CompressionUtil.class);
@@ -50,7 +62,7 @@ public class CompressionUtil {
   /**
    * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename
    * or its suffix.
-   *
+   * 
    * @return folder containing all decompressed files
    */
   public static File decompressFile(File compressedFile) throws IOException, UnsupportedCompressionType {
@@ -69,22 +81,23 @@ public class CompressionUtil {
 
   /**
    * Tries to decompress a file trying gzip or zip regardless of the filename or its suffix.
-   *
+   * 
    * @return list of decompressed files or empty list if archive couldnt be decompressed
    */
   public static List<File> decompressFile(File directory, File compressedFile)
-    throws IOException, UnsupportedCompressionType {
+      throws IOException, UnsupportedCompressionType {
     List<File> files = new ArrayList<File>();
     // first try zip
     try {
       files = CompressionUtil.unzipFile(directory, compressedFile);
     } catch (ZipException e) {
+      log.debug("No zip compression");
       // nope. try gzip
       try {
         files = CompressionUtil.ungzipFile(directory, compressedFile);
       } catch (Exception e1) {
-        log.warn("Unknown compression type. Neither zip nor gzip");
-        throw new UnsupportedCompressionType();
+        log.debug("No gzip compression");
+        throw new UnsupportedCompressionType("Unknown compression type. Neither zip nor gzip", e1);
       }
     }
     return files;
@@ -168,8 +181,8 @@ public class CompressionUtil {
   /**
    * Zip a directory with all files but skipping included subdirectories. Only files directly within the directory are
    * added to the archive.
-   *
-   * @param dir     the directory to zip
+   * 
+   * @param dir the directory to zip
    * @param zipFile the zipped file
    */
   public static void zipDir(File dir, File zipFile) throws IOException {
