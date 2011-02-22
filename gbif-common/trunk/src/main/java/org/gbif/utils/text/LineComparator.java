@@ -52,7 +52,7 @@ public class LineComparator implements Comparator<String> {
       tokenizer.reset(o1);
       String[] parts = tokenizer.getTokenArray();
       String s1 = null;
-      if (parts != null && parts.length >= column) {
+      if (parts != null && parts.length > column) {
         s1 = parts[column];
       }
       if (s1 == null) {
