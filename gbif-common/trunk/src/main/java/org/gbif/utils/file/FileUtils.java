@@ -578,10 +578,10 @@ public class FileUtils {
    */
   private File sortAndWrite(File input, String encoding, Comparator<String> lineComparator, int fileCount, List<String> linesToSort)
       throws IOException {
+    long start = System.currentTimeMillis();
     Collections.sort(linesToSort, lineComparator);
     // When implementing a comparator, make it SUPER quick!!!
-    // log.debug("Collections.sort took msec[" + (System.currentTimeMillis() - timer) + "] to sort records[" +
-// linesToSort.size() + "]");
+    log.debug("Collections.sort took msec[" + (System.currentTimeMillis() - start) + "] to sort records[" + linesToSort.size() + "]");
     File sortFile = FileUtils.getChunkFile(input, fileCount);
     Writer fw = new OutputStreamWriter(new FileOutputStream(sortFile), encoding);
     try {
@@ -609,7 +609,7 @@ public class FileUtils {
   public void sortInJava(File input, File sorted, String encoding, Comparator<String> lineComparator, int ignoreHeaderLines)
       throws IOException {
     log.debug("Sorting File[" + input.getAbsolutePath() + "]");
-    long timer = System.currentTimeMillis();
+    long start = System.currentTimeMillis();
     List<File> sortFiles = new LinkedList<File>();
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
     int fileCount;
@@ -644,6 +644,7 @@ public class FileUtils {
     } finally {
       br.close();
     }
+    log.debug(sortFiles.size() + " sorted file chunks created in " + (System.currentTimeMillis() - start) / 1000 + " secs");
 
     // now merge the sorted files into one single sorted file
     FileWriter sortedFileWriter = new FileWriter(sorted);
@@ -655,7 +656,7 @@ public class FileUtils {
     mergedSortedFiles(sortFiles, sortedFileWriter, lineComparator);
 
     log.debug("File " + input.getAbsolutePath() + " sorted successfully using " + sortFiles.size()
-        + " parts to do sorting in " + (1 + System.currentTimeMillis() - timer) / 1000 + " secs");
+        + " parts to do sorting in " + (System.currentTimeMillis() - start) / 1000 + " secs");
   }
 
   /**
