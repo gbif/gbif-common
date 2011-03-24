@@ -332,6 +332,13 @@ public class FileUtils {
     return writer;
   }
 
+  /**
+   * Takes a utf8 encoded input stream and reads in every line/row into a list
+   * 
+   * @param source
+   * @return list of rows
+   * @throws IOException
+   */
   public static LinkedList<String> streamToList(InputStream source) throws IOException {
     return streamToList(source, "UTF-8");
   }
@@ -370,6 +377,13 @@ public class FileUtils {
     return resultList;
   }
 
+  /**
+   * Reads a utf8 encoded inut stream, splits
+   * 
+   * @param source
+   * @return
+   * @throws IOException
+   */
   public static Map<String, String> streamToMap(InputStream source) throws IOException {
     return streamToMap(source, new HashMap<String, String>());
   }
@@ -379,11 +393,10 @@ public class FileUtils {
   }
 
   /**
-   * Read a hashmap from a tab delimited file using the row number as an integer value, ignoring commented rows starting with #
+   * Read a hashmap from a tab delimited utf8 input stream using the row number as an integer value and the entire row as the value
+   * Ignores commented rows starting with #
    * 
    * @param source tab delimited text file to read
-   * @param key column number to use as key
-   * @param value column number to use as value
    * @return
    * @throws IOException
    */
@@ -402,9 +415,9 @@ public class FileUtils {
   }
 
   /**
-   * Read a hashmap from a tab delimited file, ignoring commented rows starting with #
+   * Read a hashmap from a tab delimited utf8 file, ignoring commented rows starting with #
    * 
-   * @param source tab delimited text file to read
+   * @param source tab delimited input stream to read
    * @param key column number to use as key
    * @param value column number to use as value
    * @param trimToNull if true trims map entries to null
