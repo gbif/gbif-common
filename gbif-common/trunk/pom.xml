@@ -9,7 +9,7 @@
 
   <groupId>org.gbif</groupId>
   <artifactId>gbif-common</artifactId>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>GBIF Common</name>
@@ -22,7 +22,7 @@
     <commons-compress.version>1.0</commons-compress.version>
     <commons-lang.version>2.5</commons-lang.version>
     <commons-io.version>1.4</commons-io.version>
-    <guava.version>r07</guava.version>
+    <guava.version>r08</guava.version>
     <junit.version>4.8.1</junit.version>
     <slf4j.version>1.6.1</slf4j.version>
   </properties>
