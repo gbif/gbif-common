@@ -9,7 +9,7 @@
 
   <groupId>org.gbif</groupId>
   <artifactId>gbif-common</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>GBIF Common</name>
