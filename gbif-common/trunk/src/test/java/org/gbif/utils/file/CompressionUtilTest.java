@@ -1,12 +1,12 @@
 /***************************************************************************
  * Copyright 2010 Global Biodiversity Information Facility Secretariat
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -29,32 +29,31 @@ import java.util.List;
 
 /**
  * @author markus
- * 
+ *
  */
 public class CompressionUtilTest {
   public static File createTempDirectory() throws IOException {
-    final File temp;
 
-    temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+    final File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
 
-    if (!(temp.delete())) {
+    if (!temp.delete()) {
       throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
     }
 
-    if (!(temp.mkdir())) {
+    if (!temp.mkdir()) {
       throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
     }
     temp.deleteOnExit();
 
-    return (temp);
+    return temp;
   }
 
-  private void assureEqualContent(List<File> result, String metaContent, String dataContent) throws IOException {
+  private static void assureEqualContent(List<File> result, String metaContent, String dataContent) throws IOException {
     for (File f : result) {
       String x = FileUtils.readFileToString(f, "utf-8");
-      if (f.getName().equals("meta.xml")) {
+      if ("meta.xml".equals(f.getName())) {
         assertEquals(metaContent, x);
-      } else if (f.getName().equals("quote_in_quote.csv")) {
+      } else if ("quote_in_quote.csv".equals(f.getName())) {
         assertEquals(dataContent, x);
       } else {
         fail("unexpected file");
