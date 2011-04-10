@@ -116,13 +116,13 @@ public class CompressionUtil {
       TarArchiveEntry entry = in.getNextTarEntry();
       while (entry != null) {
         if (entry.isDirectory()) {
-          LOG.warn("TAR archive contains directories which are being ignored");
+          LOG.debug("TAR archive contains directories which are being ignored");
           entry = in.getNextTarEntry();
           continue;
         }
         String fn = new File(entry.getName()).getName();
         if (fn.startsWith(".")) {
-          LOG.warn("TAR archive contains a hidden file which is being ignored");
+          LOG.debug("TAR archive contains a hidden file which is being ignored");
           entry = in.getNextTarEntry();
           continue;
         }
@@ -163,12 +163,12 @@ public class CompressionUtil {
     while (entries.hasMoreElements()) {
       ZipEntry entry = entries.nextElement();
       if (entry.isDirectory()) {
-        LOG.warn("ZIP archive contains directories which are being ignored");
+        LOG.debug("ZIP archive contains directories which are being ignored");
         continue;
       }
       String fn = new File(entry.getName()).getName();
       if (fn.startsWith(".")) {
-        LOG.warn("ZIP archive contains a hidden file which is being ignored");
+        LOG.debug("ZIP archive contains a hidden file which is being ignored");
         continue;
       }
       File targetFile = new File(directory, fn);
@@ -213,7 +213,7 @@ public class CompressionUtil {
 
   public static void zipFiles(Collection<File> files, File zipFile) throws IOException {
     if (files.isEmpty()) {
-      LOG.warn("no files to zip.");
+      LOG.info("no files to zip.");
     } else {
       try {
         BufferedInputStream origin = null;
