@@ -51,24 +51,6 @@ public class CompressionUtil {
   private static final int BUFFER = 2048;
 
   /**
-   * Copies data from an InputStream to an OutputStream and closes both streams at the end.
-   *
-   * @deprecated Use {@link IOUtils#copy(InputStream, OutputStream)} instead. Remove in 0.5.
-   */
-  @Deprecated
-  private static void copyInputStream(InputStream in, OutputStream out) throws IOException {
-    byte[] buffer = new byte[1024];
-    int len;
-
-    while ((len = in.read(buffer)) >= 0) {
-      out.write(buffer, 0, len);
-    }
-
-    in.close();
-    out.close();
-  }
-
-  /**
    * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename
    * or its suffix.
    *
