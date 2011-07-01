@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 
 /**
  * Collection of file utils.
- * 
+ *
  * @author timrobertson
  * @author Markus Döring
  */
@@ -73,7 +73,7 @@ public class FileUtils {
 
   /**
    * Reads a file and returns a unique set of multiple columns from lines which are no comments (starting with #) and trims whitespace
-   * 
+   *
    * @param source the UTF-8 encoded text file with tab delimited columns
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
    * @param column variable length argument of column indices to process
@@ -143,7 +143,7 @@ public class FileUtils {
 
   /**
    * escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n
-   * 
+   *
    * @param filename to be escaped
    * @return
    */
@@ -151,16 +151,7 @@ public class FileUtils {
     return filename.replaceAll("[\\s./&]", "_");
   }
 
-  /**
-   * For the given file's path, returns a proposed new filename (including path) with the extension
-   * index and suffix
-   * So a file of "/tmp/input.txt" -> "/tmp/input_part_10.txt"
-   * 
-   * @param input File
-   * @param suffix E.g. part
-   * @param index E.g. 10
-   * @return The proposed name
-   */
+
   private static File getChunkFile(File original, int index) {
     return new File(original.getParentFile(), FilenameUtils.getBaseName(original.getName()) + "_" + index
         + FilenameUtils.getExtension(original.getName()));
@@ -243,7 +234,7 @@ public class FileUtils {
 
   /**
    * For the given list, finds the index of the lowest value using the given comparator
-   * 
+   *
    * @param values To compare
    * @param comparator To use
    * @return The index of the lowest value, or -1 if they are all null
@@ -274,7 +265,7 @@ public class FileUtils {
 
   /**
    * Reads a complete file into a byte buffer
-   * 
+   *
    * @param file
    * @return
    * @throws IOException
@@ -287,7 +278,7 @@ public class FileUtils {
 
   /**
    * Reads the first bytes of a file into a byte buffer
-   * 
+   *
    * @param file
    * @param bufferSize the number of bytes to read from the file
    * @return
@@ -334,7 +325,7 @@ public class FileUtils {
 
   /**
    * Takes a utf8 encoded input stream and reads in every line/row into a list
-   * 
+   *
    * @param source
    * @return list of rows
    * @throws IOException
@@ -345,7 +336,7 @@ public class FileUtils {
 
   /**
    * Reads a file and returns a list of all lines which are no comments (starting with #) and trims whitespace
-   * 
+   *
    * @param source the UTF-8 encoded text file to read
    * @param resultList the list implementation to be used. Will not be cleared before reading!
    * @return list of lines
@@ -379,7 +370,7 @@ public class FileUtils {
 
   /**
    * Reads a utf8 encoded inut stream, splits
-   * 
+   *
    * @param source
    * @return
    * @throws IOException
@@ -395,7 +386,7 @@ public class FileUtils {
   /**
    * Read a hashmap from a tab delimited utf8 input stream using the row number as an integer value and the entire row as the value
    * Ignores commented rows starting with #
-   * 
+   *
    * @param source tab delimited text file to read
    * @return
    * @throws IOException
@@ -416,12 +407,12 @@ public class FileUtils {
 
   /**
    * Read a hashmap from a tab delimited utf8 file, ignoring commented rows starting with #
-   * 
+   *
    * @param source tab delimited input stream to read
    * @param key column number to use as key
    * @param value column number to use as value
    * @param trimToNull if true trims map entries to null
-   * 
+   *
    * @return
    * @throws IOException
    */
@@ -451,7 +442,7 @@ public class FileUtils {
 
   /**
    * Reads a file and returns a unique set of all lines which are no comments (starting with #) and trims whitespace
-   * 
+   *
    * @param source the UTF-8 encoded text file to read
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
    * @return set of unique lines
@@ -491,7 +482,7 @@ public class FileUtils {
 
   /**
    * Merges the sorted files
-   * 
+   *
    * @param sortFiles To merge
    * @param sortedFileWriter writer to merge to. Can already be open and contain data
    * @param lineComparator To use when determining the order (reuse the one that was used to sort the individual files)
@@ -547,7 +538,7 @@ public class FileUtils {
   /**
    * Sorts the input file into the output file using the supplied delimited line parameters.
    * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified column.
-   * 
+   *
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
    * @param column the column that keeps the values to sort on
@@ -580,9 +571,9 @@ public class FileUtils {
 
   /**
    * Sorts the lines and writes to file using the
-   * 
+   *
    * @param input File to base the name on
-   * @param suffix to use as the extension for the intermediate chunk files
+   * @param encoding charset encoding of input file
    * @param lineComparator To compare the lines for sorting
    * @param fileCount Used for the file name
    * @param linesToSort To actually sort
@@ -610,11 +601,9 @@ public class FileUtils {
 
   /**
    * Sorts the input file into the output file using the supplied lineComparator
-   * 
+   *
    * @param input To sort
-   * @param output The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
-   * @param linesPerMemorySort number of lines that will be written in memory before flushed to disk
-   * @param extension Of the temporary files (suggest "sort")
+   * @param encoding charset encoding of input file
    * @param lineComparator To use during comparison
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    * @throws IOException
@@ -676,13 +665,13 @@ public class FileUtils {
    * sort a text file via an external unix sort command:
    * sorting tabs at 3rd column, numerical reverse order
    * sort -t$'\t' -k3 -o sorted.txt col2007.txt
-   * 
+   *
    * The unix based sorting is extremely efficient and much, much faster than the current sortInJava method.
    * It is locale aware though and we only want the native C sorting locale.
    * See http://www.gnu.org/software/coreutils/faq/coreutils-faq.html#Sort-does-not-sort-in-normal-order_0021
-   * 
+   *
    * Example C sort oder:
-   * 
+   *
    * 1 oOdontoceti
    * 10 gGlobicephala melaena melaena Traill
    * 100 gGlobicephala melaena melaena Traill
@@ -702,14 +691,14 @@ public class FileUtils {
    * anarnak Lacépède
    * balaena mangidach Chamisso
    * ånarnak Lacépède
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * @param input
    * @param sorted
    * @param column
    * @param columnDelimiter
-   * @param enclosedBy
+   * @param lineDelimiter
    * @param ignoreHeaderLines
    * @throws IOException
    */
@@ -718,7 +707,7 @@ public class FileUtils {
     boolean success = false;
     String command;
     // disable unix sorting for now - behaves differently on various OSes
-    if (column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || columnDelimiter.contains("\n")) {
+    if (column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || (columnDelimiter!=null && columnDelimiter.contains("\n"))) {
       log.debug("Cannot use unix sort on this file");
       return false;
     }
@@ -773,7 +762,7 @@ public class FileUtils {
 
   /**
    * Splits the supplied file into files of set line size and with a suffix
-   * 
+   *
    * @param input To split up
    * @param linesPerOutput Lines per split file
    * @param extension The file extension to use - e.g. ".txt"
