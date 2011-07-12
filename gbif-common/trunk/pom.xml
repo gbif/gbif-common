@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,7 +9,7 @@
 
   <groupId>org.gbif</groupId>
   <artifactId>gbif-common</artifactId>
-  <version>0.4-SNAPSHOT</version>
+  <version>0.4</version>
   <packaging>jar</packaging>
 
   <name>GBIF Common</name>
@@ -30,9 +29,9 @@
   </properties>
 
   <scm>
-    <connection>scm:svn:http://gbif-common-resources.googlecode.com/svn/gbif-common/trunk</connection>
-    <developerConnection>scm:svn:https://gbif-common-resources.googlecode.com/svn/gbif-common/trunk</developerConnection>
-    <url>http://code.google.com/p/gbif-common-resources/source/browse/#svn/gbif-common/trunk</url>
+    <connection>scm:svn:http://gbif-common-resources.googlecode.com/svn/gbif-common/tags/gbif-common-0.4</connection>
+    <developerConnection>scm:svn:https://gbif-common-resources.googlecode.com/svn/gbif-common/tags/gbif-common-0.4</developerConnection>
+    <url>http://code.google.com/p/gbif-common-resources/source/browse/#svn/gbif-common/tags/gbif-common-0.4</url>
   </scm>
 
   <issueManagement>
