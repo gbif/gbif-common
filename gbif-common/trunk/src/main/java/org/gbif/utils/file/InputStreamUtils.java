@@ -1,8 +1,5 @@
 package org.gbif.utils.file;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +7,11 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class InputStreamUtils {
+
   private static Logger log = LoggerFactory.getLogger(InputStreamUtils.class);
 
   public InputStream classpathStream(String path) {
@@ -29,8 +30,9 @@ public class InputStreamUtils {
 
   /**
    * Converts an entire InputStream to a single String with UTF8 as the character encoding.
-   * 
+   *
    * @param source source input stream to convert
+   *
    * @return the string representing the entire input stream
    */
   public String readEntireStream(InputStream source) {
@@ -39,14 +41,15 @@ public class InputStreamUtils {
 
   /**
    * Converts an entire InputStream to a single String with explicitly provided character encoding.
-   * 
+   * <p/>
    * To convert the InputStream to String we use the BufferedReader.readLine()
    * method. We iterate until the BufferedReader return null which means
    * there's no more data to read. Each line will appended to a StringBuilder
    * and returned as String.
-   * 
-   * @param source source input stream to convert
+   *
+   * @param source   source input stream to convert
    * @param encoding the streams character encoding
+   *
    * @return the string representing the entire input stream
    */
   public String readEntireStream(InputStream source, String encoding) {

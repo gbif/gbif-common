@@ -1,6 +1,11 @@
 package org.gbif.utils.collection;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class MapUtils {
 
@@ -14,6 +19,7 @@ public class MapUtils {
    * @param map to sort
    * @param <K> type of the map key
    * @param <V> type of the map value, this needs to implement {@link Comparable}
+   *
    * @return a map ordered by the values of the input map
    */
   public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {

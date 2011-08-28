@@ -4,10 +4,10 @@ import java.util.Comparator;
 
 /**
  * A comparator producing an ANSI C / POSIX collation.
- * This sort order is often used in various unix tools, databases and the one used in the FileUtils.sortInUnix shell environment.
- * 
+ * This sort order is often used in various unix tools, databases and the one used in the FileUtils.sortInUnix shell
+ * environment.
+ *
  * @author markus
- * 
  */
 public class CCollationComparator implements Comparator<String> {
 

@@ -1,11 +1,11 @@
 package org.gbif.utils.file;
 
-import static org.junit.Assert.assertTrue;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.junit.Test;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Testing the data layout

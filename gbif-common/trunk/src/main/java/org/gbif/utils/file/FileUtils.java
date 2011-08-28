@@ -6,12 +6,6 @@ package org.gbif.utils.file;
 import org.gbif.utils.collection.CompactHashSet;
 import org.gbif.utils.text.LineComparator;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -41,6 +35,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Collection of file utils.
  *
@@ -48,6 +48,7 @@ import java.util.regex.Pattern;
  * @author Markus Döring
  */
 public class FileUtils {
+
   public static final Pattern TAB_DELIMITED = Pattern.compile("\t");
   public static final String UTF8 = "UTF8";
   private static Logger log = LoggerFactory.getLogger(FileUtils.class);
@@ -72,13 +73,14 @@ public class FileUtils {
   }
 
   /**
-   * Reads a file and returns a unique set of multiple columns from lines which are no comments (starting with #) and trims whitespace
+   * Reads a file and returns a unique set of multiple columns from lines which are no comments (starting with #) and
+   * trims whitespace
    *
-   * @param source the UTF-8 encoded text file with tab delimited columns
+   * @param source    the UTF-8 encoded text file with tab delimited columns
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
-   * @param column variable length argument of column indices to process
+   * @param column    variable length argument of column indices to process
+   *
    * @return set of column rows
-   * @throws IOException
    */
   public static Set<String> columnsToSet(InputStream source, Set<String> resultSet, int... column) throws IOException {
     LineIterator lines = getLineIterator(source);
@@ -127,8 +129,8 @@ public class FileUtils {
 
   /**
    * @param prefix The prefix string to be used in generating the file's name; must be at least three characters long
-   * @param suffix The suffix string to be used in generating the file's name; may be null, in which case the suffix ".tmp" will be used
-   * @return
+   * @param suffix The suffix string to be used in generating the file's name; may be null, in which case the suffix
+   *               ".tmp" will be used
    */
   public static File createTempDir(String prefix, String suffix) throws IOException {
     File dir = File.createTempFile(prefix, suffix);
@@ -145,16 +147,25 @@ public class FileUtils {
    * escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n
    *
    * @param filename to be escaped
-   * @return
    */
   public static String escapeFilename(String filename) {
     return filename.replaceAll("[\\s./&]", "_");
   }
 
-
+  /**
+   * For the given file's path, returns a proposed new filename (including path) with the extension
+   * index and suffix
+   * So a file of "/tmp/input.txt" -> "/tmp/input_part_10.txt"
+   *
+   * @param input  File
+   * @param suffix E.g. part
+   * @param index  E.g. 10
+   *
+   * @return The proposed name
+   */
   private static File getChunkFile(File original, int index) {
-    return new File(original.getParentFile(), FilenameUtils.getBaseName(original.getName()) + "_" + index
-        + FilenameUtils.getExtension(original.getName()));
+    return new File(original.getParentFile(),
+      FilenameUtils.getBaseName(original.getName()) + "_" + index + FilenameUtils.getExtension(original.getName()));
   }
 
   public static File getClasspathFile(String path) {
@@ -181,17 +192,14 @@ public class FileUtils {
 
   /**
    * @param source the source input stream encoded in UTF8
-   * @return
    */
   public static LineIterator getLineIterator(InputStream source) {
     return getLineIterator(source, UTF8);
   }
 
   /**
-   * @param source the source input stream
+   * @param source   the source input stream
    * @param encoding the encoding used by the input stream
-   * @return
-   * @throws UnsupportedEncodingException
    */
   public static LineIterator getLineIterator(InputStream source, String encoding) {
     try {
@@ -235,8 +243,9 @@ public class FileUtils {
   /**
    * For the given list, finds the index of the lowest value using the given comparator
    *
-   * @param values To compare
+   * @param values     To compare
    * @param comparator To use
+   *
    * @return The index of the lowest value, or -1 if they are all null
    */
   static int lowestValueIndex(List<String> values, Comparator<String> comparator) {
@@ -265,10 +274,6 @@ public class FileUtils {
 
   /**
    * Reads a complete file into a byte buffer
-   *
-   * @param file
-   * @return
-   * @throws IOException
    */
   public static ByteBuffer readByteBuffer(File file) throws IOException {
     byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(file);
@@ -279,10 +284,7 @@ public class FileUtils {
   /**
    * Reads the first bytes of a file into a byte buffer
    *
-   * @param file
    * @param bufferSize the number of bytes to read from the file
-   * @return
-   * @throws IOException
    */
   public static ByteBuffer readByteBuffer(File file, int bufferSize) throws IOException {
     ByteBuffer bbuf = ByteBuffer.allocate(bufferSize);
@@ -302,9 +304,10 @@ public class FileUtils {
 
   /**
    * @param linesPerMemorySort are the number of lines that should be sorted in memory, determining the number of file
-   *        segments to be sorted when doing a java file sort. Defaults to 100000, if you have memory available a higher
-   *        value increases
-   *        performance.
+   *                           segments to be sorted when doing a java file sort. Defaults to 100000, if you have memory
+   *                           available a higher
+   *                           value increases
+   *                           performance.
    */
   public static void setLinesPerMemorySort(int linesPerMemorySort) {
     FileUtils.linesPerMemorySort = linesPerMemorySort;
@@ -326,9 +329,7 @@ public class FileUtils {
   /**
    * Takes a utf8 encoded input stream and reads in every line/row into a list
    *
-   * @param source
    * @return list of rows
-   * @throws IOException
    */
   public static LinkedList<String> streamToList(InputStream source) throws IOException {
     return streamToList(source, "UTF-8");
@@ -337,10 +338,10 @@ public class FileUtils {
   /**
    * Reads a file and returns a list of all lines which are no comments (starting with #) and trims whitespace
    *
-   * @param source the UTF-8 encoded text file to read
+   * @param source     the UTF-8 encoded text file to read
    * @param resultList the list implementation to be used. Will not be cleared before reading!
+   *
    * @return list of lines
-   * @throws IOException
    */
   public static List<String> streamToList(InputStream source, List<String> resultList) throws IOException {
     LineIterator lines = getLineIterator(source);
@@ -370,26 +371,22 @@ public class FileUtils {
 
   /**
    * Reads a utf8 encoded inut stream, splits
-   *
-   * @param source
-   * @return
-   * @throws IOException
    */
   public static Map<String, String> streamToMap(InputStream source) throws IOException {
     return streamToMap(source, new HashMap<String, String>());
   }
 
-  public static Map<String, String> streamToMap(InputStream source, int key, int value, boolean trimToNull) throws IOException {
+  public static Map<String, String> streamToMap(InputStream source, int key, int value, boolean trimToNull)
+    throws IOException {
     return streamToMap(source, new HashMap<String, String>(), key, value, trimToNull);
   }
 
   /**
-   * Read a hashmap from a tab delimited utf8 input stream using the row number as an integer value and the entire row as the value
+   * Read a hashmap from a tab delimited utf8 input stream using the row number as an integer value and the entire row
+   * as the value
    * Ignores commented rows starting with #
    *
    * @param source tab delimited text file to read
-   * @return
-   * @throws IOException
    */
   public static Map<String, String> streamToMap(InputStream source, Map<String, String> result) throws IOException {
     LineIterator lines = getLineIterator(source);
@@ -408,15 +405,13 @@ public class FileUtils {
   /**
    * Read a hashmap from a tab delimited utf8 file, ignoring commented rows starting with #
    *
-   * @param source tab delimited input stream to read
-   * @param key column number to use as key
-   * @param value column number to use as value
+   * @param source     tab delimited input stream to read
+   * @param key        column number to use as key
+   * @param value      column number to use as value
    * @param trimToNull if true trims map entries to null
-   *
-   * @return
-   * @throws IOException
    */
-  public static Map<String, String> streamToMap(InputStream source, Map<String, String> result, int key, int value, boolean trimToNull) throws IOException {
+  public static Map<String, String> streamToMap(InputStream source, Map<String, String> result, int key, int value,
+    boolean trimToNull) throws IOException {
     LineIterator lines = getLineIterator(source);
     int maxCols = key > value ? key : value + 1;
     while (lines.hasNext()) {
@@ -443,10 +438,10 @@ public class FileUtils {
   /**
    * Reads a file and returns a unique set of all lines which are no comments (starting with #) and trims whitespace
    *
-   * @param source the UTF-8 encoded text file to read
+   * @param source    the UTF-8 encoded text file to read
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
+   *
    * @return set of unique lines
-   * @throws IOException
    */
   public static Set<String> streamToSet(InputStream source, Set<String> resultSet) throws IOException {
     LineIterator lines = getLineIterator(source);
@@ -461,7 +456,8 @@ public class FileUtils {
   }
 
   public static String toFilePath(URL url) {
-    String protocol = url.getProtocol() == null || url.getProtocol().equalsIgnoreCase("http") ? "" : "/__" + url.getProtocol() + "__";
+    String protocol =
+      url.getProtocol() == null || url.getProtocol().equalsIgnoreCase("http") ? "" : "/__" + url.getProtocol() + "__";
     String domain = url.getAuthority() == null ? "__domainless" : url.getAuthority();
     return domain + protocol + url.getFile();
   }
@@ -483,13 +479,13 @@ public class FileUtils {
   /**
    * Merges the sorted files
    *
-   * @param sortFiles To merge
+   * @param sortFiles        To merge
    * @param sortedFileWriter writer to merge to. Can already be open and contain data
-   * @param lineComparator To use when determining the order (reuse the one that was used to sort the individual files)
-   * @throws IOException
+   * @param lineComparator   To use when determining the order (reuse the one that was used to sort the individual
+   *                         files)
    */
   public void mergedSortedFiles(List<File> sortFiles, FileWriter sortedFileWriter, Comparator<String> lineComparator)
-      throws IOException {
+    throws IOException {
     List<BufferedReader> partReaders = new LinkedList<BufferedReader>();
     try {
       List<String> partReaderLine = new LinkedList<String>();
@@ -537,19 +533,19 @@ public class FileUtils {
 
   /**
    * Sorts the input file into the output file using the supplied delimited line parameters.
-   * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified column.
+   * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified
+   * column.
    *
-   * @param input To sort
-   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
-   * @param column the column that keeps the values to sort on
-   * @param columnDelimiter the delimiter that seperates columns in a row
-   * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
-   * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
+   * @param input             To sort
+   * @param sorted            The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param column            the column that keeps the values to sort on
+   * @param columnDelimiter   the delimiter that seperates columns in a row
+   * @param enclosedBy        optional column enclosing character, e.g. a double quote for CSVs
+   * @param newlineDelimiter  the chars used for new lines, usually \n, \n\r or \r
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
-   * @throws IOException
    */
   public void sort(File input, File sorted, String encoding, int column, String columnDelimiter, Character enclosedBy,
-      String newlineDelimiter, int ignoreHeaderLines) throws IOException {
+    String newlineDelimiter, int ignoreHeaderLines) throws IOException {
     log.debug("sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
     if (encoding == null) {
       log.warn("No encoding specified, assume UTF-8");
@@ -572,20 +568,22 @@ public class FileUtils {
   /**
    * Sorts the lines and writes to file using the
    *
-   * @param input File to base the name on
-   * @param encoding charset encoding of input file
+   * @param input          File to base the name on
+   * @param suffix         to use as the extension for the intermediate chunk files
    * @param lineComparator To compare the lines for sorting
-   * @param fileCount Used for the file name
-   * @param linesToSort To actually sort
+   * @param fileCount      Used for the file name
+   * @param linesToSort    To actually sort
+   *
    * @return The written file
-   * @throws IOException
    */
-  private File sortAndWrite(File input, String encoding, Comparator<String> lineComparator, int fileCount, List<String> linesToSort)
-      throws IOException {
+  private File sortAndWrite(File input, String encoding, Comparator<String> lineComparator, int fileCount,
+    List<String> linesToSort) throws IOException {
     long start = System.currentTimeMillis();
     Collections.sort(linesToSort, lineComparator);
     // When implementing a comparator, make it SUPER quick!!!
-    log.debug("Collections.sort took msec[" + (System.currentTimeMillis() - start) + "] to sort records[" + linesToSort.size() + "]");
+    log.debug(
+      "Collections.sort took msec[" + (System.currentTimeMillis() - start) + "] to sort records[" + linesToSort.size()
+      + "]");
     File sortFile = FileUtils.getChunkFile(input, fileCount);
     Writer fw = new OutputStreamWriter(new FileOutputStream(sortFile), encoding);
     try {
@@ -602,14 +600,15 @@ public class FileUtils {
   /**
    * Sorts the input file into the output file using the supplied lineComparator
    *
-   * @param input To sort
-   * @param encoding charset encoding of input file
-   * @param lineComparator To use during comparison
-   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
-   * @throws IOException
+   * @param input              To sort
+   * @param output             The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param linesPerMemorySort number of lines that will be written in memory before flushed to disk
+   * @param extension          Of the temporary files (suggest "sort")
+   * @param lineComparator     To use during comparison
+   * @param ignoreHeaderLines  number of beginning lines to ignore, e.g. headers
    */
-  public void sortInJava(File input, File sorted, String encoding, Comparator<String> lineComparator, int ignoreHeaderLines)
-      throws IOException {
+  public void sortInJava(File input, File sorted, String encoding, Comparator<String> lineComparator,
+    int ignoreHeaderLines) throws IOException {
     log.debug("Sorting File[" + input.getAbsolutePath() + "]");
     long start = System.currentTimeMillis();
     List<File> sortFiles = new LinkedList<File>();
@@ -646,7 +645,8 @@ public class FileUtils {
     } finally {
       br.close();
     }
-    log.debug(sortFiles.size() + " sorted file chunks created in " + (System.currentTimeMillis() - start) / 1000 + " secs");
+    log.debug(
+      sortFiles.size() + " sorted file chunks created in " + (System.currentTimeMillis() - start) / 1000 + " secs");
 
     // now merge the sorted files into one single sorted file
     FileWriter sortedFileWriter = new FileWriter(sorted);
@@ -657,21 +657,22 @@ public class FileUtils {
     }
     mergedSortedFiles(sortFiles, sortedFileWriter, lineComparator);
 
-    log.debug("File " + input.getAbsolutePath() + " sorted successfully using " + sortFiles.size()
-        + " parts to do sorting in " + (System.currentTimeMillis() - start) / 1000 + " secs");
+    log.debug(
+      "File " + input.getAbsolutePath() + " sorted successfully using " + sortFiles.size() + " parts to do sorting in "
+      + (System.currentTimeMillis() - start) / 1000 + " secs");
   }
 
   /**
    * sort a text file via an external unix sort command:
    * sorting tabs at 3rd column, numerical reverse order
    * sort -t$'\t' -k3 -o sorted.txt col2007.txt
-   *
+   * <p/>
    * The unix based sorting is extremely efficient and much, much faster than the current sortInJava method.
    * It is locale aware though and we only want the native C sorting locale.
    * See http://www.gnu.org/software/coreutils/faq/coreutils-faq.html#Sort-does-not-sort-in-normal-order_0021
-   *
+   * <p/>
    * Example C sort oder:
-   *
+   * <p/>
    * 1 oOdontoceti
    * 10 gGlobicephala melaena melaena Traill
    * 100 gGlobicephala melaena melaena Traill
@@ -691,19 +692,9 @@ public class FileUtils {
    * anarnak Lacépède
    * balaena mangidach Chamisso
    * ånarnak Lacépède
-   *
-   *
-   *
-   * @param input
-   * @param sorted
-   * @param column
-   * @param columnDelimiter
-   * @param lineDelimiter
-   * @param ignoreHeaderLines
-   * @throws IOException
    */
-  protected boolean sortInUnix(File input, File sorted, String encoding, int ignoreHeaderLines, int column, String columnDelimiter,
-      String lineDelimiter) throws IOException {
+  protected boolean sortInUnix(File input, File sorted, String encoding, int ignoreHeaderLines, int column,
+    String columnDelimiter, String lineDelimiter) throws IOException {
     boolean success = false;
     String command;
     // disable unix sorting for now - behaves differently on various OSes
@@ -732,8 +723,8 @@ public class FileUtils {
         process.waitFor();
 
         // do the sorting ignoring the header rows
-        command = "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort >> "
-            + sorted.getAbsolutePath();
+        command =
+          "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort >> " + sorted.getAbsolutePath();
       } else {
         // do sorting directly, we dont have header rows
         command = "sort -o " + sorted.getAbsolutePath() + " " + input.getAbsolutePath();
@@ -763,11 +754,11 @@ public class FileUtils {
   /**
    * Splits the supplied file into files of set line size and with a suffix
    *
-   * @param input To split up
+   * @param input          To split up
    * @param linesPerOutput Lines per split file
-   * @param extension The file extension to use - e.g. ".txt"
+   * @param extension      The file extension to use - e.g. ".txt"
+   *
    * @return The split files
-   * @throws IOException
    */
   public List<File> split(File input, int linesPerOutput, String extension) throws IOException {
     log.debug("Splitting File[" + input.getAbsolutePath() + "]");
@@ -803,7 +794,7 @@ public class FileUtils {
       fw.close();
     }
     log.debug("File[" + input.getAbsolutePath() + "] split successfully into[" + splitFiles.size() + "] parts in secs["
-        + (1 + System.currentTimeMillis() - timer) / 1000 + "]");
+              + (1 + System.currentTimeMillis() - timer) / 1000 + "]");
     return splitFiles;
   }
 

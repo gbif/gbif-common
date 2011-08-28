@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class HashSetPerformance {
+
   private static final int TIMES = 100000;
   private static final int MAX = 500000;
 
@@ -32,8 +33,7 @@ public class HashSetPerformance {
       System.gc();
       System.gc();
     }
-    long before = Runtime.getRuntime().totalMemory() -
-        Runtime.getRuntime().freeMemory();
+    long before = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
     // add
     for (int ix = 0; ix < TIMES; ix++) {
@@ -43,8 +43,7 @@ public class HashSetPerformance {
     if (output) {
       System.gc();
       System.gc();
-      long after = Runtime.getRuntime().totalMemory() -
-          Runtime.getRuntime().freeMemory();
+      long after = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
       System.out.println("Memory before: " + before);
       System.out.println("Memory after: " + after);
       System.out.println("Memory usage: " + (after - before));

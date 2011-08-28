@@ -13,22 +13,23 @@
 
 package org.gbif.utils.file;
 
-import static org.junit.Assert.assertEquals;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import org.junit.Test;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author markus
  */
 public class BomSafeInputStreamWrapperTest {
+
   @Test
   public void testOpenArchive() throws Exception {
     // test no bom
-    InputStream in = new BomSafeInputStreamWrapper(new FileInputStream(
-        FileUtils.getClasspathFile("charsets/utf-8_names.txt")));
+    InputStream in =
+      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-8_names.txt")));
     int x = in.read();
     int y = in.read();
     int z = in.read();
@@ -55,8 +56,8 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(0, y);
     assertEquals(35, z);
 
-    in = new BomSafeInputStreamWrapper(new FileInputStream(
-        FileUtils.getClasspathFile("charsets/utf-16LE_bom_names.txt")));
+    in =
+      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-16LE_bom_names.txt")));
     x = in.read();
     y = in.read();
     z = in.read();
@@ -65,8 +66,8 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(0, y);
     assertEquals(35, z);
 
-    in = new BomSafeInputStreamWrapper(new FileInputStream(
-        FileUtils.getClasspathFile("charsets/utf-16BE_bom_names.txt")));
+    in =
+      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-16BE_bom_names.txt")));
     x = in.read();
     y = in.read();
     z = in.read();
@@ -75,8 +76,8 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(35, y);
     assertEquals(0, z);
 
-    in = new BomSafeInputStreamWrapper(new FileInputStream(
-        FileUtils.getClasspathFile("charsets/utf-16BE_bom_names.txt")));
+    in =
+      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-16BE_bom_names.txt")));
     x = in.read();
     y = in.read();
     z = in.read();

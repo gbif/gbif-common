@@ -4,9 +4,8 @@ import java.util.Comparator;
 
 /**
  * A comparator based around Javas String.compareTo()
- * 
+ *
  * @author markus
- * 
  */
 public class StringComparator implements Comparator<String> {
 

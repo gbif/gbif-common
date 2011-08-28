@@ -9,18 +9,18 @@ import java.util.NoSuchElementException;
 /**
  * A HashSet implementation taken from Ontopia
  * which is both faster and more compact than java.util.HashSet
- *
- *      INTERNAL: Implements the Set interface more compactly than
- *      java.util.HashSet by using a closed hashtable.
+ * <p/>
+ * INTERNAL: Implements the Set interface more compactly than
+ * java.util.HashSet by using a closed hashtable.
  *
  * @see <a href="http://ontopia.wordpress.com/2009/09/23/a-faster-and-more-compact-set/">Ontopia blog</a>
- * @see <a href="http://code.google.com/p/ontopia/source/browse/trunk/ontopia/src/java/net/ontopia/utils/">Ontopia source</a>
-
- *
+ * @see <a href="http://code.google.com/p/ontopia/source/browse/trunk/ontopia/src/java/net/ontopia/utils/">Ontopia
+ *      source</a>
  */
 public class CompactHashSet<T> extends AbstractSet<T> {
 
   private class CompactHashIterator implements Iterator<T> {
+
     private int index;
     private int lastReturned = -1;
 
@@ -32,9 +32,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     private int expectedModCount;
 
     public CompactHashIterator() {
-      for (index = 0; index < objects.length &&
-                      (objects[index] == null ||
-                       objects[index] == deletedObject); index++) {
+      for (index = 0; index < objects.length && (objects[index] == null || objects[index] == deletedObject); index++) {
         ;
       }
       expectedModCount = modCount;
@@ -55,9 +53,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
       }
 
       lastReturned = index;
-      for (index += 1; index < length &&
-                       (objects[index] == null ||
-                        objects[index] == deletedObject); index++) {
+      for (index += 1; index < length && (objects[index] == null || objects[index] == deletedObject); index++) {
         ;
       }
       if (objects[lastReturned] == nullObject) {
@@ -144,6 +140,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
    * present.
    *
    * @param x element to be added to this set.
+   *
    * @return <tt>true</tt> if the set did not already contain the specified
    *         element.
    */
@@ -160,9 +157,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     int deletedix = -1;
 
     // search for the object (continue while !null and !this object)
-    while (objects[index] != null &&
-          !(objects[index].hashCode() == hash &&
-            objects[index].equals(o))) {
+    while (objects[index] != null && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
 
       // if there's a deleted object here we can put this object here,
       // provided it's not in here somewhere else already
@@ -220,6 +215,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
    * Returns <tt>true</tt> if this set contains the specified element.
    *
    * @param o element whose presence in this set is to be tested.
+   *
    * @return <tt>true</tt> if this set contains the specified element.
    */
   @Override
@@ -233,9 +229,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     int offset = 1;
 
     // search for the object (continue while !null and !this object)
-    while (objects[index] != null &&
-          !(objects[index].hashCode() == hash &&
-            objects[index].equals(o))) {
+    while (objects[index] != null && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
       index = ((index + offset) & 0x7FFFFFFF) % objects.length;
       offset = offset * 2 + 1;
 
@@ -273,6 +267,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
    * are returned in no particular order.
    *
    * @return an Iterator over the elements in this set.
+   *
    * @see ConcurrentModificationException
    */
   @Override
@@ -328,9 +323,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     int offset = 1;
 
     // search for the object (continue while !null and !this object)
-    while (objects[index] != null &&
-          !(objects[index].hashCode() == hash &&
-            objects[index].equals(o))) {
+    while (objects[index] != null && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
       index = ((index + offset) & 0x7FFFFFFF) % objects.length;
       offset = offset * 2 + 1;
 
@@ -385,8 +378,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
   public Object[] toArray(Object a[]) {
     int size = elements;
     if (a.length < size) {
-      a = (Object[]) java.lang.reflect.Array.newInstance(
-                                 a.getClass().getComponentType(), size);
+      a = (Object[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
     }
     Object[] objects = this.objects;
     int pos = 0;

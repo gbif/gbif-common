@@ -16,22 +16,22 @@
 
 package org.gbif.utils.file;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 /**
  * @author markus
- *
  */
 public class CompressionUtilTest {
+
   public static File createTempDirectory() throws IOException {
 
     final File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));

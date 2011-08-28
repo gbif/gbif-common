@@ -1,12 +1,12 @@
 /***************************************************************************
  * Copyright 2010 Global Biodiversity Information Facility Secretariat
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -18,8 +18,6 @@ package org.gbif.utils.text;
 
 import org.gbif.utils.file.FileUtils;
 
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,19 +27,21 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Test;
+
 /**
  * @author markus
- * 
  */
 public class ComparatorPerformance {
+
   private final String ENCODING = "UTF-8";
 
   /**
    * Comparing performance for various file soring methods.
-   * 
+   * <p/>
    * Executed on a MacPro with 9GB, 8-core 3GHz and 1TB disk
    * sorting a 207MB large text file made from concatenation of irmng.tail:
-   * 
+   * <p/>
    * Sorting with unix sort took 5817 ms
    * Sorting with org.gbif.utils.text.StringComparator and 10k lines in memory (200 parts) took 48968 ms
    * Sorting with org.gbif.utils.text.CCollationComparator and 10k lines in memory (200 parts) took 49858 ms
@@ -49,7 +49,6 @@ public class ComparatorPerformance {
    * Sorting with org.gbif.utils.text.CCollationComparator and 100k lines in memory (20 parts) took 14046 ms
    * Sorting with org.gbif.utils.text.StringComparator and 1000k lines in memory (2 parts) took 15492 ms
    * Sorting with org.gbif.utils.text.CCollationComparator and 1000k lines in memory (2 parts) took 14317 ms
-   * 
    */
 
   @Test
@@ -80,7 +79,8 @@ public class ComparatorPerformance {
         futils.sortInJava(source, sorted, ENCODING, comp, 0);
         end = System.currentTimeMillis();
 
-        System.out.println(String.format("Sorting with %s and %s lines in memory took %s ms", cl.getName(), linesInMen, (end - start)));
+        System.out.println(
+          String.format("Sorting with %s and %s lines in memory took %s ms", cl.getName(), linesInMen, (end - start)));
       }
     }
   }

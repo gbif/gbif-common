@@ -1,12 +1,5 @@
 package org.gbif.utils.file;
 
-import static org.gbif.utils.file.FileUtils.readByteBuffer;
-
-import com.google.common.base.Charsets;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,32 +8,40 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+import com.google.common.base.Charsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.gbif.utils.file.FileUtils.readByteBuffer;
+
 /**
  * <p>
- * Utility class to guess the encoding of a given file or byte array. The guess is unfortunately not 100% sure. Especially for 8-bit charsets. It's not possible
+ * Utility class to guess the encoding of a given file or byte array. The guess is unfortunately not 100% sure.
+ * Especially for 8-bit charsets. It's not possible
  * to know which 8-bit charset is used. Except through statistical analysis.
  * </p>
- * 
+ * <p/>
  * <p>
- * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are easy to find. For UTF-8 files with no BOM,
+ * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are
+ * easy to find. For UTF-8 files with no BOM,
  * if the buffer is wide enough, it's easy to guess.
  * </p>
- * 
+ * <p/>
  * <p>
  * A byte buffer of 4KB or 8KB is sufficient to be able to guess the encoding.
  * </p>
- * 
+ * <p/>
  * This class is a heavily modified version of the original written by Guillaume LAFORGE:
  * com.glaforge.i18n.io.CharsetToolkit
- * 
+ * <p/>
  * taken from
  * http://glaforge.free.fr/wiki/index.php?wiki=GuessEncoding
- * 
+ *
  * @author Guillaume LAFORGE
  * @author Markus Döring
- * 
  */
 public class CharsetDetection {
+
   private static Logger log = LoggerFactory.getLogger(CharsetDetection.class);
   // encodings to test and very unlikely chars in that encoding
   private static final byte LF = 0x0a;
@@ -49,6 +50,7 @@ public class CharsetDetection {
 
   private static final int UNDEFINED_PENALTY = 100;
   private static final char[] COMMON_NON_ASCII_CHARS;
+
   static {
     String commonChars = "äåáàæœčéèêëïñøöüßšž";
     CharBuffer cbuf = CharBuffer.allocate(commonChars.length() * 2);
@@ -62,6 +64,7 @@ public class CharsetDetection {
   private static final Charset LATIN1 = Charsets.ISO_8859_1;
   private static final Charset WINDOWS1252;
   private static final Charset MACROMAN;
+
   static {
     Charset cs = null;
     try {
@@ -84,7 +87,7 @@ public class CharsetDetection {
 
   /**
    * Constructor of the <code>com.glaforge.i18n.io.CharsetToolkit</code> utility class.
-   * 
+   *
    * @param buffer the byte buffer of which we want to know the encoding.
    */
   private CharsetDetection(byte[] buffer) {
@@ -102,10 +105,7 @@ public class CharsetDetection {
   }
 
   /**
-   * @param file
    * @param bufferLength number of bytes to read in for the detection. 8192 is a reasonable value
-   * @return
-   * @throws IOException
    */
   public static Charset detectEncoding(File file, int bufferLength) throws IOException {
     byte[] data = readByteBuffer(file, bufferLength).array();
@@ -119,7 +119,7 @@ public class CharsetDetection {
 
   /**
    * Retrieve the default charset of the system.
-   * 
+   *
    * @return the default <code>Charset</code>.
    */
   public static Charset getDefaultSystemCharset() {
@@ -129,8 +129,9 @@ public class CharsetDetection {
   /**
    * Has a Byte Order Marker for UTF-16 Big Endian
    * (utf-16 and ucs-2).
-   * 
+   *
    * @param bom a buffer.
+   *
    * @return true if the buffer has a BOM for UTF-16 Big Endian.
    */
   protected static boolean hasUTF16BEBom(byte[] bom) {
@@ -140,8 +141,9 @@ public class CharsetDetection {
   /**
    * Has a Byte Order Marker for UTF-16 Low Endian
    * (ucs-2le, ucs-4le, and ucs-16le).
-   * 
+   *
    * @param bom a buffer.
+   *
    * @return true if the buffer has a BOM for UTF-16 Low Endian.
    */
   protected static boolean hasUTF16LEBom(byte[] bom) {
@@ -150,8 +152,9 @@ public class CharsetDetection {
 
   /**
    * Has a Byte Order Marker for UTF-8 (Used by Microsoft's Notepad and other editors).
-   * 
+   *
    * @param bom a buffer.
+   *
    * @return true if the buffer has a BOM for UTF8.
    */
   protected static boolean hasUTF8Bom(byte[] bom) {
@@ -169,8 +172,9 @@ public class CharsetDetection {
 
   /**
    * If the byte has the form 10xxxxx, then it's a continuation byte of a multiple byte character;
-   * 
+   *
    * @param b a byte.
+   *
    * @return true if it's a continuation char.
    */
   private static boolean isContinuationChar(byte b) {
@@ -179,8 +183,9 @@ public class CharsetDetection {
 
   /**
    * If the byte has the form 11110xx, then it's the first byte of a five-bytes sequence character.
-   * 
+   *
    * @param b a byte.
+   *
    * @return true if it's the first byte of a five-bytes sequence.
    */
   private static boolean isFiveBytesSequence(byte b) {
@@ -189,8 +194,9 @@ public class CharsetDetection {
 
   /**
    * If the byte has the form 11110xx, then it's the first byte of a four-bytes sequence character.
-   * 
+   *
    * @param b a byte.
+   *
    * @return true if it's the first byte of a four-bytes sequence.
    */
   private static boolean isFourBytesSequence(byte b) {
@@ -199,8 +205,9 @@ public class CharsetDetection {
 
   /**
    * If the byte has the form 1110xxx, then it's the first byte of a six-bytes sequence character.
-   * 
+   *
    * @param b a byte.
+   *
    * @return true if it's the first byte of a six-bytes sequence.
    */
   private static boolean isSixBytesSequence(byte b) {
@@ -209,8 +216,9 @@ public class CharsetDetection {
 
   /**
    * If the byte has the form 1110xxx, then it's the first byte of a three-bytes sequence character.
-   * 
+   *
    * @param b a byte.
+   *
    * @return true if it's the first byte of a three-bytes sequence.
    */
   private static boolean isThreeBytesSequence(byte b) {
@@ -219,8 +227,9 @@ public class CharsetDetection {
 
   /**
    * If the byte has the form 110xxxx, then it's the first byte of a two-bytes sequence character.
-   * 
+   *
    * @param b a byte.
+   *
    * @return true if it's the first byte of a two-bytes sequence.
    */
   private static boolean isTwoBytesSequence(byte b) {
@@ -264,16 +273,17 @@ public class CharsetDetection {
    * If Byte Order Markers are encountered at the beginning of the buffer, we immidiately
    * return the charset implied by this BOM. Otherwise, the file would not be a human
    * readable text file.</p>
-   * 
+   * <p/>
    * <p>
-   * If there is no BOM, this method tries to discern whether the file is UTF-8 or not. If it is not UTF-8, we assume the encoding is the default system
+   * If there is no BOM, this method tries to discern whether the file is UTF-8 or not. If it is not UTF-8, we assume
+   * the encoding is the default system
    * encoding (of course, it might be any 8-bit charset, but usually, an 8-bit charset is the default one).
    * </p>
-   * 
+   * <p/>
    * <p>
    * It is possible to discern UTF-8 thanks to the pattern of characters with a multi-byte sequence.
    * </p>
-   * 
+   * <p/>
    * <pre>
    * UCS-4 range (hex.)        UTF-8 octet sequence (binary)
    * 0000 0000-0000 007F       0xxxxxxx
@@ -286,7 +296,7 @@ public class CharsetDetection {
    * <p>
    * With UTF-8, 0xFE and 0xFF never appear.
    * </p>
-   * 
+   *
    * @return the Charset recognized or the system default.
    */
   public Charset detectEncoding() {
@@ -369,7 +379,8 @@ public class CharsetDetection {
         else if (isSixBytesSequence(b0)) {
           // there must be five continuation bytes of the form 10xxxxxx,
           // otherwise the following characteris is not a valid UTF-8 construct
-          if (!(isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4) && isContinuationChar(b5))) {
+          if (!(isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)
+                && isContinuationChar(b5))) {
             validU8Char = false;
           } else {
             i += 5;

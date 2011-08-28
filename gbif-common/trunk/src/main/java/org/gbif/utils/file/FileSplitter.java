@@ -1,10 +1,7 @@
 /**
- * 
+ *
  */
 package org.gbif.utils.file;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,17 +12,21 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A utility to split files into chucks
  * This is done on file size, but then extended to read to the end of the current line.
  * Therefore a chunksize of 32meg will result in a split files of slightly more (assuming lines are
  * not very long).
- * 
+ * <p/>
  * This is done using NIO libraries for high performance
- * 
+ *
  * @author tim
  */
 public class FileSplitter {
+
   protected static Logger log = LoggerFactory.getLogger(FileSplitter.class);
   public static final String SEPERATOR = "_";
   public static final int READ_AHEAD_BYTES = 256;
@@ -68,7 +69,7 @@ public class FileSplitter {
    * Returns the files parts
    */
   public static List<File> split(File from, File targetDirectory, String suffix, long chunkSizeBytes)
-      throws IOException {
+    throws IOException {
     List<File> files = new ArrayList<File>();
     FileInputStream fis = new FileInputStream(from);
     FileChannel fcin = fis.getChannel();

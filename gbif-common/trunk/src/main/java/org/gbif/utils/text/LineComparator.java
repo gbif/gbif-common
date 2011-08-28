@@ -1,19 +1,19 @@
 package org.gbif.utils.text;
 
-import org.apache.commons.lang.text.StrTokenizer;
-
 import java.util.Comparator;
+
+import org.apache.commons.lang.text.StrTokenizer;
 
 /**
  * A comparator for delimited lines that compares the content of a given column number for all rows.
  * This allows to sort for example tab delimited files by any column and not only the first one.
- * 
+ * <p/>
  * If no explicit comparator is given a string comparison is done for the actual column content.
- * 
+ *
  * @author markus
- * 
  */
 public class LineComparator implements Comparator<String> {
+
   private final StrTokenizer tokenizer;
   private int column;
   private final Comparator<String> comp;
