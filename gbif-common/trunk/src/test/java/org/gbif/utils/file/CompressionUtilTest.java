@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -109,4 +110,24 @@ public class CompressionUtilTest {
     result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
     assertEquals(3, result.size());
   }
+
+  @Test
+  public void testGunzipWithTar() throws IOException {
+    File tmpDir = createTempDirectory();
+    FileUtils.cleanDirectory(tmpDir);
+    File testArchiveFile = classpathFile("compression/archive-tgz.dat");
+    List<File> result = CompressionUtil.ungzipFile(tmpDir, testArchiveFile, true);
+    assertEquals(2, result.size());
+  }
+
+  @Test
+  public void testGunzipNoTar() throws IOException {
+    File tmpDir = createTempDirectory();
+    FileUtils.cleanDirectory(tmpDir);
+    File testArchiveFile = classpathFile("compression/test.txt.gz");
+    List<File> result = CompressionUtil.ungzipFile(tmpDir, testArchiveFile, false);
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).getName().equals("test.txt"));
+  }
+
 }

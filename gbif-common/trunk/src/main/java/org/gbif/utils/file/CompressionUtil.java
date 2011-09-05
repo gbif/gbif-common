@@ -149,7 +149,54 @@ public class CompressionUtil {
   }
 
   /**
+   * Gunzip a file.  Use this method with isTarred false if the gzip contains a single file.  If it's a gzip
+   * of a tar archive pass true to isTarred (or call @ungzipFile(directory, zipFile) which is what this method
+   * just redirects to for isTarred).
+   *
+   * @param directory the output directory for the uncompressed file(s)
+   * @param zipFile   the gzip file
+   * @param isTarred  true if the gzip contains a tar archive
+   *
+   * @return a List of the uncompressed file name(s)
+   *
+   * @throws IOException if reading or writing fails
+   */
+  public static List<File> ungzipFile(File directory, File zipFile, boolean isTarred) throws IOException {
+    if (isTarred) return ungzipFile(directory, zipFile);
+
+    List<File> files = new ArrayList<File>();
+    GZIPInputStream in = null;
+    BufferedOutputStream dest = null;
+    try {
+      in = new GZIPInputStream(new FileInputStream(zipFile));
+
+      // assume that the gzip filename is the filename + .gz
+      String unzippedName = zipFile.getName().substring(0, zipFile.getName().lastIndexOf("."));
+      File outputFile = new File(directory, unzippedName);
+      LOG.debug("Extracting file: {} to: {}", unzippedName, outputFile.getAbsolutePath());
+      FileOutputStream fos = new FileOutputStream(outputFile);
+
+      byte data[] = new byte[BUFFER];
+      dest = new BufferedOutputStream(fos, BUFFER);
+      int count = 0;
+      while ((count = in.read(data, 0, BUFFER)) != -1) {
+        dest.write(data, 0, count);
+      }
+      files.add(outputFile);
+    } finally {
+      if (in != null) in.close();
+      if (dest != null) {
+        dest.flush();
+        dest.close();
+      }
+    }
+
+    return files;
+  }
+
+  /**
    * Extracts a zipped file. Subdirectories or hidden files (i.e. files starting with a dot) are being ignored.
+   * Assumes the file is archived with tar before being gzipped.
    *
    * @param directory where the file should be extracted to
    * @param zipFile   to extract
