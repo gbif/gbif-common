@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class InputStreamUtils {
 
-  private static Logger log = LoggerFactory.getLogger(InputStreamUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InputStreamUtils.class);
 
   public InputStream classpathStream(String path) {
     InputStream in = null;
@@ -22,7 +22,7 @@ public class InputStreamUtils {
       try {
         in = url.openStream();
       } catch (IOException e) {
-        log.warn("Cant open classpath input stream " + path, e);
+        LOG.warn("Cant open classpath input stream " + path, e);
       }
     }
     return in;
@@ -61,18 +61,18 @@ public class InputStreamUtils {
     }
     StringBuilder sb = new StringBuilder();
 
-    String line = null;
     try {
+      String line;
       while ((line = reader.readLine()) != null) {
-        sb.append(line + "\n");
+        sb.append(line).append('\n');
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.warn("Caught exception", e);
     } finally {
       try {
         source.close();
       } catch (IOException e) {
-        e.printStackTrace();
+        LOG.warn("Caught exception", e);
       }
     }
     return sb.toString();

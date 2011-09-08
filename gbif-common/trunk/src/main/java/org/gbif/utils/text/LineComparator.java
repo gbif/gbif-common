@@ -27,13 +27,8 @@ public class LineComparator implements Comparator<String> {
   }
 
   public LineComparator(int column, String columnDelimiter, Character quoteChar, Comparator<String> columnComparator) {
-    super();
     this.column = column;
-    if (columnComparator != null) {
-      this.comp = columnComparator;
-    } else {
-      this.comp = new CCollationComparator();
-    }
+    this.comp = columnComparator != null ? columnComparator : new CCollationComparator();
     tokenizer = new StrTokenizer();
     tokenizer.setEmptyTokenAsNull(true);
     tokenizer.setIgnoreEmptyTokens(false);

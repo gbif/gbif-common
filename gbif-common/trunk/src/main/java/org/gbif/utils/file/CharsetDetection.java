@@ -42,7 +42,7 @@ import static org.gbif.utils.file.FileUtils.readByteBuffer;
  */
 public class CharsetDetection {
 
-  private static Logger log = LoggerFactory.getLogger(CharsetDetection.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CharsetDetection.class);
   // encodings to test and very unlikely chars in that encoding
   private static final byte LF = 0x0a;
   private static final byte CR = 0x0d;
@@ -70,7 +70,7 @@ public class CharsetDetection {
     try {
       cs = Charset.forName("Cp1252");
     } catch (Exception e) {
-      log.warn("Windows 1252 encoding not supported on this Virtual Machine");
+      LOG.warn("Windows 1252 encoding not supported on this Virtual Machine");
     }
     WINDOWS1252 = cs;
 
@@ -78,7 +78,7 @@ public class CharsetDetection {
     try {
       cs = Charset.forName("MacRoman");
     } catch (Exception e) {
-      log.warn("MacRoman encoding not supported on this Virtual Machine");
+      LOG.warn("MacRoman encoding not supported on this Virtual Machine");
     }
     MACROMAN = cs;
   }
@@ -100,7 +100,7 @@ public class CharsetDetection {
     CharsetDetection detector = new CharsetDetection(data);
     Charset charset = detector.detectEncoding();
 
-    log.debug("Detected character encoding " + charset.displayName());
+    LOG.debug("Detected character encoding " + charset.displayName());
     return charset;
   }
 
@@ -113,7 +113,7 @@ public class CharsetDetection {
     CharsetDetection detector = new CharsetDetection(data);
     Charset charset = detector.detectEncoding();
 
-    log.debug("Detected character encoding " + charset.displayName());
+    LOG.debug("Detected character encoding " + charset.displayName());
     return charset;
   }
 
@@ -262,7 +262,7 @@ public class CharsetDetection {
       }
     }
 
-    log.debug("8bit Encoding guessed: " + bestEncoding + " with " + leastSuspicousChars + " rare characters");
+    LOG.debug("8bit Encoding guessed: " + bestEncoding + " with " + leastSuspicousChars + " rare characters");
     return bestEncoding;
   }
 
@@ -339,51 +339,51 @@ public class CharsetDetection {
         if (isTwoBytesSequence(b0)) {
           // there must be one continuation byte of the form 10xxxxxx,
           // otherwise the following characteris is not a valid UTF-8 construct
-          if (!isContinuationChar(b1)) {
-            validU8Char = false;
-          } else {
+          if (isContinuationChar(b1)) {
             i++;
+          } else {
+            validU8Char = false;
           }
         }
         // a three-bytes sequence was encoutered
         else if (isThreeBytesSequence(b0)) {
           // there must be two continuation bytes of the form 10xxxxxx,
           // otherwise the following characteris is not a valid UTF-8 construct
-          if (!(isContinuationChar(b1) && isContinuationChar(b2))) {
-            validU8Char = false;
-          } else {
+          if (isContinuationChar(b1) && isContinuationChar(b2)) {
             i += 2;
+          } else {
+            validU8Char = false;
           }
         }
         // a four-bytes sequence was encoutered
         else if (isFourBytesSequence(b0)) {
           // there must be three continuation bytes of the form 10xxxxxx,
           // otherwise the following characteris is not a valid UTF-8 construct
-          if (!(isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3))) {
-            validU8Char = false;
-          } else {
+          if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3)) {
             i += 3;
+          } else {
+            validU8Char = false;
           }
         }
         // a five-bytes sequence was encoutered
         else if (isFiveBytesSequence(b0)) {
           // there must be four continuation bytes of the form 10xxxxxx,
           // otherwise the following characteris is not a valid UTF-8 construct
-          if (!(isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4))) {
-            validU8Char = false;
-          } else {
+          if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)) {
             i += 4;
+          } else {
+            validU8Char = false;
           }
         }
         // a six-bytes sequence was encoutered
         else if (isSixBytesSequence(b0)) {
           // there must be five continuation bytes of the form 10xxxxxx,
           // otherwise the following characteris is not a valid UTF-8 construct
-          if (!(isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)
-                && isContinuationChar(b5))) {
-            validU8Char = false;
-          } else {
+          if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)
+              && isContinuationChar(b5)) {
             i += 5;
+          } else {
+            validU8Char = false;
           }
         } else {
           validU8Char = false;
@@ -406,7 +406,6 @@ public class CharsetDetection {
   }
 
   private Charset detectUtf16() {
-    Charset charset = null;
 
     // first try to see if we got a little or big endian, i.e. lots of zeros as the first byte or second byte if we deal
     // with latin characters at least
@@ -431,13 +430,10 @@ public class CharsetDetection {
     }
 
     // a UTF16 encoding with many latin characters would have either lots of even or uneven bytes as zero - but not both
-    int min = (buffer.length / 10);
+    int min = buffer.length / 10;
     if ((zerosBE > min || zerosLE > min) && Math.abs(zerosBE - zerosLE) > min) {
-      if (zerosBE > zerosLE) {
-        charset = Charsets.UTF_16BE;
-      } else {
-        charset = Charsets.UTF_16LE;
-      }
+      Charset charset = null;
+      charset = zerosBE > zerosLE ? Charsets.UTF_16BE : Charsets.UTF_16LE;
 
       // now try to decode the whole lot just to make sure
       try {

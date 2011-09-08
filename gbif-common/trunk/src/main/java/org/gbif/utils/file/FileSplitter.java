@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
  */
 public class FileSplitter {
 
-  protected static Logger log = LoggerFactory.getLogger(FileSplitter.class);
-  public static final String SEPERATOR = "_";
+  private static final Logger LOG = LoggerFactory.getLogger(FileSplitter.class);
+  public static final String SEPARATOR = "_";
   public static final int READ_AHEAD_BYTES = 256;
 
   // for the file, gives the Byte markers for reading lines, such that the lines read will approximately
@@ -89,7 +89,7 @@ public class FileSplitter {
     while (byteCount < fcin.size()) {
       long time = System.currentTimeMillis();
       // create the output file
-      String fileName = filePartNamePrefix + SEPERATOR + suffix + SEPERATOR + filePartCount + filePartNameSuffix;
+      String fileName = filePartNamePrefix + SEPARATOR + suffix + SEPARATOR + filePartCount + filePartNameSuffix;
       File to = new File(targetDirectory, fileName);
       files.add(to);
 
@@ -117,7 +117,7 @@ public class FileSplitter {
       fcout.close();
       fos.close();
       filePartCount++;
-      log.debug("Filepart[" + fileName + "] created in " + (1 + System.currentTimeMillis() - time) / 1000 + " secs");
+      LOG.debug("Filepart[" + fileName + "] created in " + (1 + System.currentTimeMillis() - time) / 1000 + " secs");
     }
 
     // TODO - have tested but need to test thoroughly...

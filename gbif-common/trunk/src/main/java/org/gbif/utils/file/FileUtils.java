@@ -668,11 +668,7 @@ public class FileUtils {
       }
     }
 
-    if (lowestValue != null) {
-      return index;
-    } else {
-      return -1;
-    }
+    return lowestValue != null ? index : -1;
   }
 
   // --------------------- GETTER / SETTER METHODS ---------------------

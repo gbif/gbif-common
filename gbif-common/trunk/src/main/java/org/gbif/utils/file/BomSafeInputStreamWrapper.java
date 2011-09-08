@@ -11,9 +11,9 @@ import java.io.InputStream;
  */
 public class BomSafeInputStreamWrapper extends InputStream {
 
-  private static final int buffersize = 4;
+  private static final int BUFFER_SIZE = 4;
   private InputStream stream;
-  private byte[] buffer = new byte[buffersize];
+  private byte[] buffer = new byte[BUFFER_SIZE];
   private int pointer = 0;
 
   public BomSafeInputStreamWrapper(InputStream stream) {
@@ -23,7 +23,7 @@ public class BomSafeInputStreamWrapper extends InputStream {
 
   @Override
   public int read() throws IOException {
-    if (pointer < buffersize) {
+    if (pointer < BUFFER_SIZE) {
       pointer++;
       return buffer[pointer - 1];
     } else {
@@ -33,7 +33,7 @@ public class BomSafeInputStreamWrapper extends InputStream {
 
   private void testForBom() {
     try {
-      stream.read(buffer, 0, buffersize);
+      stream.read(buffer, 0, BUFFER_SIZE);
       if (CharsetDetection.hasUTF16BEBom(buffer) || CharsetDetection.hasUTF16LEBom(buffer)) {
         pointer = 2;
       } else if (CharsetDetection.hasUTF8Bom(buffer)) {
