@@ -176,9 +176,9 @@ public class CompressionUtil {
       LOG.debug("Extracting file: {} to: {}", unzippedName, outputFile.getAbsolutePath());
       FileOutputStream fos = new FileOutputStream(outputFile);
 
-      byte data[] = new byte[BUFFER];
       dest = new BufferedOutputStream(fos, BUFFER);
-      int count = 0;
+      int count;
+      byte[] data = new byte[BUFFER];
       while ((count = in.read(data, 0, BUFFER)) != -1) {
         dest.write(data, 0, count);
       }

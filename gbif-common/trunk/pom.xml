@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>4</version>
+    <version>6</version>
   </parent>
 
   <groupId>org.gbif</groupId>
@@ -19,13 +19,13 @@
   <properties>
     <jdkLevel>1.5</jdkLevel>
 
-    <commons-compress.version>1.1</commons-compress.version>
-    <commons-lang.version>2.6</commons-lang.version>
+    <commons-compress.version>1.2</commons-compress.version>
+    <commons-lang.version>3.0.1</commons-lang.version>
     <commons-io.version>2.0.1</commons-io.version>
     <guava.version>r09</guava.version>
     <junit.version>4.8.2</junit.version>
-    <logback.version>0.9.28</logback.version>
-    <slf4j.version>1.6.1</slf4j.version>
+    <logback.version>0.9.29</logback.version>
+    <slf4j.version>1.6.2</slf4j.version>
   </properties>
 
   <scm>
@@ -38,6 +38,11 @@
     <system>Google Code</system>
     <url>http://code.google.com/p/gbif-common-resources/issues/list</url>
   </issueManagement>
+
+  <ciManagement>
+    <system>jenkins</system>
+    <url>http://builds.gbif.org/job/gbif-common</url>
+  </ciManagement>
 
   <distributionManagement>
     <site>
@@ -54,10 +59,6 @@
     </repository>
   </repositories>
 
-  <build>
-    <defaultGoal>install</defaultGoal>
-  </build>
-
   <dependencies>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -70,14 +71,14 @@
       <version>${commons-io.version}</version>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>${commons-lang.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>${commons-compress.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

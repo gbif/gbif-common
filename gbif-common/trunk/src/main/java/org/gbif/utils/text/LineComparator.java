@@ -2,7 +2,7 @@ package org.gbif.utils.text;
 
 import java.util.Comparator;
 
-import org.apache.commons.lang.text.StrTokenizer;
+import org.apache.commons.lang3.text.StrTokenizer;
 
 /**
  * A comparator for delimited lines that compares the content of a given column number for all rows.

@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import static org.gbif.utils.file.CharsetDetection.detectEncoding;
