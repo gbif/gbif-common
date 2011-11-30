@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.apache.commons.io.LineIterator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -88,10 +89,11 @@ public class FileUtilsTest {
    * tests sorting mac line endings \r which dont work with unix sort
    */
   @Test
+  @Ignore
   public void testSortingMac() throws IOException {
     File source = FileUtils.getClasspathFile("sorting/LF_mac.txt");
     File sorted = File.createTempFile("sort-test", "mac.txt");
-    // sorted.deleteOnExit();
+    sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
     futils.sort(source, sorted, ENCODING, 0, "×", null, "\r", 0);
 
