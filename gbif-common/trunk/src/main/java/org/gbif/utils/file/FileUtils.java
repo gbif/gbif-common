@@ -627,7 +627,6 @@ public class FileUtils {
    * So a file of "/tmp/input.txt" -> "/tmp/input_part_10.txt"
    *
    * @param original File
-   * @param suffix   E.g. part
    * @param index    E.g. 10
    *
    * @return The proposed name
@@ -683,7 +682,6 @@ public class FileUtils {
    * Sorts the lines and writes to file using the
    *
    * @param input          File to base the name on
-   * @param suffix         to use as the extension for the intermediate chunk files
    * @param lineComparator To compare the lines for sorting
    * @param fileCount      Used for the file name
    * @param linesToSort    To actually sort
