@@ -29,6 +29,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -193,4 +194,29 @@ public class FileUtilsTest {
     }
   }
 
+  /**
+   * tests deleting directory recursively.
+   */
+  @Test
+  public void testDeleteRecursive() throws IOException {
+    File topFile = File.createTempFile("top", ".tmp");
+    File middleFile = File.createTempFile("middle", ".tmp", topFile.getParentFile());
+    File downFile = File.createTempFile("down", ".tmp", middleFile.getParentFile());
+
+    assertTrue(topFile.getParentFile().exists());
+    assertTrue(topFile.exists());
+    assertTrue(middleFile.getParentFile().exists());
+    assertTrue(middleFile.exists());
+    assertTrue(downFile.getParentFile().exists());
+    assertTrue(downFile.exists());
+
+    FileUtils.deleteDirectoryRecursively(topFile.getParentFile());
+
+    assertFalse(topFile.getParentFile().exists());
+    assertFalse(topFile.exists());
+    assertFalse(middleFile.getParentFile().exists());
+    assertFalse(middleFile.exists());
+    assertFalse(downFile.getParentFile().exists());
+    assertFalse(downFile.exists());
+  }
 }

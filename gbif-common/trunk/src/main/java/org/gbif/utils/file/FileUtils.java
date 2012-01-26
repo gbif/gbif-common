@@ -151,6 +151,24 @@ public class FileUtils {
   }
 
   /**
+   * Delete directory recursively, including all its files, sub-folders, and sub-forlder's files.
+   *
+   * @param directory directory to delete recursively
+   */
+  public static void deleteDirectoryRecursively(File directory) {
+    File[] list = directory.listFiles();
+    for (File file : list) {
+      if (file.isDirectory()) {
+        deleteDirectoryRecursively(file);
+        file.delete();
+      } else {
+        file.delete();
+      }
+    }
+    directory.delete();
+  }
+
+  /**
    * escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n
    *
    * @param filename to be escaped
