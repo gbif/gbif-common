@@ -16,14 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A utility to split files into chucks
+ * A utility to split files into chucks.
  * This is done on file size, but then extended to read to the end of the current line.
  * Therefore a chunksize of 32meg will result in a split files of slightly more (assuming lines are
  * not very long).
- * <p/>
- * This is done using NIO libraries for high performance
- *
- * @author tim
+ * This is done using NIO libraries for high performance.
  */
 public class FileSplitter {
 

@@ -5,15 +5,13 @@ import java.io.InputStream;
 
 /**
  * A wrapper for an input stream that removes any BOM sequence at the start of the file.
- * BOMs can cause XML parser to fall over with a "Content is not allowed in prolog" Exception
- *
- * @author markus
+ * BOMs can cause XML parser to fall over with a "Content is not allowed in prolog" Exception.
  */
 public class BomSafeInputStreamWrapper extends InputStream {
 
   private static final int BUFFER_SIZE = 4;
-  private InputStream stream;
-  private byte[] buffer = new byte[BUFFER_SIZE];
+  private final InputStream stream;
+  private final byte[] buffer = new byte[BUFFER_SIZE];
   private int pointer = 0;
 
   public BomSafeInputStreamWrapper(InputStream stream) {

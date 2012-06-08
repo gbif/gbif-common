@@ -197,7 +197,8 @@ public class FileUtilsTest {
   /**
    * tests deleting directory recursively.
    */
-  @Ignore("Likely causing Jenkins error: java.lang.Error: Unable to load resource hudson/maven/reporters/Messages.properties")
+  @Ignore(
+    "Likely causing Jenkins error: java.lang.Error: Unable to load resource hudson/maven/reporters/Messages.properties")
   public void testDeleteRecursive() throws IOException {
     File topFile = File.createTempFile("top", ".tmp");
     File middleFile = File.createTempFile("middle", ".tmp", topFile.getParentFile());

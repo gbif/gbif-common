@@ -3,9 +3,7 @@ package org.gbif.utils.text;
 import java.util.Comparator;
 
 /**
- * A comparator based around Javas String.compareTo()
- *
- * @author markus
+ * A comparator based around Javas String.compareTo().
  */
 public class StringComparator implements Comparator<String> {
 

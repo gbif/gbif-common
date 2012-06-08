@@ -40,26 +40,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Collection of file utils.
- *
- * @author timrobertson
- * @author Markus Döring
  */
 public class FileUtils {
-
-  // ------------------------------ CONSTANTS ------------------------------
 
   public static final String UTF8 = "UTF8";
 
   public static final Pattern TAB_DELIMITED = Pattern.compile("\t");
 
 
-  // ------------------------------ FIELDS ------------------------------
-
   private static int linesPerMemorySort = 100000;
   private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
 
-
-  // -------------------------- PUBLIC STATIC METHODS --------------------------
 
   public static String classpath2Filepath(String path) {
     return new File(ClassLoader.getSystemResource(path).getFile()).getAbsolutePath();
@@ -688,13 +679,10 @@ public class FileUtils {
     return lowestValue != null ? index : -1;
   }
 
-  // --------------------- GETTER / SETTER METHODS ---------------------
-
   public int getLinesPerMemorySort() {
     return linesPerMemorySort;
   }
 
-  // -------------------------- OTHER METHODS --------------------------
 
   /**
    * Sorts the lines and writes to file using the

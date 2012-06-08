@@ -31,11 +31,11 @@ public class PropertiesUtil {
     }
     return tempProperties;
   }
-  
+
   /**
    * Private default constructor.
    */
-  private PropertiesUtil(){
+  private PropertiesUtil() {
     //empty block
   }
 }

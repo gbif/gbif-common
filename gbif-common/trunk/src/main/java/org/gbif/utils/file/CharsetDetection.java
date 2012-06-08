@@ -30,10 +30,8 @@ import static org.gbif.utils.file.FileUtils.readByteBuffer;
  * <p>
  * A byte buffer of 4KB or 8KB is sufficient to be able to guess the encoding.
  * </p>
- * <p/>
  * This class is a heavily modified version of the original written by Guillaume LAFORGE:
  * com.glaforge.i18n.io.CharsetToolkit
- * <p/>
  * taken from
  * http://glaforge.free.fr/wiki/index.php?wiki=GuessEncoding
  *
@@ -237,14 +235,13 @@ public class CharsetDetection {
   }
 
   private Charset detectCharacterEncoding8bit() {
-    // the best guess so far
-    Charset bestEncoding = null;
-    // the number of "bad" chars for the best guess. A better guess will have
-    long leastSuspicousChars = 0;
-    long suspicousChars = 0;
 
-    leastSuspicousChars = testLatin1();
-    bestEncoding = LATIN1;
+    // the number of "bad" chars for the best guess. A better guess will have
+    long leastSuspicousChars = testLatin1();
+    long suspicousChars;
+
+    // the best guess so far
+    Charset bestEncoding = LATIN1;
 
     if (WINDOWS1252 != null) {
       suspicousChars = testWindows1252();
@@ -262,7 +259,7 @@ public class CharsetDetection {
       }
     }
 
-    LOG.debug("8bit Encoding guessed: " + bestEncoding + " with " + leastSuspicousChars + " rare characters");
+    LOG.debug("8bit Encoding guessed: {} with {} rare characters", bestEncoding, leastSuspicousChars);
     return bestEncoding;
   }
 
@@ -432,8 +429,7 @@ public class CharsetDetection {
     // a UTF16 encoding with many latin characters would have either lots of even or uneven bytes as zero - but not both
     int min = buffer.length / 10;
     if ((zerosBE > min || zerosLE > min) && Math.abs(zerosBE - zerosLE) > min) {
-      Charset charset = null;
-      charset = zerosBE > zerosLE ? Charsets.UTF_16BE : Charsets.UTF_16LE;
+      Charset charset = zerosBE > zerosLE ? Charsets.UTF_16BE : Charsets.UTF_16LE;
 
       // now try to decode the whole lot just to make sure
       try {

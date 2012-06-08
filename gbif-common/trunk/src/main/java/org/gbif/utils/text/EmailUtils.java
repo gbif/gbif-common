@@ -21,9 +21,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * @author markus
- */
 public class EmailUtils {
 
   public static class EmailWithName {

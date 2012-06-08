@@ -15,7 +15,7 @@ import org.apache.commons.lang3.text.StrTokenizer;
 public class LineComparator implements Comparator<String> {
 
   private final StrTokenizer tokenizer;
-  private int column;
+  private final int column;
   private final Comparator<String> comp;
 
   public LineComparator(int column, String columnDelimiter) {
