@@ -52,4 +52,8 @@ public class EmailUtils {
     }
     return n;
   }
+
+  private EmailUtils() {
+    throw new UnsupportedOperationException("Can't initialize class");
+  }
 }

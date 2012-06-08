@@ -127,4 +127,9 @@ public class FileSplitter {
     fis.close();
     return files;
   }
+
+  private FileSplitter() {
+    throw new UnsupportedOperationException("Can't initialize class");
+  }
+
 }

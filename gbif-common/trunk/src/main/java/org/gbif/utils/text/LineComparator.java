@@ -9,8 +9,6 @@ import org.apache.commons.lang3.text.StrTokenizer;
  * This allows to sort for example tab delimited files by any column and not only the first one.
  * <p/>
  * If no explicit comparator is given a string comparison is done for the actual column content.
- *
- * @author markus
  */
 public class LineComparator implements Comparator<String> {
 
@@ -28,7 +26,7 @@ public class LineComparator implements Comparator<String> {
 
   public LineComparator(int column, String columnDelimiter, Character quoteChar, Comparator<String> columnComparator) {
     this.column = column;
-    this.comp = columnComparator != null ? columnComparator : new CCollationComparator();
+    this.comp = columnComparator == null ? new CCollationComparator() : columnComparator;
     tokenizer = new StrTokenizer();
     tokenizer.setEmptyTokenAsNull(true);
     tokenizer.setIgnoreEmptyTokens(false);
@@ -43,7 +41,15 @@ public class LineComparator implements Comparator<String> {
   }
 
   public int compare(String o1, String o2) {
-    if (o1 != null && o2 != null) {
+    if (o1 == null || o2 == null) {
+      if (o1 == null && o2 == null) {
+        return 0;
+      } else if (o1 == null) {
+        return 1;
+      } else {
+        return -1;
+      }
+    } else {
       tokenizer.reset(o1);
       String[] parts = tokenizer.getTokenArray();
       String s1 = null;
@@ -65,14 +71,6 @@ public class LineComparator implements Comparator<String> {
       }
 
       return comp.compare(s1, s2);
-    } else {
-      if (o1 == null && o2 == null) {
-        return 0;
-      } else if (o1 == null) {
-        return 1;
-      } else {
-        return -1;
-      }
     }
   }
 

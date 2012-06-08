@@ -81,7 +81,7 @@ public class CharsetDetection {
     MACROMAN = cs;
   }
 
-  private byte[] buffer;
+  private final byte[] buffer;
 
   /**
    * Constructor of the <code>com.glaforge.i18n.io.CharsetToolkit</code> utility class.
@@ -133,7 +133,7 @@ public class CharsetDetection {
    * @return true if the buffer has a BOM for UTF-16 Big Endian.
    */
   protected static boolean hasUTF16BEBom(byte[] bom) {
-    return (bom[0] == -2 && bom[1] == -1);
+    return bom[0] == -2 && bom[1] == -1;
   }
 
   /**
@@ -145,7 +145,7 @@ public class CharsetDetection {
    * @return true if the buffer has a BOM for UTF-16 Low Endian.
    */
   protected static boolean hasUTF16LEBom(byte[] bom) {
-    return (bom[0] == -1 && bom[1] == -2);
+    return bom[0] == -1 && bom[1] == -2;
   }
 
   /**
@@ -156,7 +156,7 @@ public class CharsetDetection {
    * @return true if the buffer has a BOM for UTF8.
    */
   protected static boolean hasUTF8Bom(byte[] bom) {
-    return (bom[0] == -17 && bom[1] == -69 && bom[2] == -65);
+    return bom[0] == -17 && bom[1] == -69 && bom[2] == -65;
   }
 
   private static boolean isCommonChar(char c) {
@@ -434,7 +434,7 @@ public class CharsetDetection {
       // now try to decode the whole lot just to make sure
       try {
         CharsetDecoder decoder = charset.newDecoder();
-        CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));
+        decoder.decode(ByteBuffer.wrap(buffer));
         // that worked without a problem - think we got it!
         return charset;
       } catch (CharacterCodingException e) {
@@ -442,7 +442,7 @@ public class CharsetDetection {
         charset = Charsets.UTF_16;
         try {
           CharsetDecoder decoder = charset.newDecoder();
-          CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));
+          decoder.decode(ByteBuffer.wrap(buffer));
           // that worked without a problem - think we got it!
           return charset;
         } catch (CharacterCodingException e2) {
@@ -502,7 +502,7 @@ public class CharsetDetection {
           suspicous--;
         }
       }
-      // if that worked without a problem try to count suspicous characters which are rarely used in our texts
+      // if that worked without a problem try to count suspicious characters which are rarely used in our texts
       int length = buffer.length;
       int i = 0;
       while (i < length) {

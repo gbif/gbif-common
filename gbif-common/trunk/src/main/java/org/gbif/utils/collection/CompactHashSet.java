@@ -1,5 +1,6 @@
 package org.gbif.utils.collection;
 
+import java.lang.reflect.Array;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -31,9 +32,8 @@ public class CompactHashSet<T> extends AbstractSet<T> {
      */
     private int expectedModCount;
 
-    public CompactHashIterator() {
+    CompactHashIterator() {
       for (index = 0; index < objects.length && (objects[index] == null || objects[index] == deletedObject); index++) {
-        ;
       }
       expectedModCount = modCount;
     }
@@ -54,7 +54,6 @@ public class CompactHashSet<T> extends AbstractSet<T> {
 
       lastReturned = index;
       for (index += 1; index < length && (objects[index] == null || objects[index] == deletedObject); index++) {
-        ;
       }
       if (objects[lastReturned] == nullObject) {
         return null;
@@ -80,20 +79,20 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     }
   }
 
-  protected final static int INITIAL_SIZE = 3;
+  protected static final int INITIAL_SIZE = 3;
 
-  protected final static double LOAD_FACTOR = 0.75;
+  protected static final double LOAD_FACTOR = 0.75;
   /**
    * This object is used to represent null, should clients add that to the set.
    */
-  protected final static Object nullObject = new Object();
+  protected static final Object nullObject = new Object();
   /**
    * When an object is deleted this object is put into the hashtable
    * in its place, so that other objects with the same key
    * (collisions) further down the hashtable are not lost after we
    * delete an object in the collision chain.
    */
-  protected final static Object deletedObject = new Object();
+  protected static final Object deletedObject = new Object();
   protected int elements;
   protected int freecells;
   protected Object[] objects;
@@ -129,7 +128,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
   public CompactHashSet(int size) {
     // NOTE: If array size is 0, we get a
     // "java.lang.ArithmeticException: / by zero" in add(Object).
-    objects = new Object[(size == 0 ? 1 : size)];
+    objects = new Object[size == 0 ? 1 : size];
     elements = 0;
     freecells = objects.length;
     modCount = 0;
@@ -362,11 +361,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     int pos = 0;
     for (Object object : objects) {
       if (object != null && object != deletedObject) {
-        if (object == nullObject) {
-          result[pos++] = null;
-        } else {
-          result[pos++] = object;
-        }
+        result[pos++] = object == nullObject ? null : object;
       }
     }
     return result;
@@ -375,20 +370,16 @@ public class CompactHashSet<T> extends AbstractSet<T> {
   // ===== ITERATOR IMPLEMENTATON =========================================
 
   @Override
-  public Object[] toArray(Object a[]) {
+  public Object[] toArray(Object[] a) {
     int size = elements;
     if (a.length < size) {
-      a = (Object[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+      a = (Object[]) Array.newInstance(a.getClass().getComponentType(), size);
     }
     Object[] objects = this.objects;
     int pos = 0;
     for (Object object : objects) {
       if (object != null && object != deletedObject) {
-        if (object == nullObject) {
-          a[pos++] = null;
-        } else {
-          a[pos++] = object;
-        }
+        a[pos++] = object == nullObject ? null : object;
       }
     }
     return a;

@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.google.common.io.Files;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +73,7 @@ public class FileUtils {
 
   /**
    * Reads a file and returns a unique set of multiple columns from lines which are no comments (starting with #) and
-   * trims whitespace
+   * trims whitespace.
    *
    * @param source    the UTF-8 encoded text file with tab delimited columns
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
@@ -142,7 +143,7 @@ public class FileUtils {
   }
 
   /**
-   * Delete directory recursively, including all its files, sub-folders, and sub-forlder's files.
+   * Delete directory recursively, including all its files, sub-folders, and sub-folder's files.
    *
    * @param directory directory to delete recursively
    */
@@ -160,7 +161,7 @@ public class FileUtils {
   }
 
   /**
-   * escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n
+   * Escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n.
    *
    * @param filename to be escaped
    */
@@ -221,17 +222,12 @@ public class FileUtils {
 
   public static boolean isCompressedFile(File source) {
     String suffix = source.getName().substring(source.getName().lastIndexOf('.') + 1);
-    if (suffix != null && suffix.length() > 0) {
-      if ("zip".equalsIgnoreCase(suffix) || "tgz".equalsIgnoreCase(suffix) || "gz".equalsIgnoreCase(suffix)) {
-        // try zip or gzip
-        return true;
-      }
-    }
-    return false;
+    return suffix != null && suffix.length() > 0 && ("zip".equalsIgnoreCase(suffix) || "tgz".equalsIgnoreCase(suffix)
+                                                     || "gz".equalsIgnoreCase(suffix));
   }
 
   /**
-   * Reads a complete file into a byte buffer
+   * Reads a complete file into a byte buffer.
    */
   public static ByteBuffer readByteBuffer(File file) throws IOException {
     byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(file);
@@ -239,7 +235,7 @@ public class FileUtils {
   }
 
   /**
-   * Reads the first bytes of a file into a byte buffer
+   * Reads the first bytes of a file into a byte buffer.
    *
    * @param bufferSize the number of bytes to read from the file
    */
@@ -262,19 +258,15 @@ public class FileUtils {
   /**
    * @param linesPerMemorySort are the number of lines that should be sorted in memory, determining the number of file
    *                           segments to be sorted when doing a java file sort. Defaults to 100000, if you have
-   *                           memory
-   *                           available a higher
-   *                           value increases
-   *                           performance.
+   *                           memory available a higher value increases performance.
    */
   public static void setLinesPerMemorySort(int linesPerMemorySort) {
     FileUtils.linesPerMemorySort = linesPerMemorySort;
   }
 
   public static Writer startNewUtf8File(File file) throws IOException {
-    org.apache.commons.io.FileUtils.touch(file);
-    Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), UTF8));
-    return writer;
+    Files.touch(file);
+    return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), UTF8));
   }
 
   public static Writer startNewUtf8XmlFile(File file) throws IOException {
@@ -284,7 +276,7 @@ public class FileUtils {
   }
 
   /**
-   * Takes a utf8 encoded input stream and reads in every line/row into a list
+   * Takes a utf8 encoded input stream and reads in every line/row into a list.
    *
    * @return list of rows
    */
@@ -293,7 +285,7 @@ public class FileUtils {
   }
 
   /**
-   * Reads a file and returns a list of all lines which are no comments (starting with #) and trims whitespace
+   * Reads a file and returns a list of all lines which are no comments (starting with #) and trims whitespace.
    *
    * @param source     the UTF-8 encoded text file to read
    * @param resultList the list implementation to be used. Will not be cleared before reading!
@@ -335,8 +327,7 @@ public class FileUtils {
 
   /**
    * Read a hashmap from a tab delimited utf8 input stream using the row number as an integer value and the entire row
-   * as the value
-   * Ignores commented rows starting with #
+   * as the value. Ignores commented rows starting with #.
    *
    * @param source tab delimited text file to read
    */
@@ -360,7 +351,7 @@ public class FileUtils {
   }
 
   /**
-   * Read a hashmap from a tab delimited utf8 file, ignoring commented rows starting with #
+   * Read a hashmap from a tab delimited utf8 file, ignoring commented rows starting with #.
    *
    * @param source     tab delimited input stream to read
    * @param key        column number to use as key
@@ -393,7 +384,7 @@ public class FileUtils {
   }
 
   /**
-   * Reads a file and returns a unique set of all lines which are no comments (starting with #) and trims whitespace
+   * Reads a file and returns a unique set of all lines which are no comments (starting with #) and trims whitespace.
    *
    * @param source    the UTF-8 encoded text file to read
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
@@ -429,10 +420,8 @@ public class FileUtils {
     return f;
   }
 
-  // -------------------------- PUBLIC INSTANCE  METHODS --------------------------
-
   /**
-   * Merges the sorted files
+   * Merges the sorted files.
    *
    * @param sortFiles        To merge
    * @param sortedFileWriter writer to merge to. Can already be open and contain data
@@ -522,7 +511,7 @@ public class FileUtils {
   }
 
   /**
-   * Sorts the input file into the output file using the supplied lineComparator
+   * Sorts the input file into the output file using the supplied lineComparator.
    *
    * @param input             To sort
    * @param sorted            The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
@@ -582,7 +571,7 @@ public class FileUtils {
   }
 
   /**
-   * Splits the supplied file into files of set line size and with a suffix
+   * Splits the supplied file into files of set line size and with a suffix.
    *
    * @param input          To split up
    * @param linesPerOutput Lines per split file
@@ -628,12 +617,9 @@ public class FileUtils {
     return splitFiles;
   }
 
-  // -------------------------- STATIC METHODS --------------------------
-
   /**
    * For the given file's path, returns a proposed new filename (including path) with the extension
-   * index and suffix
-   * So a file of "/tmp/input.txt" -> "/tmp/input_part_10.txt"
+   * index and suffix. So a file of "/tmp/input.txt" -> "/tmp/input_part_10.txt".
    *
    * @param original File
    * @param index    E.g. 10
@@ -642,18 +628,15 @@ public class FileUtils {
    */
   private static File getChunkFile(File original, int index) {
     return new File(original.getParentFile(),
-      FilenameUtils.getBaseName(original.getName()) + '_' + index + FilenameUtils.getExtension(original.getName()));
+      FilenameUtils.getBaseName(original.getName()) + '_' + index + Files.getFileExtension(original.getName()));
   }
 
   private static boolean ignore(String line) {
-    if (StringUtils.trimToNull(line) == null || line.startsWith("#")) {
-      return true;
-    }
-    return false;
+    return StringUtils.trimToNull(line) == null || line.startsWith("#");
   }
 
   /**
-   * For the given list, finds the index of the lowest value using the given comparator
+   * For the given list, finds the index of the lowest value using the given comparator.
    *
    * @param values     To compare
    * @param comparator To use
@@ -665,18 +648,16 @@ public class FileUtils {
     String lowestValue = null;
     for (int i = 0; i < values.size(); i++) {
       String value = values.get(i);
-      if (lowestValue != null) {
-        if (comparator.compare(lowestValue, value) > 0) {
-          lowestValue = value;
-          index = i;
-        }
-      } else {
+      if (lowestValue == null) {
+        lowestValue = value;
+        index = i;
+      } else if (comparator.compare(lowestValue, value) > 0) {
         lowestValue = value;
         index = i;
       }
     }
 
-    return lowestValue != null ? index : -1;
+    return lowestValue == null ? -1 : index;
   }
 
   public int getLinesPerMemorySort() {
