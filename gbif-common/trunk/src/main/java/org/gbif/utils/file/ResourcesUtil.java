@@ -16,6 +16,13 @@ import com.google.common.io.Resources;
 public class ResourcesUtil {
 
   /**
+   * Static utils class.
+   */
+  private ResourcesUtil() {
+
+  }
+
+  /**
    * Copies classpath resources to real files.
    *
    * @param folder             to copy resource files into
