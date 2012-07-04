@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URISyntaxException;
@@ -177,12 +176,12 @@ public class FileUtils {
     return new FileInputStream(source);
   }
 
-  public static Reader getInputStreamReader(InputStream input) throws FileNotFoundException {
+  public static BufferedReader getInputStreamReader(InputStream input) throws FileNotFoundException {
     return getInputStreamReader(input, UTF8);
   }
 
-  public static Reader getInputStreamReader(InputStream input, String encoding) throws FileNotFoundException {
-    Reader reader = null;
+  public static BufferedReader getInputStreamReader(InputStream input, String encoding) throws FileNotFoundException {
+    BufferedReader reader = null;
     try {
       reader = new BufferedReader(new InputStreamReader(input, encoding));
     } catch (UnsupportedEncodingException e) {
@@ -210,8 +209,8 @@ public class FileUtils {
     }
   }
 
-  public static Reader getUtf8Reader(File file) throws FileNotFoundException {
-    Reader reader = null;
+  public static BufferedReader getUtf8Reader(File file) throws FileNotFoundException {
+    BufferedReader reader = null;
     try {
       reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), UTF8));
     } catch (UnsupportedEncodingException e) {
