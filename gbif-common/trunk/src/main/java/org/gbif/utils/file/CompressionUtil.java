@@ -74,16 +74,33 @@ public class CompressionUtil {
   }
 
   /**
-   * Tries to decompress a file trying gzip or zip regardless of the filename or its suffix.
+   * Defaults keeping subDirectories to false.
    *
-   * @return list of decompressed files or empty list if archive couldn't be decompressed
+   * @see org.gbif.utils.file.CompressionUtil#decompressFile(java.io.File, java.io.File, boolean)
    */
   public static List<File> decompressFile(File directory, File compressedFile)
+    throws IOException, UnsupportedCompressionType {
+    return decompressFile(directory, compressedFile, false);
+  }
+
+  /**
+   * Tries to decompress a file trying gzip or zip regardless of the filename or its suffix.
+   *
+   * @param directory      directory where archive's contents will be decompressed to
+   * @param compressedFile compressed file
+   *
+   * @return list of files that have been extracted or null an empty list if archive couldn't be decompressed
+   *
+   * @throws IOException                if problem occurred reading compressed file, or directory couldn't be written
+   *                                    to
+   * @throws UnsupportedCompressionType if the compression type wasn't recognized
+   */
+  public static List<File> decompressFile(File directory, File compressedFile, boolean keepSubdirectories)
     throws IOException, UnsupportedCompressionType {
     List<File> files = null;
     // first try zip
     try {
-      files = unzipFile(directory, compressedFile);
+      files = unzipFile(directory, compressedFile, keepSubdirectories);
     } catch (ZipException e) {
       LOG.debug("No zip compression");
     }
