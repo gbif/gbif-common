@@ -195,44 +195,12 @@ public class CompressionUtil {
   }
 
   /**
-   * Extracts a zipped file. Subdirectories or hidden files (i.e. files starting with a dot) are being ignored.
-   * Assumes the file is archived with tar before being gzipped.
+   * Defaults keepSubdirectories to false.
    *
-   * @param directory where the file should be extracted to
-   * @param zipFile   to extract
-   *
-   * @return a list of all created files
+   * @see org.gbif.utils.file.CompressionUtil#unzipFile(java.io.File, java.io.File, boolean)
    */
   public static List<File> unzipFile(File directory, File zipFile) throws IOException {
-    ZipFile zf = new ZipFile(zipFile);
-    Enumeration<? extends ZipEntry> entries = zf.entries();
-    List<File> files = new ArrayList<File>();
-    while (entries.hasMoreElements()) {
-      ZipEntry entry = entries.nextElement();
-      if (entry.isDirectory()) {
-        LOG.debug("ZIP archive contains directories which are being ignored");
-        continue;
-      }
-      String fn = new File(entry.getName()).getName();
-      if (fn.startsWith(".")) {
-        LOG.debug("ZIP archive contains a hidden file which is being ignored");
-        continue;
-      }
-      File targetFile = new File(directory, fn);
-      files.add(targetFile);
-      LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
-
-      InputStream in = zf.getInputStream(entry);
-      OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
-      try {
-        IOUtils.copy(zf.getInputStream(entry), out);
-      } finally {
-        in.close();
-        out.close();
-      }
-    }
-    zf.close();
-    return files;
+     return unzipFile(directory, zipFile, false);
   }
 
   /**
@@ -286,6 +254,83 @@ public class CompressionUtil {
         LOG.error("IOException while zipping files: {}", files);
         throw e;
       }
+    }
+  }
+
+  /**
+   * Extracts a zipped file into a target directory. Subdirectories or hidden files (i.e. files starting with a dot)
+   * are being ignored according to the parameter keepSubdirectories.
+   *
+   * @param directory          where the zipped file and its subdirectories should be extracted to
+   * @param zipFile            to extract
+   * @param keepSubdirectories whether to preserve subdirectories or not
+   *
+   * @return a list of all created files
+   */
+  public static List<File> unzipFile(File directory, File zipFile, boolean keepSubdirectories) throws IOException {
+    LOG.debug("Unzipping archive " + zipFile.getName() + " into directory: " + directory.getAbsolutePath());
+    List<File> files = new ArrayList<File>();
+    ZipFile zf = new ZipFile(zipFile);
+    Enumeration<? extends ZipEntry> entries = zf.entries();
+    while (entries.hasMoreElements()) {
+      ZipEntry entry = entries.nextElement();
+      // is the entry a directory?
+      if (entry.isDirectory()) {
+        continue;
+      } else {
+        // destination file, different depending if we want to keep subdirectories or not
+        File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())
+          : new File(directory, new File(entry.getName()).getName());
+        // collect file
+        files.add(targetFile);
+        // ignore resource fork (__MACOSX)
+        if (targetFile.getAbsolutePath().toUpperCase().contains("__MACOSX")) {
+          LOG.debug("Ignoring file: " + targetFile.getAbsolutePath());
+        } else {
+          // ensure parent folder always exists
+          createParentFolder(targetFile);
+          // extract file
+          extractFile(zf, entry, targetFile);
+        }
+      }
+    }
+    zf.close();
+    return files;
+  }
+
+  /**
+   * Extract an entry from a zipped file into a target file.
+   *
+   * @param zf         .zip file being unzipped (ZipFile)
+   * @param entry      entry in .zip file currently being examined (ZipEntry)
+   * @param targetFile destination file to extract to
+   */
+  private static void extractFile(ZipFile zf, ZipEntry entry, File targetFile) {
+    try {
+      LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
+      InputStream in = zf.getInputStream(entry);
+      OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
+      try {
+        IOUtils.copy(zf.getInputStream(entry), out);
+      } finally {
+        in.close();
+        out.close();
+      }
+    } catch (IOException e) {
+      LOG.error("File could not be extraced: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Make parent folder.
+   *
+   * @param file destination file
+   */
+  private static void createParentFolder(File file) {
+    File parent = new File(file.getParent());
+    if (!parent.exists()) {
+      LOG.debug((parent.mkdirs()) ? "Created parent directory: " + parent.getAbsolutePath()
+        : "Failed to create parent directory: " + parent.getAbsolutePath());
     }
   }
 }

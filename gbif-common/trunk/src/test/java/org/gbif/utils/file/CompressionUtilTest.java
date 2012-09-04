@@ -130,4 +130,42 @@ public class CompressionUtilTest {
     assertTrue(result.get(0).getName().equals("test.txt"));
   }
 
+  @Test
+  public void testUnzipFolderKeepSubdirectories() throws IOException {
+    File tmpDir = createTempDirectory();
+    File testZippedFolder = classpathFile("compression/withSubdirectories.zip");
+    CompressionUtil.unzipFile(tmpDir, testZippedFolder, true);
+    // locate root folder, and assert it exists
+    String[] names = tmpDir.list();
+    File root = new File(tmpDir, names[0]);
+    assertTrue(root.exists());
+    // locate file in root folder, and assert it exists
+    File eml = new File(root, "eml.xml");
+    assertTrue(eml.exists());
+    // locate sub directory, and assert it contains 4 files
+    File subDirectory = new File(root, "sources");
+    assertTrue(subDirectory.exists());
+    assertEquals(4, subDirectory.listFiles().length);
+  }
+
+  @Test
+  public void testUnzipFolderDoNotKeepSubdirectories() throws IOException {
+    File tmpDir = createTempDirectory();
+    File testZippedFolder = classpathFile("compression/withSubdirectories.zip");
+    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder, false);
+    // includes .DS_Store and ._.DS_Store
+    assertEquals(11, files.size());
+  }
+
+  @Test
+  public void testDecompressZippedFolderWithNoSubdirectories() throws IOException {
+    File tmpDir = createTempDirectory();
+    File testZippedFolder = classpathFile("compression/archive.zip");
+    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder);
+    assertEquals(2, files.size());
+    File meta = new File(tmpDir, "meta.xml");
+    assertTrue(meta.exists());
+    File csv = new File(tmpDir, "quote_in_quote.csv");
+    assertTrue(csv.exists());
+  }
 }
