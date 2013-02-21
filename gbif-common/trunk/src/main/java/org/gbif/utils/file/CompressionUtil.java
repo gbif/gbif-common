@@ -221,19 +221,26 @@ public class CompressionUtil {
   }
 
   /**
-   * Zip a directory with all files but skipping included subdirectories. Only files directly within the directory are
-   * added to the archive.
+   * Zip a directory with all files but skipping included subdirectories.
+   * Only files directly within the directory are added to the archive.
    *
    * @param dir     the directory to zip
    * @param zipFile the zipped file
    */
   public static void zipDir(File dir, File zipFile) throws IOException {
-    Set<File> files = new HashSet<File>();
-    for (File f : dir.listFiles()) {
-      if (f.isFile()) {
-        files.add(f);
-      }
-    }
+    zipDir(dir, zipFile, false);
+  }
+
+  /**
+   * Zip a directory with all files but skipping included subdirectories. Only files directly within the directory are
+   * added to the archive.
+   *
+   * @param dir     the directory to zip
+   * @param zipFile the zipped file
+   * @param inclSubdirs if true includes all subdirectories recursively
+   */
+  public static void zipDir(File dir, File zipFile, boolean inclSubdirs) throws IOException {
+    Collection<File> files = org.apache.commons.io.FileUtils.listFiles(dir, null, inclSubdirs);
     zipFiles(files, zipFile);
   }
 
