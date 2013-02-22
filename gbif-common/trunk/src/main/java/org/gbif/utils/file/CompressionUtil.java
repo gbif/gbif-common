@@ -23,6 +23,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,8 +233,7 @@ public class CompressionUtil {
   }
 
   /**
-   * Zip a directory with all files but skipping included subdirectories. Only files directly within the directory are
-   * added to the archive.
+   * Zip a directory with all files. Files in Subdirectories will be included if the inclSubdirs is true.
    *
    * @param dir     the directory to zip
    * @param zipFile the zipped file
@@ -241,16 +241,27 @@ public class CompressionUtil {
    */
   public static void zipDir(File dir, File zipFile, boolean inclSubdirs) throws IOException {
     Collection<File> files = org.apache.commons.io.FileUtils.listFiles(dir, null, inclSubdirs);
-    zipFiles(files, zipFile);
+    zipFiles(files, dir, zipFile);
   }
 
   public static void zipFile(File file, File zipFile) throws IOException {
     Set<File> files = new HashSet<File>();
     files.add(file);
-    zipFiles(files, zipFile);
+    zipFiles(files, file.getParentFile(), zipFile);
   }
 
-  public static void zipFiles(Collection<File> files, File zipFile) throws IOException {
+  /**
+   * Creates a zip archive from a given collection of files.
+   * In order to preserve paths in the archive a rootContext can be specified which will be removed from the individual
+   * zip entries. For example a rootContext of /home/freak with a file /home/freak/photo/birthday.jpg to be zipped
+   * will result in a zip entry with a path photo/birthday.jpg.
+   *
+   * @param files to be included in the zip archive
+   * @param rootContext optional path to be removed from each file
+   * @param zipFile the zip file to be created
+   * @throws IOException
+   */
+  public static void zipFiles(Collection<File> files, File rootContext, File zipFile) throws IOException {
     if (files.isEmpty()) {
       LOG.info("no files to zip.");
     } else {
@@ -264,7 +275,9 @@ public class CompressionUtil {
           LOG.debug("Adding file {} to archive", f);
           FileInputStream fi = new FileInputStream(f);
           origin = new BufferedInputStream(fi, BUFFER);
-          ZipEntry entry = new ZipEntry(f.getName());
+
+          String zipPath = StringUtils.removeStart(f.getAbsolutePath(), rootContext.getAbsolutePath());
+          ZipEntry entry = new ZipEntry(zipPath);
           out.putNextEntry(entry);
           int count;
           while ((count = origin.read(data, 0, BUFFER)) != -1) {

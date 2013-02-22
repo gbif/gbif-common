@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -167,5 +168,30 @@ public class CompressionUtilTest {
     assertTrue(meta.exists());
     File csv = new File(tmpDir, "quote_in_quote.csv");
     assertTrue(csv.exists());
+  }
+
+  @Test
+  public void testZipFolder() throws IOException {
+    File zipWithDirs = File.createTempFile("aha", ".zip");
+    System.out.println(zipWithDirs.getAbsolutePath());
+
+    File zipWithoutDirs = File.createTempFile("aha", ".zip");
+    System.out.println(zipWithoutDirs.getAbsolutePath());
+    //tmp.deleteOnExit();
+    File testFolder = classpathFile("charsets");
+    // remember how many files we have in the root folder, exlcuding files in subdirectories
+    final int rootFileNum = testFolder.listFiles().length;
+
+    CompressionUtil.zipDir(testFolder, zipWithDirs, true);
+    CompressionUtil.zipDir(testFolder, zipWithoutDirs, false);
+
+    assertNotEquals(zipWithDirs.length(), zipWithoutDirs.length());
+
+    // now decompress the subdir zip and make sure we get the same amount of root files
+    File tmpDir = org.gbif.utils.file.FileUtils.createTempDir();
+    tmpDir.deleteOnExit();
+    CompressionUtil.unzipFile(tmpDir, zipWithDirs, true);
+    int decompressedRootFileNum = tmpDir.listFiles().length;
+    assertEquals(rootFileNum, decompressedRootFileNum);
   }
 }
