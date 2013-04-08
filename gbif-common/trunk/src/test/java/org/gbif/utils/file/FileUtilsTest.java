@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.google.common.base.Splitter;
 import org.apache.commons.io.LineIterator;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -183,9 +184,13 @@ public class FileUtilsTest {
           "taxonRank;scientificName;scientificNameAuthorship;taxonID;parentNameUsageID;vernacularName;taxonomicStatus",
           row);
       } else if (line == 2) {
-        assertEquals(
-          "tribe;Exenterini;;urn:lsid:luomus.fi:taxonconcept:0071b855-3d23-4fdc-b2e0-8464c22d752a:1;urn:lsid:luomus.fi:taxonconcept:028d487f-c989-4fd0-bdae-447c470b94ce:1;;valid",
-          row);
+        // row 2 and 3 have the same ids - only test if the id is correct (actual order of those 2 records can differ)
+        Iterator<String> columns = Splitter.on(";").split(row).iterator();
+        columns.next();
+        columns.next();
+        columns.next();
+        assertEquals("urn:lsid:luomus.fi:taxonconcept:0071b855-3d23-4fdc-b2e0-8464c22d752a:1", columns.next());
+
       } else if (line == 100) {
         assertEquals(
           "species;Ctenochira angulata;(Thomson, 1883) ;urn:lsid:luomus.fi:taxonconcept:4adcf436-a0d2-4940-9155-220ffc6f5859:1;urn:lsid:luomus.fi:taxonconcept:817994ea-b58b-4deb-973f-9fa99c537f8a:1;;valid",
