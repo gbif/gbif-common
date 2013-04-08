@@ -20,13 +20,14 @@ import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import org.junit.Test;
 
 /**
@@ -66,38 +67,39 @@ public class ComparatorPerformance {
     System.out.println(String.format("Sorting with unix sort took %s ms", (end - start)));
 
     // sort with comparator to test
-    List<Class> classes = new ArrayList<Class>();
-    classes.add(StringComparator.class);
-    classes.add(CCollationComparator.class);
+    List<Comparator<String>> comparators = availableComparators();
 
     for (Integer linesInMen : Arrays.asList(100000)) {
       futils.setLinesPerMemorySort(linesInMen);
-      for (Class cl : classes) {
-        Comparator<String> comp = (Comparator<String>) cl.newInstance();
+      for (Comparator<String> comp : comparators) {
 
         start = System.currentTimeMillis();
         futils.sortInJava(source, sorted, ENCODING, comp, 0);
         end = System.currentTimeMillis();
 
         System.out.println(
-          String.format("Sorting with %s and %s lines in memory took %s ms", cl.getName(), linesInMen, (end - start)));
+          String.format("Sorting with %s and %s lines in memory took %s ms", comp.getClass().getName(), linesInMen, (end - start)));
       }
     }
+  }
+
+  private List<Comparator<String>> availableComparators() {
+    List<Comparator<String>> comparators = Lists.newArrayList();
+    comparators.add(new StringComparator());
+    comparators.add(Ordering.<String>natural().nullsFirst());
+    return comparators;
   }
 
   @Test
   public void testVariousComparators() throws IOException, InstantiationException, IllegalAccessException {
     // sort with comparator to test
-    List<Class> classes = new ArrayList<Class>();
-    classes.add(StringComparator.class);
-    classes.add(CCollationComparator.class);
-    for (Class cl : classes) {
+    List<Comparator<String>> comparators = availableComparators();
+    for (Comparator<String> comp : comparators) {
       LinkedList<String> source = FileUtils.streamToList(FileUtils.classpathStream("sorting/irmng.tail"));
-      Comparator<String> comp = (Comparator<String>) cl.newInstance();
       long start = System.currentTimeMillis();
       Collections.sort(source, comp);
       long end = System.currentTimeMillis();
-      System.out.println("Sorting with " + cl.getName() + " took " + (end - start) + " ms");
+      System.out.println("Sorting with " + comp.getClass().getName() + " took " + (end - start) + " ms");
     }
   }
 }
