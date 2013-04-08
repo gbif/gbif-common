@@ -2,6 +2,7 @@ package org.gbif.utils.text;
 
 import java.util.Comparator;
 
+import com.google.common.collect.Ordering;
 import org.apache.commons.lang3.text.StrTokenizer;
 
 /**
@@ -26,7 +27,7 @@ public class LineComparator implements Comparator<String> {
 
   public LineComparator(int column, String columnDelimiter, Character quoteChar, Comparator<String> columnComparator) {
     this.column = column;
-    this.comp = columnComparator == null ? new CCollationComparator() : columnComparator;
+    this.comp = columnComparator == null ? Ordering.<String>natural().nullsFirst() : columnComparator;
     tokenizer = new StrTokenizer();
     tokenizer.setEmptyTokenAsNull(true);
     tokenizer.setIgnoreEmptyTokens(false);
