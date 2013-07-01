@@ -276,7 +276,7 @@ public class CompressionUtil {
           FileInputStream fi = new FileInputStream(f);
           origin = new BufferedInputStream(fi, BUFFER);
 
-          String zipPath = StringUtils.removeStart(f.getAbsolutePath(), rootContext.getAbsolutePath());
+          String zipPath = StringUtils.removeStart(f.getAbsolutePath(), rootContext.getAbsolutePath() + File.separator);
           ZipEntry entry = new ZipEntry(zipPath);
           out.putNextEntry(entry);
           int count;
