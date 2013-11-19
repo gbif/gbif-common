@@ -2,13 +2,10 @@ package org.gbif.utils.file;
 
 /***************************************************************************
  * Copyright 2010 Global Biodiversity Information Facility Secretariat
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -54,6 +51,43 @@ public class FileUtilsTest {
       System.out.println(x);
       assertEquals(sorted.poll(), x);
     }
+  }
+
+  @Test
+  public void humanReadableByteCountTest() {
+    assertTrue(FileUtils.humanReadableByteCount(11, true).equals("11 B"));
+    assertTrue(FileUtils.humanReadableByteCount(1000, true).equals("1.0 kB"));
+    assertTrue(FileUtils.humanReadableByteCount(1000000, true).equals("1.0 MB"));
+    assertTrue(FileUtils.humanReadableByteCount(1000000000, true).equals("1.0 GB"));
+    assertTrue(FileUtils.humanReadableByteCount(1000000000000L, true).equals("1.0 TB"));
+  }
+
+  /**
+   * tests deleting directory recursively.
+   */
+  @Ignore(
+    "Likely causing Jenkins error: java.lang.Error: Unable to load resource hudson/maven/reporters/Messages.properties")
+    public
+    void testDeleteRecursive() throws IOException {
+    File topFile = File.createTempFile("top", ".tmp");
+    File middleFile = File.createTempFile("middle", ".tmp", topFile.getParentFile());
+    File downFile = File.createTempFile("down", ".tmp", middleFile.getParentFile());
+
+    assertTrue(topFile.getParentFile().exists());
+    assertTrue(topFile.exists());
+    assertTrue(middleFile.getParentFile().exists());
+    assertTrue(middleFile.exists());
+    assertTrue(downFile.getParentFile().exists());
+    assertTrue(downFile.exists());
+
+    FileUtils.deleteDirectoryRecursively(topFile.getParentFile());
+
+    assertFalse(topFile.getParentFile().exists());
+    assertFalse(topFile.exists());
+    assertFalse(middleFile.getParentFile().exists());
+    assertFalse(middleFile.exists());
+    assertFalse(downFile.getParentFile().exists());
+    assertFalse(downFile.exists());
   }
 
   @Test
@@ -197,32 +231,5 @@ public class FileUtilsTest {
           row);
       }
     }
-  }
-
-  /**
-   * tests deleting directory recursively.
-   */
-  @Ignore(
-    "Likely causing Jenkins error: java.lang.Error: Unable to load resource hudson/maven/reporters/Messages.properties")
-  public void testDeleteRecursive() throws IOException {
-    File topFile = File.createTempFile("top", ".tmp");
-    File middleFile = File.createTempFile("middle", ".tmp", topFile.getParentFile());
-    File downFile = File.createTempFile("down", ".tmp", middleFile.getParentFile());
-
-    assertTrue(topFile.getParentFile().exists());
-    assertTrue(topFile.exists());
-    assertTrue(middleFile.getParentFile().exists());
-    assertTrue(middleFile.exists());
-    assertTrue(downFile.getParentFile().exists());
-    assertTrue(downFile.exists());
-
-    FileUtils.deleteDirectoryRecursively(topFile.getParentFile());
-
-    assertFalse(topFile.getParentFile().exists());
-    assertFalse(topFile.exists());
-    assertFalse(middleFile.getParentFile().exists());
-    assertFalse(middleFile.exists());
-    assertFalse(downFile.getParentFile().exists());
-    assertFalse(downFile.exists());
   }
 }
