@@ -546,6 +546,33 @@ public class FileUtils {
    */
   public void sort(File input, File sorted, String encoding, int column, String columnDelimiter, Character enclosedBy,
     String newlineDelimiter, int ignoreHeaderLines) throws IOException {
+    Comparator<String> lineComparator;
+    if (enclosedBy == null) {
+      lineComparator = new LineComparator(column, columnDelimiter);
+    } else {
+      lineComparator = new LineComparator(column, columnDelimiter, enclosedBy);
+    }
+    sort(input, sorted, encoding, column, columnDelimiter, enclosedBy, newlineDelimiter, ignoreHeaderLines,
+      lineComparator);
+  }
+
+
+  /**
+   * Sorts the input file into the output file using the supplied delimited line parameters.
+   * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified
+   * column.
+   * 
+   * @param input To sort
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param column the column that keeps the values to sort on
+   * @param columnDelimiter the delimiter that seperates columns in a row
+   * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
+   * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
+   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
+   * @param lineComparator used to sort the output
+   */
+  public void sort(File input, File sorted, String encoding, int column, String columnDelimiter, Character enclosedBy,
+    String newlineDelimiter, int ignoreHeaderLines, Comparator<String> lineComparator) throws IOException {
     LOG.debug("sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
     if (encoding == null) {
       LOG.warn("No encoding specified, assume UTF-8");
@@ -555,12 +582,6 @@ public class FileUtils {
     if (!sortInUnix(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter)) {
       // not first column or doesnt work - maybe running on windows. Do native java sorting
       LOG.debug("No unix sort available, using native java sorting");
-      Comparator<String> lineComparator;
-      if (enclosedBy == null) {
-        lineComparator = new LineComparator(column, columnDelimiter);
-      } else {
-        lineComparator = new LineComparator(column, columnDelimiter, enclosedBy);
-      }
       sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);
     }
   }
@@ -721,7 +742,8 @@ public class FileUtils {
 
         // do the sorting ignoring the header rows
         command =
-          "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort >> " + sorted.getAbsolutePath();
+          "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort --ignore-case >> "
+            + sorted.getAbsolutePath();
       } else {
         // do sorting directly, we dont have header rows
         command = "sort -o " + sorted.getAbsolutePath() + ' ' + input.getAbsolutePath();
