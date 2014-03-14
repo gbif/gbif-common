@@ -553,7 +553,7 @@ public class FileUtils {
       lineComparator = new LineComparator(column, columnDelimiter, enclosedBy);
     }
     sort(input, sorted, encoding, column, columnDelimiter, enclosedBy, newlineDelimiter, ignoreHeaderLines,
-      lineComparator);
+      lineComparator, false);
   }
 
 
@@ -570,16 +570,18 @@ public class FileUtils {
    * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    * @param lineComparator used to sort the output
+   * @param ignoreCase ignore case order, this parameter couldn't have any effect if the LineComparator is used
    */
   public void sort(File input, File sorted, String encoding, int column, String columnDelimiter, Character enclosedBy,
-    String newlineDelimiter, int ignoreHeaderLines, Comparator<String> lineComparator) throws IOException {
+    String newlineDelimiter, int ignoreHeaderLines, Comparator<String> lineComparator, boolean ignoreCase)
+    throws IOException {
     LOG.debug("sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
     if (encoding == null) {
       LOG.warn("No encoding specified, assume UTF-8");
       encoding = "UTF-8";
     }
     // if the id is in the first column, first try sorting via unix shell as its the fastest we can get
-    if (!sortInUnix(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter)) {
+    if (!sortInUnix(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter, ignoreCase)) {
       // not first column or doesnt work - maybe running on windows. Do native java sorting
       LOG.debug("No unix sort available, using native java sorting");
       sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);
@@ -711,7 +713,7 @@ public class FileUtils {
    * ånarnak Lacépède
    */
   protected boolean sortInUnix(File input, File sorted, String encoding, int ignoreHeaderLines, int column,
-    String columnDelimiter, String lineDelimiter) throws IOException {
+    String columnDelimiter, String lineDelimiter, boolean ignoreCase) throws IOException {
     String command;
     // disable unix sorting for now - behaves differently on various OSes
     if (column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || (columnDelimiter != null
@@ -742,7 +744,8 @@ public class FileUtils {
 
         // do the sorting ignoring the header rows
         command =
-          "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort --ignore-case >> "
+          "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort "
+            + (ignoreCase ? "--ignore-case" : "") + " >> "
             + sorted.getAbsolutePath();
       } else {
         // do sorting directly, we dont have header rows
