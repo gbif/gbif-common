@@ -476,9 +476,10 @@ public class FileUtils {
   }
 
   /**
-   * Merges the sorted files.
+   * Merges a list of intermediary sort chunk files into a single sorted file. On completion, the intermediary sort
+   * chunk files are deleted.
    * 
-   * @param sortFiles To merge
+   * @param sortFiles sort chunk files to merge
    * @param sortedFileWriter writer to merge to. Can already be open and contain data
    * @param lineComparator To use when determining the order (reuse the one that was used to sort the individual
    *        files)
@@ -528,6 +529,10 @@ public class FileUtils {
       // I assume it periodically flushes anyway, so only need to do once at end...
       sortedFileWriter.flush();
       sortedFileWriter.close();
+      // delete (intermediary) sort chunk files, only the sorted file remains
+      for (File f : sortFiles) {
+        f.delete();
+      }
     }
   }
 

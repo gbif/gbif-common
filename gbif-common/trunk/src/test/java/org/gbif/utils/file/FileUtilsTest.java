@@ -13,15 +13,17 @@ package org.gbif.utils.file;
  * the License.
  ***************************************************************************/
 
+import org.gbif.utils.text.LineComparator;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.google.common.base.Splitter;
 import org.apache.commons.io.LineIterator;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -195,13 +197,26 @@ public class FileUtilsTest {
     }
   }
 
+  /**
+   * Test that ensures the chunk file is deleted at the end of sortInJava method. Otherwise, unwanted chunk files
+   * will be left over.
+   */
   @Test
-  public void testSortingWithNonFirstIdColumn() throws IOException {
-    File source = FileUtils.getClasspathFile("sorting/TDB_104.csv");
-    File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
+  public void testSortInJava() throws IOException {
+    File source = FileUtils.getClasspathFile("sorting/taxon.txt");
+    File sorted = File.createTempFile("gbif-common-file-sort", "taxon_sorted.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, ENCODING, 3, ";", null, "\n", 1);
+    Comparator<String> lineComparator = new LineComparator(0, "\t");
+    futils.sortInJava(source, sorted, ENCODING, lineComparator, 1);
+
+    // the chunk file should NOT exist
+    File chunkFile = new File(source.getParent(), "taxon_0txt");
+    assertFalse(chunkFile.exists());
+
+    // the sorted file should exist
+    System.out.println(sorted.getAbsolutePath());
+    assertTrue(sorted.exists());
 
     // read file
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
@@ -212,23 +227,13 @@ public class FileUtilsTest {
       if (row == null) {
         break;
       }
-
-      if (line == 1) {
-        assertEquals(
-          "taxonRank;scientificName;scientificNameAuthorship;taxonID;parentNameUsageID;vernacularName;taxonomicStatus",
-          row);
-      } else if (line == 2) {
-        // row 2 and 3 have the same ids - only test if the id is correct (actual order of those 2 records can differ)
-        Iterator<String> columns = Splitter.on(";").split(row).iterator();
-        columns.next();
-        columns.next();
-        columns.next();
-        assertEquals("urn:lsid:luomus.fi:taxonconcept:0071b855-3d23-4fdc-b2e0-8464c22d752a:1", columns.next());
-
-      } else if (line == 100) {
-        assertEquals(
-          "species;Ctenochira angulata;(Thomson, 1883) ;urn:lsid:luomus.fi:taxonconcept:4adcf436-a0d2-4940-9155-220ffc6f5859:1;urn:lsid:luomus.fi:taxonconcept:817994ea-b58b-4deb-973f-9fa99c537f8a:1;;valid",
-          row);
+      // first line (smallest ID)
+      if (line == 2) {
+        assertTrue(row.startsWith("118701359"));
+      }
+      // last line (largest ID)
+      else if (line == 8) {
+        assertTrue(row.startsWith("120320038"));
       }
     }
   }
