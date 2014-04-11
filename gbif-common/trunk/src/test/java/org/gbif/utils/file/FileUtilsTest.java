@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.google.common.base.Splitter;
 import org.apache.commons.io.LineIterator;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -193,6 +194,44 @@ public class FileUtilsTest {
       } else if (line == 3) {
         assertTrue(row.startsWith(
           "\"8728372\",\"18728372\",\"Event\",\"18728372\",\"Muscardinus avellanarius\",\"52.31635664254722\""));
+      }
+    }
+  }
+
+  @Test
+  public void testSortingWithNonFirstIdColumn() throws IOException {
+    File source = FileUtils.getClasspathFile("sorting/TDB_104.csv");
+    File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
+    sorted.deleteOnExit();
+    FileUtils futils = new FileUtils();
+    futils.sort(source, sorted, ENCODING, 3, ";", null, "\n", 1);
+
+    // read file
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    int line = 0;
+    while (true) {
+      line++;
+      String row = br.readLine();
+      if (row == null) {
+        break;
+      }
+
+      if (line == 1) {
+        assertEquals(
+          "taxonRank;scientificName;scientificNameAuthorship;taxonID;parentNameUsageID;vernacularName;taxonomicStatus",
+          row);
+      } else if (line == 2) {
+        // row 2 and 3 have the same ids - only test if the id is correct (actual order of those 2 records can differ)
+        Iterator<String> columns = Splitter.on(";").split(row).iterator();
+        columns.next();
+        columns.next();
+        columns.next();
+        assertEquals("urn:lsid:luomus.fi:taxonconcept:0071b855-3d23-4fdc-b2e0-8464c22d752a:1", columns.next());
+
+      } else if (line == 100) {
+        assertEquals(
+          "species;Ctenochira angulata;(Thomson, 1883) ;urn:lsid:luomus.fi:taxonconcept:4adcf436-a0d2-4940-9155-220ffc6f5859:1;urn:lsid:luomus.fi:taxonconcept:817994ea-b58b-4deb-973f-9fa99c537f8a:1;;valid",
+          row);
       }
     }
   }
