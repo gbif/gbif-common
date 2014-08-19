@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>11</version>
+    <version>16</version>
   </parent>
 
   <groupId>org.gbif</groupId>
@@ -19,13 +19,13 @@
   <properties>
     <jdkLevel>1.5</jdkLevel>
 
-    <commons-compress.version>1.4.1</commons-compress.version>
-    <commons-lang.version>3.1</commons-lang.version>
-    <commons-io.version>2.3</commons-io.version>
-    <guava.version>13.0.1</guava.version>
+    <commons-compress.version>1.8.1</commons-compress.version>
+    <commons-lang.version>3.3.2</commons-lang.version>
+    <commons-io.version>2.4</commons-io.version>
+    <guava.version>17.0</guava.version>
     <junit.version>4.11</junit.version>
-    <logback.version>1.0.9</logback.version>
-    <slf4j.version>1.7.2</slf4j.version>
+    <logback.version>1.1.2</logback.version>
+    <slf4j.version>1.7.7</slf4j.version>
   </properties>
 
   <scm>
@@ -33,7 +33,7 @@
     <url>https://github.com/gbif/gbif-common</url>
     <developerConnection>scm:git:git@github.com:gbif/gbif-common.git</developerConnection>
     <tag>HEAD</tag>
-  </scm> 
+  </scm>
 
   <issueManagement>
     <system>JIRA</system>

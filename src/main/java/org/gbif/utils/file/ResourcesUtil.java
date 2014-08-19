@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 
-import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.slf4j.Logger;
@@ -52,11 +52,19 @@ public class ResourcesUtil {
         }
         throw new IOException(e);
       }
-      File f = new File(folder, classpathResource);
-      Files.createParentDirs(f);
-      OutputStream out = new FileOutputStream(f);
-      Resources.copy(url, out);
-      Closeables.closeQuietly(out);
+
+      Closer closer = Closer.create();
+      try {
+        File f = new File(folder, classpathResource);
+        Files.createParentDirs(f);
+        OutputStream out = closer.register(new FileOutputStream(f));
+        Resources.copy(url, out);
+      } catch (Throwable e) {
+        // must catch Throwable for closer to work, see https://code.google.com/p/guava-libraries/wiki/ClosingResourcesExplained
+        throw closer.rethrow(e);
+      } finally {
+        closer.close();
+      }
     }
   }
 
