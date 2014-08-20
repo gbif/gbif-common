@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.Properties;
 
 import com.google.common.base.Strings;
-import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.google.common.io.Resources;
 
 /**
@@ -37,15 +37,14 @@ public class PropertiesUtil {
    * @throws IllegalArgumentException If the file does not exist
    */
   public static Properties loadProperties(String propertiesFile) throws IOException, IllegalArgumentException {
-    InputStream inputStream = null;
-    Properties tempProperties;
+    Properties tempProperties = new Properties();
+    Closer closer = Closer.create();
     try {
       URL configFileURL = Resources.getResource(propertiesFile);
-      inputStream = Resources.newInputStreamSupplier(configFileURL).getInput();
-      tempProperties = new Properties();
+      InputStream inputStream = closer.register(Resources.newInputStreamSupplier(configFileURL).getInput());
       tempProperties.load(inputStream);
     } finally {
-      Closeables.closeQuietly(inputStream);
+      closer.close();
     }
     return tempProperties;
   }
@@ -62,11 +61,13 @@ public class PropertiesUtil {
       throw new IllegalArgumentException("Cannot find properties file " + filepath);
     }
     Properties properties = new Properties();
-    FileReader reader = new FileReader(pf);
+
+    Closer closer = Closer.create();
     try {
+      FileReader reader = closer.register(new FileReader(pf));
       properties.load(reader);
     } finally {
-      Closeables.closeQuietly(reader);
+      closer.close();
     }
     return properties;
   }
