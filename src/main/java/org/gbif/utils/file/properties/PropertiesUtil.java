@@ -33,7 +33,7 @@ public class PropertiesUtil {
    * Loads a properties file.
    * The file should be available in the classpath, the default {@link ClassLoader} is used to load the file.
    *
-   * @throws IOException              Should there be an issue in loading the file
+   * @throws IOException Should there be an issue in loading the file
    * @throws IllegalArgumentException If the file does not exist
    */
   public static Properties loadProperties(String propertiesFile) throws IOException, IllegalArgumentException {
@@ -75,17 +75,15 @@ public class PropertiesUtil {
   /**
    * Reads and casts the named property as an Double.
    *
-   * @param p                The properties file to read from.
-   * @param key              To read the value of.
+   * @param p The properties file to read from.
+   * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
-   *                         returned
-   * @param defaultValue     If the property is not found, and exceptionForNull is false, this is returned for missing
-   *                         properties.
-   *
+   *        returned
+   * @param defaultValue If the property is not found, and exceptionForNull is false, this is returned for missing
+   *        properties.
    * @return The property at the key as an Double
-   *
    * @throws IllegalArgumentException if the property is invalid (can't be cast to a double) or not found and we are
-   *                                  instructed to throw it.
+   *         instructed to throw it.
    */
   public static Double propertyAsDouble(Properties p, String key, boolean exceptionForNull, Double defaultValue)
     throws IllegalArgumentException {
@@ -108,17 +106,15 @@ public class PropertiesUtil {
   /**
    * Reads and casts the named property as an Float.
    *
-   * @param p                The properties file to read from.
-   * @param key              To read the value of.
+   * @param p The properties file to read from.
+   * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
-   *                         returned
-   * @param defaultValue     If the property is not found, and exceptionForNull is false, this is returned for missing
-   *                         properties.
-   *
+   *        returned
+   * @param defaultValue If the property is not found, and exceptionForNull is false, this is returned for missing
+   *        properties.
    * @return The property at the key as an Float
-   *
    * @throws IllegalArgumentException if the property is invalid (can't be cast to a float) or not found and we are
-   *                                  instructed to throw it.
+   *         instructed to throw it.
    */
   public static Float propertyAsFloat(Properties p, String key, boolean exceptionForNull, Float defaultValue)
     throws IllegalArgumentException {
@@ -141,17 +137,15 @@ public class PropertiesUtil {
   /**
    * Reads and casts the named property as an Integer.
    *
-   * @param p                The properties file to read from.
-   * @param key              To read the value of.
+   * @param p The properties file to read from.
+   * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
-   *                         returned
-   * @param defaultValue     If the property is not found, and exceptionForNull is false, this is returned for missing
-   *                         properties.
-   *
+   *        returned
+   * @param defaultValue If the property is not found, and exceptionForNull is false, this is returned for missing
+   *        properties.
    * @return The property at the key as an int
-   *
    * @throws IllegalArgumentException if the property is invalid (can't be cast to an int) or not found and we are
-   *                                  instructed to throw it.
+   *         instructed to throw it.
    */
   public static Integer propertyAsInt(Properties p, String key, boolean exceptionForNull, Integer defaultValue)
     throws IllegalArgumentException {
@@ -174,15 +168,13 @@ public class PropertiesUtil {
   /**
    * Reads and converts the named property as UTF8 bytes.
    *
-   * @param p                The properties file to read from.
-   * @param key              To read the value of.
+   * @param p The properties file to read from.
+   * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
-   *                         returned
-   * @param defaultValue     If the property is not found, and exceptionForNull is false, this is returned for missing
-   *                         properties.
-   *
+   *        returned
+   * @param defaultValue If the property is not found, and exceptionForNull is false, this is returned for missing
+   *        properties.
    * @return The property at the key as byte[]t
-   *
    * @throws IllegalArgumentException if the property is not found and we are instructed to throw it.
    */
   public static byte[] propertyAsUTF8Bytes(Properties p, String key, boolean exceptionForNull, byte[] defaultValue)
