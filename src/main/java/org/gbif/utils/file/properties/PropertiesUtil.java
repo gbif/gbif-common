@@ -1,9 +1,9 @@
 package org.gbif.utils.file.properties;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Properties;
@@ -32,7 +32,7 @@ public class PropertiesUtil {
   /**
    * Loads a properties file.
    * The file should be available in the classpath, the default {@link ClassLoader} is used to load the file.
-   *
+   * 
    * @throws IOException Should there be an issue in loading the file
    * @throws IllegalArgumentException If the file does not exist
    */
@@ -40,9 +40,13 @@ public class PropertiesUtil {
     Properties tempProperties = new Properties();
     Closer closer = Closer.create();
     try {
-      URL configFileURL = Resources.getResource(propertiesFile);
-      InputStream inputStream = closer.register(Resources.newInputStreamSupplier(configFileURL).getInput());
-      tempProperties.load(inputStream);
+      File file = new File(propertiesFile);
+      if (file.exists()) {// first tries to load the file as a external file
+        tempProperties.load(closer.register(new FileInputStream(file)));
+      } else { // tries to load the file as a resource
+        URL configFileURL = Resources.getResource(propertiesFile);
+        tempProperties.load(closer.register(Resources.asByteSource(configFileURL).openStream()));
+      }
     } finally {
       closer.close();
     }
@@ -74,7 +78,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and casts the named property as an Double.
-   *
+   * 
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
@@ -105,7 +109,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and casts the named property as an Float.
-   *
+   * 
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
@@ -136,7 +140,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and casts the named property as an Integer.
-   *
+   * 
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
@@ -167,7 +171,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and converts the named property as UTF8 bytes.
-   *
+   * 
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
