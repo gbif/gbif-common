@@ -1,11 +1,21 @@
 package org.gbif.utils.text;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import junit.framework.TestCase;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class LineComparatorTest extends TestCase {
 
@@ -70,5 +80,34 @@ public class LineComparatorTest extends TestCase {
     assertEquals(l1, lines.get(1));
     assertEquals(l4, lines.get(2));
     assertEquals(l3, lines.get(3));
+  }
+
+  // Direct copy from From IPT codebase
+  // see https://code.google.com/p/gbif-providertoolkit/source/browse/trunk/gbif-ipt/src/main/java/org/gbif/ipt/task/GenerateDwca.java#93
+  private static final Comparator<String> IGNORE_CASE_COMPARATOR = Ordering.from(new Comparator<String>() {
+
+    public int compare(String o1, String o2) {
+      return o1.compareToIgnoreCase(o2);
+    }
+  }).nullsFirst();
+
+  /**
+   * Test for respecting equals and compareTo to ensure comparator respects java contracts.
+   * http://dev.gbif.org/issues/browse/POR-2730
+   */
+  @Test
+  public void testEqualsCompareToContract() throws IOException {
+
+    LineComparator comp = new LineComparator(0, ",", null, IGNORE_CASE_COMPARATOR);
+
+    String s1 = ",2,3"; // null in first instance
+    String s2 = ",2,3"; // null in first instance
+
+    // http://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html#compare(T,%20T)
+    int sign1 = (int) Math.signum(comp.compare(s1, s2));
+    int sign2 = (int) Math.signum(comp.compare(s2, s1));
+
+    assertEquals(sign1 * -1, sign2);
+
   }
 }
