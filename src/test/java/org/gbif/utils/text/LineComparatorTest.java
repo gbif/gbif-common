@@ -1,21 +1,14 @@
 package org.gbif.utils.text;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import junit.framework.TestCase;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 public class LineComparatorTest extends TestCase {
 
