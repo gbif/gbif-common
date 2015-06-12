@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>19</version>
+    <version>23-SNAPSHOT</version>
   </parent>
 
   <groupId>org.gbif</groupId>
@@ -17,7 +17,7 @@
   <url>http://sites.gbif.org/common-resources/gbif-common</url>
 
   <properties>
-    <jdkLevel>1.5</jdkLevel>
+    <jdkLevel>1.8</jdkLevel>
 
     <commons-compress.version>1.8.1</commons-compress.version>
     <commons-lang.version>3.3.2</commons-lang.version>
