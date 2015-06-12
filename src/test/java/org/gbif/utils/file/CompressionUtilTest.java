@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -131,31 +132,72 @@ public class CompressionUtilTest {
     assertTrue(result.get(0).getName().equals("test.txt"));
   }
 
+  /**
+   * Test uzipping a folder, while NOT preserving subdirectories.
+   */
   @Test
-  public void testUnzipFolderKeepSubdirectories() throws IOException {
+  public void testUnzipFolderDoNotKeepSubdirectoriesOrHiddenFiles() throws IOException {
     File tmpDir = createTempDirectory();
-    File testZippedFolder = classpathFile("compression/withSubdirectories.zip");
-    CompressionUtil.unzipFile(tmpDir, testZippedFolder, true);
-    // locate root folder, and assert it exists
-    String[] names = tmpDir.list();
-    File root = new File(tmpDir, names[0]);
-    assertTrue(root.exists());
-    // locate file in root folder, and assert it exists
-    File eml = new File(root, "eml.xml");
-    assertTrue(eml.exists());
-    // locate sub directory, and assert it contains 4 files
-    File subDirectory = new File(root, "sources");
-    assertTrue(subDirectory.exists());
-    assertEquals(4, subDirectory.listFiles().length);
+    File testZippedFolder = classpathFile("compression/withSubdirsAndHiddenFiles.zip");
+    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder, false);
+    assertEquals(9, files.size()); // 9 files, 0 directories
+    assertTrue(new File(tmpDir, "dwca.zip").exists());
+    assertTrue(new File(tmpDir, "eml.xml").exists());
+    assertTrue(new File(tmpDir, "publication.log").exists());
+    assertTrue(new File(tmpDir, "resource.xml").exists());
+    assertTrue(new File(tmpDir, "test4.rtf").exists());
+    assertTrue(new File(tmpDir, "taxon.log").exists());
+    assertTrue(new File(tmpDir, "taxon.txt").exists());
+    assertTrue(new File(tmpDir, "taxonshort.log").exists());
+    assertTrue(new File(tmpDir, "taxonshort.txt").exists());
+    // assert subdirectory is removed
+    File sourceDir = new File(tmpDir, "sources");
+    assertFalse(sourceDir.exists());
+    // assert wrapping root directory is removed
+    File rootDir = new File(tmpDir, "withSubdirsAndHiddenFiles");
+    assertFalse(rootDir.exists());
+    // assert hidden files are removed
+    assertFalse(new File(tmpDir, ".hidden1").exists());
+    assertFalse(new File(tmpDir, "/sources/.hidden2").exists());
+    // assert .DS_Store removed
+    assertFalse(new File(tmpDir, ".DS_Store").exists());
+    // assert __MACOSX removed
+    assertFalse(new File(tmpDir, "__MACOSX").exists());
   }
 
+  /**
+   * Test uzipping a folder, while preserving subdirectories.
+   */
   @Test
-  public void testUnzipFolderDoNotKeepSubdirectories() throws IOException {
+  public void testUnzipFolderKeepSubdirectoriesButNoHiddenFile() throws IOException {
     File tmpDir = createTempDirectory();
-    File testZippedFolder = classpathFile("compression/withSubdirectories.zip");
-    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder, false);
-    // includes .DS_Store and ._.DS_Store
-    assertEquals(11, files.size());
+    File testZippedFolder = classpathFile("compression/withSubdirsAndHiddenFiles.zip");
+    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder, true);
+    assertEquals(6, files.size()); // 5 files, 1 directory having 4 files inside
+    assertTrue(new File(tmpDir, "dwca.zip").exists());
+    assertTrue(new File(tmpDir, "eml.xml").exists());
+    assertTrue(new File(tmpDir, "publication.log").exists());
+    assertTrue(new File(tmpDir, "resource.xml").exists());
+    assertTrue(new File(tmpDir, "test4.rtf").exists());
+    // assert subdirectory was preserved
+    File sourceDir = new File(tmpDir, "sources");
+    assertTrue(sourceDir.isDirectory());
+    assertTrue(sourceDir.exists());
+    assertTrue(new File(sourceDir, "taxon.log").exists());
+    assertTrue(new File(sourceDir, "taxon.txt").exists());
+    assertTrue(new File(sourceDir, "taxonshort.log").exists());
+    assertTrue(new File(sourceDir, "taxonshort.txt").exists());
+    // assert wrapping root directory is removed
+    File rootDir = new File(tmpDir, "withSubdirsAndHiddenFiles");
+    assertFalse(rootDir.exists());
+    // assert hidden files are removed
+    assertFalse(new File(tmpDir, ".hidden1").exists());
+    assertFalse(new File(tmpDir, "/sources/.hidden2").exists());
+    // assert .DS_Store removed
+    assertFalse(new File(tmpDir, ".DS_Store").exists());
+    assertFalse(new File(sourceDir, ".DS_Store").exists());
+    // assert __MACOSX removed
+    assertFalse(new File(tmpDir, "__MACOSX").exists());
   }
 
   @Test

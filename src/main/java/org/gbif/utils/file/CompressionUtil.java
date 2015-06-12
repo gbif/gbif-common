@@ -3,12 +3,14 @@ package org.gbif.utils.file;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -23,6 +25,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +54,7 @@ public class CompressionUtil {
 
   private static final Logger LOG = LoggerFactory.getLogger(CompressionUtil.class);
   private static final int BUFFER = 2048;
+  private static final String APPLE_RESOURCE_FORK = "__MACOSX";
 
   /**
    * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename
@@ -295,44 +300,75 @@ public class CompressionUtil {
   }
 
   /**
-   * Extracts a zipped file into a target directory. Subdirectories or hidden files (i.e. files starting with a dot)
-   * are being ignored according to the parameter keepSubdirectories.
+   * Extracts a zipped file into a target directory. If the file is wrapped in a root directory, this is removed by
+   * default. Other subdirectories are ignored according to the parameter keepSubdirectories.
+   * </br>
+   * The following types of files are also ignored by default:
+   * i) hidden files (i.e. files starting with a dot)
+   * ii) Apple resource fork (__MACOSX), including its subdirectories and subfiles
    *
    * @param directory          where the zipped file and its subdirectories should be extracted to
    * @param zipFile            to extract
    * @param keepSubdirectories whether to preserve subdirectories or not
    *
-   * @return a list of all created files
+   * @return a list of all created files and directories extracted to target directory
    */
   public static List<File> unzipFile(File directory, File zipFile, boolean keepSubdirectories) throws IOException {
     LOG.debug("Unzipping archive " + zipFile.getName() + " into directory: " + directory.getAbsolutePath());
-    List<File> files = new ArrayList<File>();
     ZipFile zf = new ZipFile(zipFile);
     Enumeration<? extends ZipEntry> entries = zf.entries();
     while (entries.hasMoreElements()) {
       ZipEntry entry = entries.nextElement();
-      // is the entry a directory?
-      if (entry.isDirectory()) {
-        continue;
-      } else {
-        // destination file, different depending if we want to keep subdirectories or not
-        File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())
-          : new File(directory, new File(entry.getName()).getName());
-        // collect file
-        files.add(targetFile);
-        // ignore resource fork (__MACOSX)
-        if (targetFile.getAbsolutePath().toUpperCase().contains("__MACOSX")) {
-          LOG.debug("Ignoring file: " + targetFile.getAbsolutePath());
+      // ignore resource fork directories and subfiles
+      if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {
+        LOG.debug("Ignoring resource fork file: " + entry.getName());
+      }
+      // ignore directories (based on flag)
+      else if (entry.isDirectory()) {
+        if (keepSubdirectories) {
+          new File(directory, entry.getName()).mkdir();
         } else {
-          // ensure parent folder always exists
+          LOG.debug("Ignoring (sub)directory: " + entry.getName());
+        }
+      }
+      // ignore hidden files
+      else {
+        if (new File(entry.getName()).getName().startsWith(".")) {
+          LOG.debug("Ignoring hidden file: " + entry.getName());
+        } else {
+          File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())
+            : new File(directory, new File(entry.getName()).getName());
+          // ensure parent folder always exists, and extract file
           createParentFolder(targetFile);
-          // extract file
           extractFile(zf, entry, targetFile);
         }
       }
     }
     zf.close();
-    return files;
+    // remove the wrapping root directory and flatten structure
+    if (keepSubdirectories) {
+      removeRootDirectory(directory);
+    }
+    return (directory.listFiles() == null) ? new ArrayList<File>() : Arrays.asList(directory.listFiles());
+  }
+
+  /**
+   * Removes a wrapping root directory and flatten its structure by moving all that root directory's files and
+   * subdirectories up to the same level as the root directory.
+   */
+  private static void removeRootDirectory(File directory) {
+    File[] rootFiles = directory.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
+    if (rootFiles.length == 1) {
+      File root = rootFiles[0];
+      if (root.isDirectory()) {
+        LOG.debug("Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());
+        for (File f : org.apache.commons.io.FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE)) {
+          File f2 = new File(directory, f.getName());
+          f.renameTo(f2);
+        }
+        root.delete();
+      }
+    }
   }
 
   /**
