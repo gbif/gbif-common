@@ -133,7 +133,7 @@ public class CompressionUtilTest {
   }
 
   /**
-   * Test uzipping a folder, while NOT preserving subdirectories.
+   * Test unzipping a folder, while NOT preserving subdirectories.
    */
   @Test
   public void testUnzipFolderDoNotKeepSubdirectoriesOrHiddenFiles() throws IOException {
@@ -166,7 +166,7 @@ public class CompressionUtilTest {
   }
 
   /**
-   * Test uzipping a folder, while preserving subdirectories.
+   * Test unzipping a folder, while preserving subdirectories.
    */
   @Test
   public void testUnzipFolderKeepSubdirectoriesButNoHiddenFile() throws IOException {
@@ -196,6 +196,51 @@ public class CompressionUtilTest {
     // assert .DS_Store removed
     assertFalse(new File(tmpDir, ".DS_Store").exists());
     assertFalse(new File(sourceDir, ".DS_Store").exists());
+    // assert __MACOSX removed
+    assertFalse(new File(tmpDir, "__MACOSX").exists());
+  }
+
+  /**
+   * Test unzipping a folder, while preserving subdirectories, but making sure the .svn directories and their subfiles
+   * and subdirectories are not extracted.
+   */
+  @Test
+  public void testUnzipFolderKeepSubdirectoriesButNoHiddenDirectories() throws IOException {
+    File tmpDir = createTempDirectory();
+    File testZippedFolder = classpathFile("compression/with_dot_svn.zip");
+    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder, true);
+    assertEquals(7, files.size()); // 5 files, 2 directories
+    // assert wrapping root directory is removed
+    File rootDir = new File(tmpDir, "res1");
+    assertFalse(rootDir.exists());
+    assertTrue(new File(tmpDir, "dwca.zip").exists());
+    assertTrue(new File(tmpDir, "eml.xml").exists());
+    assertTrue(new File(tmpDir, "publication.log").exists());
+    assertTrue(new File(tmpDir, "resource.xml").exists());
+    assertTrue(new File(tmpDir, "test4.rtf").exists());
+
+    // assert subdirectory sources was preserved
+    File sourceDir = new File(tmpDir, "sources");
+    assertTrue(sourceDir.isDirectory());
+    assertTrue(sourceDir.exists());
+    assertEquals(1, sourceDir.listFiles().length);
+    assertTrue(new File(sourceDir, "occurrence.txt").exists());
+
+    // assert subdirectory dwca was preserved
+    File dwcaDir = new File(tmpDir, "dwca");
+    assertTrue(dwcaDir.isDirectory());
+    assertTrue(dwcaDir.exists());
+    assertEquals(4, dwcaDir.listFiles().length);
+    assertTrue(new File(dwcaDir, "occurrence.txt").exists());
+    assertTrue(new File(dwcaDir, "image.txt").exists());
+    assertTrue(new File(dwcaDir, "meta.xml").exists());
+    assertTrue(new File(dwcaDir, "eml.xml").exists());
+
+    // assert hidden files and directories are removed
+    assertFalse(new File(tmpDir, ".svn").exists());
+    assertFalse(new File(tmpDir, "/sources/.svn").exists());
+    // assert .DS_Store removed
+    assertFalse(new File(tmpDir, ".DS_Store").exists());
     // assert __MACOSX removed
     assertFalse(new File(tmpDir, "__MACOSX").exists());
   }

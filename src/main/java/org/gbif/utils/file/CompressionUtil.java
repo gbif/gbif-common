@@ -323,9 +323,11 @@ public class CompressionUtil {
       if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {
         LOG.debug("Ignoring resource fork file: " + entry.getName());
       }
-      // ignore directories (based on flag)
+      // ignore directories and hidden directories (e.g. .svn) (based on flag)
       else if (entry.isDirectory()) {
-        if (keepSubdirectories) {
+        if (isHiddenFile(new File(entry.getName()))) {
+          LOG.debug("Ignoring hidden directory: " + entry.getName());
+        } else if (keepSubdirectories) {
           new File(directory, entry.getName()).mkdir();
         } else {
           LOG.debug("Ignoring (sub)directory: " + entry.getName());
@@ -333,7 +335,7 @@ public class CompressionUtil {
       }
       // ignore hidden files
       else {
-        if (new File(entry.getName()).getName().startsWith(".")) {
+        if (isHiddenFile(new File(entry.getName()))) {
           LOG.debug("Ignoring hidden file: " + entry.getName());
         } else {
           File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())
@@ -350,6 +352,19 @@ public class CompressionUtil {
       removeRootDirectory(directory);
     }
     return (directory.listFiles() == null) ? new ArrayList<File>() : Arrays.asList(directory.listFiles());
+  }
+
+  /**
+   * @return true if file is a hidden file or directory, or if any of its parent directories are hidden checking
+   * recursively
+   */
+  private static boolean isHiddenFile(File f) {
+    if (f.getName().startsWith(".")) {
+      return true;
+    } else if (f.getParentFile() != null) {
+      return isHiddenFile(f.getParentFile());
+    }
+    return false;
   }
 
   /**
