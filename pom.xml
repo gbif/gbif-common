@@ -21,7 +21,7 @@
     <jdkLevel>1.6</jdkLevel>
 
     <commons-compress.version>1.8.1</commons-compress.version>
-    <commons-lang.version>3.3.2</commons-lang.version>
+    <commons-lang.version>3.4</commons-lang.version>
     <commons-io.version>2.4</commons-io.version>
     <guava.version>17.0</guava.version>
     <junit.version>4.11</junit.version>
