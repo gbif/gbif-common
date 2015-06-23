@@ -13,10 +13,14 @@
 
 package org.gbif.utils.file;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
 import org.junit.Test;
+import org.xml.sax.ext.DefaultHandler2;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,11 +29,54 @@ import static org.junit.Assert.assertEquals;
  */
 public class BomSafeInputStreamWrapperTest {
 
+
+  static SAXParserFactory SAX_FACTORY = SAXParserFactory.newInstance();
+
+  static {
+    SAX_FACTORY.setNamespaceAware(true);
+    SAX_FACTORY.setValidating(false);
+  }
+
+  /**
+   * The Java SAX Parser is known to have problems with UTF8 file that contain a proper BOM markup:
+   * http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4508058
+   * https://de.wikipedia.org/wiki/Byte_Order_Mark
+   *
+   *  Make sure the SAX Parser can handle any valid UTF files by using a BomSafeInputStreamWrapper stream.
+   */
   @Test
-  public void testOpenArchive() throws Exception {
+  public void testSaxParser() throws Exception {
+    SAXParser p = SAX_FACTORY.newSAXParser();
+    for (String f : new String[]{"utf8","utf8bom","utf16le","utf16be"}) {
+      String fn = "/sax/" + f + ".xml";
+      System.out.println(fn);
+      InputStream is = ClassLoader.class.getResourceAsStream(fn);
+      p.parse(is, new DefaultHandler2());
+
+      is = new BOMInputStream(ClassLoader.class.getResourceAsStream(fn));
+      p.parse(is, new DefaultHandler2());
+    }
+  }
+
+  @Test
+  public void testUTF16Stream() throws Exception {
+    // should be the exact same bytes
+
+    byte[] b1 = IOUtils.toByteArray(ClassLoader.class.getResourceAsStream("/sax/utf16le.xml"));
+    byte[] b2 = IOUtils.toByteArray(new BOMInputStream(ClassLoader.class.getResourceAsStream("/sax/utf16le.xml")));
+
+    assertEquals(b1.length, b2.length);
+    int idx=0;
+    for (byte b : b1) {
+      assertEquals(b, b2[idx++]);
+    }
+  }
+
+
+  @Test
+  public void testBomSafeInputStreamWrapper() throws Exception {
     // test no bom
-    InputStream in =
-      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-8_names.txt")));
+    InputStream in = new BomSafeInputStreamWrapper(getClass().getResourceAsStream("/charsets/utf-8_names.txt"));
     int x = in.read();
     int y = in.read();
     int z = in.read();
@@ -38,7 +85,7 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(35, y);
     assertEquals(35, z);
 
-    in = new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-8_bom_names.txt")));
+    in = new BomSafeInputStreamWrapper(getClass().getResourceAsStream("/charsets/utf-8_bom_names.txt"));
     x = in.read();
     y = in.read();
     z = in.read();
@@ -47,7 +94,7 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(35, y);
     assertEquals(35, z);
 
-    in = new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-16LE_names.txt")));
+    in = new BomSafeInputStreamWrapper(getClass().getResourceAsStream("/charsets/utf-16LE_names.txt"));
     x = in.read();
     y = in.read();
     z = in.read();
@@ -57,7 +104,7 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(35, z);
 
     in =
-      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-16LE_bom_names.txt")));
+      new BomSafeInputStreamWrapper(getClass().getResourceAsStream("/charsets/utf-16LE_bom_names.txt"));
     x = in.read();
     y = in.read();
     z = in.read();
@@ -67,7 +114,7 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(35, z);
 
     in =
-      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-16BE_bom_names.txt")));
+      new BomSafeInputStreamWrapper(getClass().getResourceAsStream("/charsets/utf-16BE_bom_names.txt"));
     x = in.read();
     y = in.read();
     z = in.read();
@@ -77,7 +124,7 @@ public class BomSafeInputStreamWrapperTest {
     assertEquals(0, z);
 
     in =
-      new BomSafeInputStreamWrapper(new FileInputStream(FileUtils.getClasspathFile("charsets/utf-16BE_bom_names.txt")));
+      new BomSafeInputStreamWrapper(getClass().getResourceAsStream("/charsets/utf-16BE_bom_names.txt"));
     x = in.read();
     y = in.read();
     z = in.read();

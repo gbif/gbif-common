@@ -1,0 +1,51 @@
+<archive xmlns='http://rs.tdwg.org/dwc/text/' metadata='eml.xml'>
+  <core encoding='UTF-16LE' fieldsTerminatedBy='\t' linesTerminatedBy='\n' fieldsEnclosedBy='' ignoreHeaderLines='0' rowType='http://rs.tdwg.org/dwc/terms/Occurrence'>
+    <files>
+      <location>occurrence.txt</location>
+    </files>
+    <id index='0' />
+    <field index='1' term='http://rs.tdwg.org/dwc/terms/samplingProtocol'/>
+    <field index='2' term='http://rs.tdwg.org/dwc/terms/eventDate'/>
+    <field index='3' term='http://rs.tdwg.org/dwc/terms/habitat'/>
+    <field index='4' term='http://rs.tdwg.org/dwc/terms/identifiedBy'/>
+    <field index='5' term='http://rs.tdwg.org/dwc/terms/dateIdentified'/>
+    <field index='6' term='http://rs.tdwg.org/dwc/terms/typeStatus'/>
+    <field index='7' term='http://rs.tdwg.org/dwc/terms/waterBody'/>
+    <field index='8' term='http://rs.tdwg.org/dwc/terms/country'/>
+    <field index='9' term='http://rs.tdwg.org/dwc/terms/stateProvince'/>
+    <field index='10' term='http://rs.tdwg.org/dwc/terms/county'/>
+    <field index='11' term='http://rs.tdwg.org/dwc/terms/locality'/>
+    <field index='12' term='http://rs.tdwg.org/dwc/terms/verbatimElevation'/>
+    <field index='13' term='http://rs.tdwg.org/dwc/terms/decimalLatitude'/>
+    <field index='14' term='http://rs.tdwg.org/dwc/terms/decimalLongitude'/>
+    <field index='15' term='http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters'/>
+    <field index='16' term='http://rs.tdwg.org/dwc/terms/catalogNumber'/>
+    <field index='17' term='http://rs.tdwg.org/dwc/terms/individualCount'/>
+    <field index='18' term='http://rs.tdwg.org/dwc/terms/sex'/>
+    <field index='19' term='http://rs.tdwg.org/dwc/terms/lifeStage'/>
+    <field index='20' term='http://rs.tdwg.org/dwc/terms/preparations'/>
+    <field index='21' term='http://rs.tdwg.org/dwc/terms/associatedTaxa'/>
+    <field index='22' term='http://purl.org/dc/terms/modified'/>
+    <field index='23' default='en' term='http://purl.org/dc/terms/language'/>
+    <field index='24' default='75' term='http://rs.tdwg.org/dwc/terms/institutionID'/>
+    <field index='25' default='225' term='http://rs.tdwg.org/dwc/terms/datasetID'/>
+    <field index='26' default='INHS' term='http://rs.tdwg.org/dwc/terms/institutionCode'/>
+    <field index='27' default='Insect Collection' term='http://rs.tdwg.org/dwc/terms/collectionCode'/>
+    <field index='28' default='Illinois Natural History Survey' term='http://rs.tdwg.org/dwc/terms/datasetName'/>
+    <field index='29' default='Preserved Specimen' term='http://rs.tdwg.org/dwc/terms/basisOfRecord'/>
+    <field index='30' term='http://rs.tdwg.org/dwc/terms/taxonID'/>
+    <field index='31' term='http://rs.tdwg.org/dwc/terms/originalNameUsage'/>
+    <field index='32' term='http://rs.tdwg.org/dwc/terms/kingdom'/>
+    <field index='33' term='http://rs.tdwg.org/dwc/terms/phylum'/>
+    <field index='34' term='http://rs.tdwg.org/dwc/terms/class'/>
+    <field index='35' term='http://rs.tdwg.org/dwc/terms/order'/>
+    <field index='36' term='http://rs.tdwg.org/dwc/terms/family'/>
+    <field index='37' term='http://rs.tdwg.org/dwc/terms/genus'/>
+    <field index='38' term='http://rs.tdwg.org/dwc/terms/subgenus'/>
+    <field index='39' term='http://rs.tdwg.org/dwc/terms/specificEpithet'/>
+    <field index='40' term='http://rs.tdwg.org/dwc/terms/infraspecificEpithet'/>
+    <field index='41' term='http://rs.tdwg.org/dwc/terms/scientificNameAuthorship'/>
+    <field index='42' term='http://rs.tdwg.org/dwc/terms/scientificName'/>
+    <field index='43' default='ICZN' term='http://rs.tdwg.org/dwc/terms/nomenclaturalCode'/>
+  </core>
+</archive>
