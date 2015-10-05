@@ -99,15 +99,22 @@ public class StringUtils {
    * @return a random canonical species name
    */
   public static String randomSpecies() {
-    return WordUtils.capitalize(randomString(rnd.nextInt(9) + 3).toLowerCase()) + " " + randomString(rnd.nextInt(11) + 4).toLowerCase();
+    return randomGenus() + " " + randomEpithet();
   }
 
+  public static String randomGenus() {
+    return WordUtils.capitalize(randomString(rnd.nextInt(9) + 3).toLowerCase());
+  }
+
+  public static String randomEpithet() {
+    return randomString(rnd.nextInt(12) + 4).toLowerCase();
+  }
   public static String randomFamily() {
       return WordUtils.capitalize(StringUtils.randomString(rnd.nextInt(15) + 5).toLowerCase()) + "idae";
   }
 
   public static String randomAuthor() {
-      return WordUtils.capitalize(StringUtils.randomString(rnd.nextInt(12) + 1).toLowerCase());
+    return WordUtils.capitalize(StringUtils.randomString(rnd.nextInt(12) + 1).toLowerCase());
   }
 
   /**
