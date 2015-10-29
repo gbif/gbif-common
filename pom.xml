@@ -13,7 +13,7 @@
 
   <name>GBIF Common</name>
   <description>Utils and other classes in use by more than one GBIF project.</description>
-  <url>http://sites.gbif.org/common-resources/gbif-common</url>
+  <url>https://github.com/gbif/gbif-common</url>
 
   <properties>
     <!-- The IPT depends on this project and so this must stay at java 6 until IPT is upgraded -->
