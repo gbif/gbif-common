@@ -45,14 +45,6 @@
     <url>http://builds.gbif.org/job/gbif-common</url>
   </ciManagement>
 
-  <distributionManagement>
-    <site>
-      <id>gbif-site</id>
-      <name>Site for the gbif-common project</name>
-      <url>scp://tools.gbif.org:/var/www/html/sites/common-resources/gbif-common</url>
-    </site>
-  </distributionManagement>
-
   <repositories>
     <repository>
       <id>gbif-all</id>
