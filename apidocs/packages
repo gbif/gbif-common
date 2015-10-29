@@ -1,0 +1,5 @@
+org.gbif.utils.text
+org.gbif.utils.collection
+org.gbif.utils.rs
+org.gbif.utils.file
+org.gbif.utils.file.properties
