@@ -1,23 +1,23 @@
 -classpath
-'/var/lib/jenkins/jobs/gbif-common/workspace/target/classes:/var/lib/jenkins/.m2/repository/org/apache/commons/commons-compress/1.9/commons-compress-1.9.jar:/var/lib/jenkins/.m2/repository/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/var/lib/jenkins/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4.jar:/var/lib/jenkins/.m2/repository/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar:/var/lib/jenkins/.m2/repository/com/google/guava/guava/18.0/guava-18.0.jar'
+'/var/lib/jenkins/jobs/gbif-common/workspace/target/checkout/target/classes:/var/lib/jenkins/.m2/repository/org/apache/commons/commons-compress/1.9/commons-compress-1.9.jar:/var/lib/jenkins/.m2/repository/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/var/lib/jenkins/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4.jar:/var/lib/jenkins/.m2/repository/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar:/var/lib/jenkins/.m2/repository/com/google/guava/guava/18.0/guava-18.0.jar'
 -encoding
 'UTF-8'
 -protected
 -quiet
 -sourcepath
-'/var/lib/jenkins/jobs/gbif-common/workspace/src/main/java:/var/lib/jenkins/jobs/gbif-common/workspace/target/generated-sources/annotations'
+'/var/lib/jenkins/jobs/gbif-common/workspace/target/checkout/src/main/java:/var/lib/jenkins/jobs/gbif-common/workspace/target/checkout/target/generated-sources/annotations'
 -author
 -bottom
 'Copyright &#169; 2015 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.'
 -charset
 'UTF-8'
 -d
-'/var/lib/jenkins/jobs/gbif-common/workspace/target/site/apidocs'
+'/var/lib/jenkins/jobs/gbif-common/workspace/target/checkout/target/site/apidocs'
 -docencoding
 'UTF-8'
 -docfilessubdirs
 -doctitle
-'GBIF Common 0.20-SNAPSHOT API'
+'GBIF Common 0.21 API'
 -link
 'http://freemarker.org/docs/api'
 -link
@@ -25,9 +25,9 @@
 -link
 'http://findbugs.sourceforge.net/api'
 -linkoffline
-'http://docs.oracle.com/javase/6/docs/api' '/var/lib/jenkins/jobs/gbif-common/workspace/target/javadoc-bundle-options'
+'http://docs.oracle.com/javase/6/docs/api' '/var/lib/jenkins/jobs/gbif-common/workspace/target/checkout/target/javadoc-bundle-options'
 -linksource
 -use
 -version
 -windowtitle
-'GBIF Common 0.20-SNAPSHOT API'
+'GBIF Common 0.21 API'
