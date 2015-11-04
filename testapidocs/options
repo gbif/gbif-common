@@ -17,7 +17,7 @@
 'UTF-8'
 -docfilessubdirs
 -doctitle
-'GBIF Common 0.21 Test API'
+'GBIF Common 0.20 Test API'
 -link
 'http://freemarker.org/docs/api'
 -link
@@ -32,4 +32,4 @@
 -use
 -version
 -windowtitle
-'GBIF Common 0.21 Test API'
+'GBIF Common 0.20 Test API'
