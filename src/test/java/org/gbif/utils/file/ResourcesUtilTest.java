@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class ResourcesUtilTest {
@@ -40,14 +40,13 @@ public class ResourcesUtilTest {
     assertTestFile(t1);
     assertTestFile(t2);
   }
-
-
+    
   @Test
   public void testList() throws Exception {
-    assertArrayEquals(new String[]{"test.txt", "test2"}, ResourcesUtil.list(ResourcesUtil.class, "test1"));
-    assertArrayEquals(new String[]{"test.txt"}, ResourcesUtil.list(ResourcesUtil.class, "test1/test2"));
-    assertArrayEquals(new String[]{"utf16be.xml", "utf16le.xml", "utf8.xml", "utf8bom.xml"}, ResourcesUtil.list(ResourcesUtil.class, "sax"));
-    assertArrayEquals(new String[]{}, ResourcesUtil.list(ResourcesUtil.class, "abba"));
+    assertEquals(Sets.newHashSet("test.txt", "test2"), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1")));
+    assertEquals(Sets.newHashSet("test.txt"), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1/test2")));
+    assertEquals(Sets.newHashSet("utf16be.xml", "utf16le.xml", "utf8.xml", "utf8bom.xml"), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "sax")));
+    assertEquals(Sets.newHashSet(), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "abba")));
   }
 
   private void assertTestFile(File tf) throws FileNotFoundException {
