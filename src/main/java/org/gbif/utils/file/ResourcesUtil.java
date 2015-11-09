@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,9 @@ public class ResourcesUtil {
      * @throws IOException
      */
     public static String[] list(Class clazz, String path) throws IOException {
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
         URL dirURL = clazz.getClassLoader().getResource(path);
         if (dirURL != null && dirURL.getProtocol().equals("file")) {
         /* A file path: easy enough */
@@ -116,12 +120,14 @@ public class ResourcesUtil {
                 String name = entries.nextElement().getName();
                 if (name.startsWith(path)) { //filter according to the path
                     String entry = name.substring(path.length());
-                    int checkSubdir = entry.indexOf("/");
-                    if (checkSubdir >= 0) {
-                        // if it is a subdirectory, we just return the directory name
-                        entry = entry.substring(0, checkSubdir);
+                    if (!StringUtils.isBlank(entry)) {
+                        int checkSubdir = entry.indexOf("/");
+                        if (checkSubdir >= 0) {
+                            // if it is a subdirectory, we just return the directory name
+                            entry = entry.substring(0, checkSubdir);
+                        }
+                        result.add(entry);
                     }
-                    result.add(entry);
                 }
             }
             return result.toArray(new String[result.size()]);

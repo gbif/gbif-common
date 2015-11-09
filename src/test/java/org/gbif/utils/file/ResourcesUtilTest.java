@@ -40,7 +40,7 @@ public class ResourcesUtilTest {
     assertTestFile(t1);
     assertTestFile(t2);
   }
-    
+
   @Test
   public void testList() throws Exception {
     assertEquals(Sets.newHashSet("test.txt", "test2"), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1")));
