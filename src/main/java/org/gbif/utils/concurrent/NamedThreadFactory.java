@@ -14,11 +14,14 @@ public class NamedThreadFactory implements ThreadFactory {
   private final AtomicInteger threadNumber = new AtomicInteger(1);
   private final String namePrefix;
 
+  /**
+   * @param poolName the name prefix of the thread pool which will be appended -number for the individual thread
+   */
   public NamedThreadFactory(String poolName) {
     SecurityManager s = System.getSecurityManager();
     group = (s != null) ? s.getThreadGroup() :
         Thread.currentThread().getThreadGroup();
-    namePrefix = poolName + "-thread-";
+    namePrefix = poolName + "-";
   }
 
   public Thread newThread(Runnable r) {
