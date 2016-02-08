@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Properties;
 
 import com.google.common.base.Preconditions;
@@ -239,4 +240,59 @@ public class PropertiesUtil {
     }
     return filtered;
   }
+
+  /**
+   * Returns a new Properties object that contains only the elements where the key starts by the provided
+   * prefix. The same keys will be used in the returned Properties.
+   * @param original
+   * @param prefix
+   * @return
+   */
+  public static Properties subsetProperties(final Properties original, String prefix) {
+    return propertiesByPrefix(original, prefix, false);
+  }
+
+  /**
+   * Remove properties from the original object and return the removed element(s) as new Properties object.
+   * The same keys will be used in the returned Properties.
+   * @param original original object in which the element will be removed if key starts with provided prefix.
+   * @param prefix
+   * @return
+   */
+  public static Properties removeProperties(final Properties original, String prefix) {
+    return propertiesByPrefix(original, prefix, true);
+  }
+
+  /**
+   * Get a a new Properties object that only contains the elements that start with the prefix.
+   * The same keys will be used in the returned Properties.
+   * @param original
+   * @param prefix
+   * @param remove should the element(s) be removed from the original Properties object
+   * @return
+   */
+  private static Properties propertiesByPrefix(final Properties original, String prefix, boolean remove) {
+    Preconditions.checkNotNull(original, "Can't filter a null Properties");
+    Preconditions.checkState(StringUtils.isNotBlank(prefix), "Can't filter using a blank prefix", original);
+
+    Properties filtered = new Properties();
+
+    if(original.isEmpty()){
+      return filtered;
+    }
+
+    Iterator<Object> keysIt = original.keySet().iterator();
+    String key;
+    while (keysIt.hasNext()) {
+      key = String.valueOf(keysIt.next());
+      if (key.startsWith(prefix)) {
+        filtered.setProperty(key, original.getProperty(key));
+        if(remove){
+          keysIt.remove();
+        }
+      }
+    }
+    return filtered;
+  }
+
 }
