@@ -64,6 +64,19 @@ public class CSVReaderFactory {
     return new CSVReader(stream, encoding, delimiter, quotes, headerRows);
   }
 
+  /**
+   * Build a CSVReader and try to detect the encoding, delimiter and quotes.
+   * @param source
+   * @param headerRows
+   * @return
+   * @throws IOException
+   */
+  public static CSVReader build(File source, Integer headerRows) throws IOException {
+    String encoding = detectEncoding(source);
+    CSVMetadata csvMeta  = extractCsvMetadata(source, encoding);
+    return new CSVReader(source, encoding, csvMeta.getDelimiter(), csvMeta.getQuotedBy(), headerRows);
+  }
+
   public static CSVReader buildTabReader(InputStream stream, String encoding, Integer headerRows) throws IOException {
     return new CSVReader(stream, encoding, "\t", null, headerRows);
   }
@@ -77,7 +90,7 @@ public class CSVReaderFactory {
     // try csv, tab and then other popular delimiters
     // keep number of resulting columns for comparisons
     int maxColumns = 0;
-    
+
     for (String delim : POTENTIAL_DELIMITERS) {
       // test with various quotes including a dynamic one if the first char in each field is consistently the same
       List<Character> potentialQuotes = new ArrayList<Character>();
