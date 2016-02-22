@@ -61,19 +61,60 @@ public class CSVReaderFactory {
     }
   }
 
+  /**
+   * Build a CSVReader with specific delimiter and presence or not of a header line.
+   * Encoding detection will be attempted.
+   * @param source
+   * @param delimiter
+   * @param header Does the file include a header line ?
+   * @return
+   * @throws IOException
+   */
   public static CSVReader build(File source, String delimiter, boolean header) throws IOException {
     return new CSVReader(source, detectEncoding(source), delimiter, null, header ? 1 : 0);
   }
 
+  /**
+   * Build a CSVReader with specific encoding, delimiter, quotes character and number of header row(s).
+   *
+   * @param source
+   * @param encoding
+   * @param delimiter
+   * @param quotes
+   * @param headerRows
+   * @return
+   * @throws IOException
+   */
   public static CSVReader build(File source, String encoding, String delimiter, Character quotes, Integer headerRows)
           throws IOException {
     return new CSVReader(source, encoding, delimiter, quotes, headerRows);
   }
 
+  /**
+   * Build a CSVReader with specific encoding, delimiter and number of header row(s) but default quote character
+   * (quotation marks)
+   * @param source
+   * @param encoding
+   * @param delimiter
+   * @param headerRows
+   * @return
+   * @throws IOException
+   */
   public static CSVReader build(File source, String encoding, String delimiter, Integer headerRows) throws IOException {
     return new CSVReader(source, encoding, delimiter, '"', headerRows);
   }
 
+  /**
+   * Build a CSVReader with specific encoding, delimiter quotes and number of header row(s)
+   *
+   * @param stream
+   * @param encoding
+   * @param delimiter
+   * @param quotes
+   * @param headerRows
+   * @return
+   * @throws IOException
+   */
   public static CSVReader build(InputStream stream, String encoding, String delimiter, Character quotes,
                                 Integer headerRows) throws IOException {
     return new CSVReader(stream, encoding, delimiter, quotes, headerRows);
@@ -81,6 +122,7 @@ public class CSVReaderFactory {
 
   /**
    * Build a CSVReader and try to detect the encoding, delimiter and quotes.
+   *
    * @param source
    * @param headerRows
    * @return
@@ -111,6 +153,15 @@ public class CSVReaderFactory {
     return buildTabReader(stream, "utf8", 0);
   }
 
+  /**
+   * Extract metadata from a CSV file.
+   * Metadata includes delimiter and quotes character.
+   * 
+   * @param source
+   * @param encoding
+   * @return
+   * @throws UnkownDelimitersException
+   */
   public static CSVMetadata extractCsvMetadata(File source, String encoding) throws UnkownDelimitersException {
     CSVMetadata csvMetadata = new CSVMetadata();
     // try csv, tab and then other popular delimiters
@@ -146,7 +197,7 @@ public class CSVReaderFactory {
         try {
           reader = build(source, encoding, delim, quote, 0);
           int x = consistentRowSize(reader);
-          //          System.out.println("Delim >>>"+delim+"<<<  Quote >>>"+quote+"<<<   rowSize="+x);
+          // try to find the delimiter and quote that will give us the maximum number of rows
           if (x > maxColumns) {
             csvMetadata.setDelimiter(delim);
             csvMetadata.setQuotedBy(quote);
