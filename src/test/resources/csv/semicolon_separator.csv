@@ -1,0 +1,19 @@
+taxonRank;scientificName;scientificNameAuthorship;taxonID;parentNameUsageID;vernacularName;taxonomicStatus
+class;Insecta;;urn:lsid:luomus.fi:taxonconcept:ff87ecbe-5020-4dee-81f1-a2e226e738c5:1;;;valid
+class;Hymenoptera;;urn:lsid:luomus.fi:taxonconcept:e684ccc4-3f37-4b26-a261-038858bd8157:1;urn:lsid:luomus.fi:taxonconcept:ff87ecbe-5020-4dee-81f1-a2e226e738c5:1;;valid
+superfamily;Ichneumonoidea;;urn:lsid:luomus.fi:taxonconcept:19e74a15-83ba-4559-9117-45bad24804b4:1;urn:lsid:luomus.fi:taxonconcept:e684ccc4-3f37-4b26-a261-038858bd8157:1;;valid
+family;Ichneumonidae;;urn:lsid:luomus.fi:taxonconcept:58414b83-d357-46cb-8311-2debad708d0d:1;urn:lsid:luomus.fi:taxonconcept:19e74a15-83ba-4559-9117-45bad24804b4:1;;valid
+subfamily;Tryphoninae;;urn:lsid:luomus.fi:taxonconcept:028d487f-c989-4fd0-bdae-447c470b94ce:1;urn:lsid:luomus.fi:taxonconcept:58414b83-d357-46cb-8311-2debad708d0d:1;;valid
+tribe;Phytodietini;;urn:lsid:luomus.fi:taxonconcept:51b720ea-b4ee-4256-be82-3bdb83a73968:1;urn:lsid:luomus.fi:taxonconcept:028d487f-c989-4fd0-bdae-447c470b94ce:1;;valid
+genus;Phytodietus;Gravenhorst, 1829 ;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;urn:lsid:luomus.fi:taxonconcept:51b720ea-b4ee-4256-be82-3bdb83a73968:1;;valid
+species;Phytodietus albipes;Holmgren, 1854 ;urn:lsid:luomus.fi:taxonconcept:d9254e46-6240-4f71-9b61-999f0c9051a1:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;valid
+species;Phytodietus arcuatorius;(Thunberg, 1822) ;urn:lsid:luomus.fi:taxonconcept:a7261fa4-8a19-40b2-a147-ec564270f4be:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;valid
+species;Phytodietus geniculosus;auct.;urn:lsid:luomus.fi:taxonconcept:a7261fa4-8a19-40b2-a147-ec564270f4be:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;invalid;
+species;Phytodietus crassitarsis;Thomson, 1877 ;urn:lsid:luomus.fi:taxonconcept:a64470ac-ab29-4da8-84f4-bd1af224b040:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;valid
+species;Phytodietus gelitorius;(Thunberg, 1822) ;urn:lsid:luomus.fi:taxonconcept:b5ce7de4-f60d-40e1-83d9-5dafdf023074:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;valid
+species;Phytodietus coryphaeus;Gravenhorst, 1829 ;urn:lsid:luomus.fi:taxonconcept:b5ce7de4-f60d-40e1-83d9-5dafdf023074:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;invalid;
+species;Phytodietus ornatus;auct.;urn:lsid:luomus.fi:taxonconcept:b5ce7de4-f60d-40e1-83d9-5dafdf023074:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;invalid;
+species;Phytodietus crassitarsis;auct.;urn:lsid:luomus.fi:taxonconcept:b5ce7de4-f60d-40e1-83d9-5dafdf023074:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;invalid;
+species;Phytodietus geniculatus;Thomson, 1877 ;urn:lsid:luomus.fi:taxonconcept:b49c252b-8768-400b-99f8-595f3f1cff7a:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;valid
+species;Phytodietus ornatus;Desvignes, 1856 ;urn:lsid:luomus.fi:taxonconcept:eb99f259-49a0-4afe-9727-3fba5614cda5:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;valid
+species;Phytodietus polyzonias;(Forster, 1771) ;urn:lsid:luomus.fi:taxonconcept:3424207a-9b19-4256-a475-ce466ef1069c:1;urn:lsid:luomus.fi:taxonconcept:6ad4339c-a482-40be-917e-0aaf89f0db5b:1;;valid
