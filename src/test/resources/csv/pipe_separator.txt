@@ -1,0 +1,10 @@
+1||Lophopsittacus bensoni Holyoak, 1973|Animalia|Chordata|Aves|Psittaciformes|Psittacidae
+3||Aaadonta angaurana|Animalia|Mollusca|Gastropoda|Stylommatophora|Endodontidae
+4||Aaadonta constricta|Animalia|Mollusca|Gastropoda|Stylommatophora|Endodontidae
+5||Aaadonta fuscozonata|Animalia|Mollusca|Gastropoda|Stylommatophora|Endodontidae
+6||Aaadonta irregularis|Animalia|Mollusca|Gastropoda|Stylommatophora|Endodontidae
+7||Aaadonta kinlochi|Animalia|Mollusca|Gastropoda|Stylommatophora|Endodontidae
+8||Aaadonta pelewana|Animalia|Mollusca|Gastropoda|Stylommatophora|Endodontidae
+9||Aaptosyax grypus Rainboth, 1991|Animalia|Chordata|Actinopterygii|Cypriniformes|Cyprinidae
+16||Abrawayaomys ruschii Cunha & Cruz, 1979|Animalia|Chordata|Mammalia|Rodentia|Muridae
+227||Acipenser ruthenus Linnaeus, 1758|Animalia|Chordata|Actinopterygii|Acipenseriformes|Acipenseridae
