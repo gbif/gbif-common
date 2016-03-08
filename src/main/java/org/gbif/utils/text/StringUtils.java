@@ -3,6 +3,7 @@ package org.gbif.utils.text;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.Normalizer;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Random;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.text.WordUtils;
  * commons {@link org.apache.commons.lang3.StringUtils}.
  */
 public class StringUtils {
+  private static Pattern MARKER = Pattern.compile("\\p{M}");
   public static final int LINNEAN_YEAR = 1751;
   private static final String CONS = "BCDFGHJKLMNPQRSTVWXYZ";
   private static final Pattern OCT = Pattern.compile("^[0-7]+$");
@@ -27,6 +29,73 @@ public class StringUtils {
   private static Random rnd = new Random();
 
   private StringUtils() {
+  }
+
+  /**
+   * Removes accents & diacretics and converts ligatures into several chars
+   * @param x string to fold into ASCII
+   * @return string converted to ASCII equivalent, expanding common ligatures
+   */
+  public static String foldToAscii(String x) {
+    if (x == null) {
+      return null;
+    }
+    x = replaceSpecialCases(x);
+    // use java unicode normalizer to remove accents
+    x = Normalizer.normalize(x, Normalizer.Form.NFD);
+    return MARKER.matcher(x).replaceAll("");
+  }
+
+  /**
+   * The Normalizer misses a few cases and 2 char ligatures which we deal with here
+   */
+  private static String replaceSpecialCases(String x) {
+    StringBuffer sb = new StringBuffer();
+
+    for (int i = 0; i < x.length(); i++) {
+      char c = x.charAt(i);
+      switch (c) {
+        case 'ß':
+          sb.append("ss");
+          break;
+        case 'Æ':
+          sb.append("AE");
+          break;
+        case 'æ':
+          sb.append("ae");
+          break;
+        case 'Ð':
+          sb.append("D");
+          break;
+        case 'đ':
+          sb.append("d");
+          break;
+        case 'ð':
+          sb.append("d");
+          break;
+        case 'Ø':
+          sb.append("O");
+          break;
+        case 'ø':
+          sb.append("o");
+          break;
+        case 'Œ':
+          sb.append("OE");
+          break;
+        case 'œ':
+          sb.append("oe");
+          break;
+        case 'Ŧ':
+          sb.append("T");
+          break;
+        case 'ŧ':
+          sb.append("t");
+          break;
+        default:
+          sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
   /**

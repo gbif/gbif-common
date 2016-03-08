@@ -22,6 +22,7 @@ import java.util.Properties;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -80,6 +81,49 @@ public class PropertiesUtilTest {
     Properties newProperties = PropertiesUtil.removeProperties(properties, "prefix");
     assertNotNull(newProperties);
     assertEquals(0, properties.size());
+  }
+
+  @Test
+  public void testBooleanProperties(){
+    final String KEY = "key";
+    Properties p = new Properties();
+    p.put(KEY, "value1");
+    assertFalse(PropertiesUtil.propertyAsBool(p, KEY, false));
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, true));
+
+    p.put(KEY, "false");
+    assertFalse(PropertiesUtil.propertyAsBool(p, KEY, true));
+
+    p.put(KEY, "f");
+    assertFalse(PropertiesUtil.propertyAsBool(p, KEY, true));
+
+    p.put(KEY, "csy");
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, true));
+
+    p.put(KEY, "no");
+    assertFalse(PropertiesUtil.propertyAsBool(p, KEY, true));
+
+    p.remove(KEY);
+    assertFalse(PropertiesUtil.propertyAsBool(p, KEY, false));
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, true));
+
+    p.put(KEY, "yes");
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, false));
+
+    p.put(KEY, "y");
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, false));
+
+    p.put(KEY, "Yes");
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, false));
+
+    p.put(KEY, "True");
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, false));
+
+    p.put(KEY, "t");
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, false));
+
+    p.put(KEY, "on");
+    assertTrue(PropertiesUtil.propertyAsBool(p, KEY, false));
   }
 
   @Test(expected = NullPointerException.class)

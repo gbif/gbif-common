@@ -28,6 +28,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.Closer;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -186,6 +187,23 @@ public class PropertiesUtil {
         return defaultValue;
       }
     }
+  }
+
+
+  /**
+   * Reads and casts the named property as a boolean.
+   * Case insensitive values for 'true', 'on', 'yes', 't' and 'y' return true values,
+   * 'false', 'off', 'no', 'f' and 'n' return false.
+   * Otherwise or in case of a missing property the default will be used.
+   *
+   * @param p The properties file to read from.
+   * @param key To read the value of.
+   * @param defaultValue If the property is not found this is returned for missing properties.
+   * @return The property at the key as a boolean
+   */
+  public static boolean propertyAsBool(Properties p, String key, boolean defaultValue) {
+    Boolean val = BooleanUtils.toBooleanObject(p.getProperty(key, null));
+    return val == null ? defaultValue : val;
   }
 
   /**

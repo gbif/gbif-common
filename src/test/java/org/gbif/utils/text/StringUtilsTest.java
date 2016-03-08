@@ -33,4 +33,23 @@ public class StringUtilsTest {
     String rnd = StringUtils.randomString(22);
     assertEquals(rnd, rnd.toUpperCase());
   }
+
+  @Test
+  public void testFoldToAscii() throws Exception {
+    assertEquals(null, StringUtils.foldToAscii(null));
+    assertEquals("", StringUtils.foldToAscii(""));
+    assertEquals("Schulhof, Gymnasium Hurth", StringUtils.foldToAscii("Schulhof, Gymnasium Hürth"));
+    assertEquals("Doring", StringUtils.foldToAscii("Döring"));
+    assertEquals("Desireno", StringUtils.foldToAscii("Désírèñø"));
+    assertEquals("Debreczy & I. Racz", StringUtils.foldToAscii("Debreçzÿ & Ï. Rácz"));
+    assertEquals("Donatia novae-zelandiae", StringUtils.foldToAscii("Donatia novae-zelandiæ"));
+    assertEquals("Carex ×cayouettei", StringUtils.foldToAscii("Carex ×cayouettei"));
+    assertEquals("Carex comosa × Carex lupulina", StringUtils.foldToAscii("Carex comosa × Carex lupulina"));
+    assertEquals("Aeropyrum coil-shaped virus", StringUtils.foldToAscii("Aeropyrum coil-shaped virus"));
+    assertEquals("†Lachnus bonneti", StringUtils.foldToAscii("†Lachnus bonneti"));
+
+    String test = "ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ";
+    assertEquals("SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy", StringUtils.foldToAscii(test));
+
+  }
 }
