@@ -1,6 +1,8 @@
 package org.gbif.utils.number;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import org.junit.Test;
 
@@ -30,6 +32,32 @@ public class DoubleVsBigDecimal {
     }
     assertEquals(currentValue, new BigDecimal("1.0"));
     assertTrue(currentValue.doubleValue() == 1d);
+
+    assertTrue(999199.1231231235 == 999199.1231231236);
+  }
+
+  /**
+   * This demonstrate the possible issue with the default rounding mode of NumberFormat (RoundingMode.HALF_EVEN).
+   * This is a modified version from the blog post:
+   * https://blogs.oracle.com/CoreJavaTechTips/entry/the_need_for_bigdecimal
+   *
+   * No idea why the blog says "why does 90.045 round down to 90.04 and not up to 90.05" because it is not the case.
+   */
+  @Test
+  public void testRoundingUsingFormat(){
+
+    //Simple default DecimalFormat to keep only 2 decimals
+    //this simply demonstrates the default rounding behavior (RoundingMode.HALF_EVEN)
+    NumberFormat myFormatter = new DecimalFormat("##.##");
+    assertEquals("90.05", myFormatter.format(90.045)); //90.045
+    assertEquals("90.14", myFormatter.format(90.145));
+    assertEquals("90.25", myFormatter.format(90.245));
+    assertEquals("90.34", myFormatter.format(90.345));
+
+    //same thing with NumberFormat for Currency
+    NumberFormat moneyFormatter = NumberFormat.getCurrencyInstance();
+    assertTrue(moneyFormatter.format(90.045).contains("90.05"));
+    assertTrue(moneyFormatter.format(90.145).contains("90.14"));
   }
 
   @Test
@@ -57,4 +85,5 @@ public class DoubleVsBigDecimal {
     assertEquals(t3, t4);
     assertEquals(new BigDecimal("1280.24574"), t3);
   }
+
 }
