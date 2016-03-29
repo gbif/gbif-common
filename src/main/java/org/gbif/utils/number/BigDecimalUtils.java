@@ -5,17 +5,19 @@ import java.math.BigDecimal;
 import com.google.common.base.Preconditions;
 
 /**
- * Utility class to work with BigDecimal
+ * Utility class to work with BigDecimal.
+ * See DoubleVsBigDecimal test class for more details about {@link BigDecimal}
  */
 public class BigDecimalUtils {
 
   private BigDecimalUtils(){}
 
   /**
-   * Convert a double to a BigDecimal
+   * Convert a double to a BigDecimal.
+   *
    * @param value non-null value to convert into a BigDecimal.
    * @param stripTrailingZeros should the trailing zero(s) be removed? e.g. 25.0 would become 25
-   * @return
+   * @return instance of BigDecimal
    */
   public static BigDecimal fromDouble(Double value, boolean stripTrailingZeros){
 

@@ -12,12 +12,18 @@ import static org.junit.Assert.assertTrue;
 
 /**
  *
- * Set of tests to illustrate the issue with double and how some problems can be solved with BigDecimal.
- * BigDecimal is specially useful to work with base 10 type of data (money, metric measures).
+ * Set of tests to illustrate the issue with double and how some problems can be solved with {@link BigDecimal}.
+ * {@link BigDecimal} is specially useful to work with base 10 type of data (money, metric measures).
+ *
+ * Be aware that {@link BigDecimal} requires more memory to work with (it's an Object) and it's also slower on
+ * computations (it's an immutable Object).
  *
  */
 public class DoubleVsBigDecimal {
 
+  /**
+   * Demonstrates that the sum of 1/10 (10 times) is not exactly equals to 1d using double.
+   */
   @Test
   public void testOneTenthAdditions(){
 
@@ -32,12 +38,18 @@ public class DoubleVsBigDecimal {
     }
     assertEquals(currentValue, new BigDecimal("1.0"));
     assertTrue(currentValue.doubleValue() == 1d);
+  }
 
+  /**
+   * Demonstrates the effect of Double approximations on equality.
+   */
+  @Test
+  public void testDoubleApproximation(){
     assertTrue(999199.1231231235 == 999199.1231231236);
   }
 
   /**
-   * This demonstrate the possible issue with the default rounding mode of NumberFormat (RoundingMode.HALF_EVEN).
+   * Demonstrates the possible issue with the default rounding mode of NumberFormat (RoundingMode.HALF_EVEN).
    * This is a modified version from the blog post:
    * https://blogs.oracle.com/CoreJavaTechTips/entry/the_need_for_bigdecimal
    *

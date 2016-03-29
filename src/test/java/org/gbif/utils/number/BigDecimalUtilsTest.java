@@ -32,4 +32,9 @@ public class BigDecimalUtilsTest {
     assertEquals(new BigDecimal("23.000000000001"), BigDecimalUtils.fromDouble(23.000000000001, true));
   }
 
+  @Test(expected = NullPointerException.class)
+  public void testFromDoubleNull(){
+    BigDecimalUtils.fromDouble(null, false);
+  }
+
 }
