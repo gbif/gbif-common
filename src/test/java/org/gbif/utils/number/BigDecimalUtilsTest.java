@@ -9,7 +9,7 @@ import static org.junit.Assert.assertFalse;
 
 /**
  *
- * Utility class to work with BigDecimal
+ * Tests for BigDecimal utility class
  *
  */
 public class BigDecimalUtilsTest {
@@ -23,12 +23,20 @@ public class BigDecimalUtilsTest {
     assertFalse(new BigDecimal(23.1d).equals(new BigDecimal("23.1")));
   }
 
+  @Test(expected = NullPointerException.class)
+  public void testBigDecimalConstructorNull(){
+    BigDecimalUtils.fromDouble(null, false);
+  }
+
   /**
    * This test is simply to show why we are not using BigDecimal stripTrailingZeros function.
    */
   @Test
   public void demonstrateBigDecimalStripTrailingZerosEquality() {
     assertFalse(new BigDecimal("500").equals(new BigDecimal("500.0").stripTrailingZeros()));
+
+    // but, compareTo function will work as expected
+    assertEquals(0, new BigDecimal("500").compareTo(new BigDecimal("500.0").stripTrailingZeros()));
   }
 
   @Test
@@ -58,9 +66,5 @@ public class BigDecimalUtilsTest {
     assertEquals(new BigDecimal("50000.01"), BigDecimalUtils.fromDouble(50000.01, false));
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testFromDoubleNull(){
-    BigDecimalUtils.fromDouble(null, false);
-  }
 
 }

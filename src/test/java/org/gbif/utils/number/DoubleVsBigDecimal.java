@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertTrue;
  * computations (it's an immutable Object).
  *
  */
+@Ignore("Demonstration of Java API behavior")
 public class DoubleVsBigDecimal {
 
   /**
