@@ -26,7 +26,11 @@ public class BigDecimalUtils {
     //safer to create a BigDecimal from String than Double
     BigDecimal bd = new BigDecimal(Double.toString(value));
     if(stripTrailingZeros){
-      return bd.stripTrailingZeros();
+      //we do not use stripTrailingZeros() simply because it plays with the scale and returns a BigDecimal
+      //that is numerically equals. see test in BigDecimalUtilsTest
+      if(bd.remainder(BigDecimal.ONE).movePointRight(bd.scale()).intValue() == 0 ){
+        bd = new BigDecimal(value.intValue());
+      }
     }
     return bd;
   }

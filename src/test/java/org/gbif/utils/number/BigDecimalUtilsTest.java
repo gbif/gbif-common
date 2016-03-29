@@ -23,13 +23,39 @@ public class BigDecimalUtilsTest {
     assertFalse(new BigDecimal(23.1d).equals(new BigDecimal("23.1")));
   }
 
+  /**
+   * This test is simply to show why we are not using BigDecimal stripTrailingZeros function.
+   */
+  @Test
+  public void demonstrateBigDecimalStripTrailingZerosEquality() {
+    assertFalse(new BigDecimal("500").equals(new BigDecimal("500.0").stripTrailingZeros()));
+  }
+
   @Test
   public void testFromDouble(){
     assertEquals(new BigDecimal("23.4"), BigDecimalUtils.fromDouble(23.4, true));
+    assertEquals(new BigDecimal("23.4"), BigDecimalUtils.fromDouble(23.4, false));
+
+    assertEquals(new BigDecimal("23"), BigDecimalUtils.fromDouble(23d, true));
+    assertEquals(new BigDecimal("23.0"), BigDecimalUtils.fromDouble(23d, false));
+
     assertEquals(new BigDecimal("23"), BigDecimalUtils.fromDouble(23.0, true));
     assertEquals(new BigDecimal("23.0"), BigDecimalUtils.fromDouble(23.0, false));
+
     assertEquals(new BigDecimal("23"), BigDecimalUtils.fromDouble(23.0000000000, true));
+    assertEquals(new BigDecimal("23.0"), BigDecimalUtils.fromDouble(23.0000000000, false));
+
     assertEquals(new BigDecimal("23.000000000001"), BigDecimalUtils.fromDouble(23.000000000001, true));
+    assertEquals(new BigDecimal("23.000000000001"), BigDecimalUtils.fromDouble(23.000000000001, false));
+
+    assertEquals(new BigDecimal("500"), BigDecimalUtils.fromDouble(500d, true));
+    assertEquals(new BigDecimal("500.0"), BigDecimalUtils.fromDouble(500d, false));
+
+    assertEquals(new BigDecimal("50000"), BigDecimalUtils.fromDouble(50000d, true));
+    assertEquals(new BigDecimal("50000.0"), BigDecimalUtils.fromDouble(50000d, false));
+
+    assertEquals(new BigDecimal("50000.01"), BigDecimalUtils.fromDouble(50000.01, true));
+    assertEquals(new BigDecimal("50000.01"), BigDecimalUtils.fromDouble(50000.01, false));
   }
 
   @Test(expected = NullPointerException.class)
