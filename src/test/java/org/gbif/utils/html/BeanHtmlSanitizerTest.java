@@ -1,10 +1,12 @@
 package org.gbif.utils.html;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for BeanHtmlSanitizer.
@@ -39,6 +41,20 @@ public class BeanHtmlSanitizerTest {
     // but we can sanitize the inner bean explicitly
     BeanHtmlSanitizer.sanitize(innerBean, policy);
     assertEquals("<h1></h1>", testBean.getInnerBean().getInnerString());
+  }
+
+  @Test
+  public void testBeanHtmlSanitizerExclusionList(){
+    PolicyFactory policy = Sanitizers.BLOCKS;
+    TestBean testBean = new TestBean();
+    testBean.setCount(1);
+    testBean.setComment("Help to find your way on the Internet");
+    testBean.setUnsafeHtml("<p>      <a href=\"http://perdu.com/\" class=\"important\">" +
+            "        Help" +
+            "      </a></p>");
+    // ask to exclude "unsafeHtml" property from sanitization
+    BeanHtmlSanitizer.sanitize(testBean, policy, ImmutableSet.of("unsafeHtml"));
+    assertTrue(testBean.getUnsafeHtml().contains("<a href=\"http://perdu.com/\" class=\"important\">"));
   }
 
 
