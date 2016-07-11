@@ -22,7 +22,9 @@
     <commons-compress.version>1.10</commons-compress.version>
     <commons-lang.version>3.4</commons-lang.version>
     <commons-io.version>2.4</commons-io.version>
-    <guava.version>19.0</guava.version>
+    <guava.version>18.0</guava.version>
+    <owasp-java-html-sanitizer.version>20160628.1</owasp-java-html-sanitizer.version>
+    <commons-beanutils.version>1.9.2</commons-beanutils.version>
     <junit.version>4.12</junit.version>
     <logback.version>1.1.5</logback.version>
     <slf4j.version>1.7.16</slf4j.version>
@@ -78,6 +80,24 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>${commons-compress.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+      <artifactId>owasp-java-html-sanitizer</artifactId>
+      <version>${owasp-java-html-sanitizer.version}</version>
+      <exclusions>
+        <!-- exclude Guava for now to ensure it can work with our version -->
+        <!-- if we run into issues we should consider shading it  -->
+        <exclusion>
+          <artifactId>com.google.guava</artifactId>
+          <groupId>guava</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>${commons-beanutils.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
