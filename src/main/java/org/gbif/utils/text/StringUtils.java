@@ -91,6 +91,12 @@ public class StringUtils {
         case 'ŧ':
           sb.append("t");
           break;
+        case 'Ł':
+          sb.append("L");
+          break;
+        case 'ł':
+          sb.append("l");
+          break;
         default:
           sb.append(c);
       }

@@ -48,6 +48,8 @@ public class StringUtilsTest {
     assertEquals("Aeropyrum coil-shaped virus", StringUtils.foldToAscii("Aeropyrum coil-shaped virus"));
     assertEquals("†Lachnus bonneti", StringUtils.foldToAscii("†Lachnus bonneti"));
 
+    assertEquals("lachs", StringUtils.foldToAscii("łachs"));
+
     String test = "ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ";
     assertEquals("SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy", StringUtils.foldToAscii(test));
 
