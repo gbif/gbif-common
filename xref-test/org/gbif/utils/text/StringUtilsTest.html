@@ -56,11 +56,13 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      assertEquals(<span class="jxr_string">"Aeropyrum coil-shaped virus"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Aeropyrum coil-shaped virus"</span>));
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      assertEquals(<span class="jxr_string">"†Lachnus bonneti"</span>, StringUtils.foldToAscii(<span class="jxr_string">"†Lachnus bonneti"</span>));
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      String test = <span class="jxr_string">"ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ"</span>;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      assertEquals(<span class="jxr_string">"SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy"</span>, StringUtils.foldToAscii(test));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>    }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      assertEquals(<span class="jxr_string">"lachs"</span>, StringUtils.foldToAscii(<span class="jxr_string">"łachs"</span>));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      String test = <span class="jxr_string">"ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ"</span>;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      assertEquals(<span class="jxr_string">"SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy"</span>, StringUtils.foldToAscii(test));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>    }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
