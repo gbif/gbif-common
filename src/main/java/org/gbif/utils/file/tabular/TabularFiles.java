@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import org.supercsv.prefs.CsvPreference;
 
 /**
@@ -27,6 +28,9 @@ public class TabularFiles {
    */
   public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char quoteChar, char delimiterChar,
                                                            String endOfLineSymbols, Charset charset, boolean headerLine){
+
+    Preconditions.checkNotNull(in, "An InputStream must be provided");
+    Preconditions.checkNotNull(charset, "A Charset must be provided");
     return new SuperCsvFileReader(in, quoteChar, delimiterChar, endOfLineSymbols, charset, true);
   }
 
@@ -40,7 +44,7 @@ public class TabularFiles {
    */
   public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char delimiterChar,
                                                                          boolean headerLine){
-    return newTabularFileReader( in, CsvPreference.STANDARD_PREFERENCE.getQuoteChar(),
+    return newTabularFileReader(in, CsvPreference.STANDARD_PREFERENCE.getQuoteChar(),
             delimiterChar, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols(), Charsets.UTF_8, headerLine);
   }
 

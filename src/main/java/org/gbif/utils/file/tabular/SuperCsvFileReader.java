@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
@@ -19,6 +18,7 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
 
   private static final Logger LOG = LoggerFactory.getLogger(TabularDataFileReader.class);
 
+  //CsvListReader was chosen to allow the reading of a line with more (or less) data than declared (by the headers).
   private final CsvListReader csvListReader;
   private final boolean headerLineIncluded;
 
@@ -27,6 +27,8 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
 
 
   /**
+   * Package protected constructor.
+   * Preconditions are assumed to be performed by caller of the constructor.
    *
    * @param in
    * @param quoteChar
@@ -35,10 +37,8 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
    * @param charset
    * @param headerLineIncluded
    */
-  public SuperCsvFileReader(InputStream in, char quoteChar, char delimiterChar, String endOfLineSymbols,
+  SuperCsvFileReader(InputStream in, char quoteChar, char delimiterChar, String endOfLineSymbols,
                             Charset charset, boolean headerLineIncluded){
-
-    Preconditions.checkNotNull(in, "An InputStream must be provided");
 
     CsvPreference.Builder builder = new CsvPreference.Builder(quoteChar, delimiterChar, endOfLineSymbols)
             .ignoreEmptyLines(true);
