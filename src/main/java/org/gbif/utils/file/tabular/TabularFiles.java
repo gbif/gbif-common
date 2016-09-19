@@ -32,17 +32,16 @@ public class TabularFiles {
 
 
   /**
-   * Get a new TabularDataFileReader using UTF-8 charset and default endOfLineSymbols.
+   * Get a new TabularDataFileReader using UTF-8 charset, default quote char and default endOfLineSymbols.
    *
    * @param in
-   * @param quoteChar
    * @param delimiterChar
    * @param headerLine
    */
-  public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char quoteChar, char delimiterChar,
-                                                           boolean headerLine){
-    return newTabularFileReader( in, quoteChar, delimiterChar, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols(),
-            Charsets.UTF_8, headerLine);
+  public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char delimiterChar,
+                                                                         boolean headerLine){
+    return newTabularFileReader( in, CsvPreference.STANDARD_PREFERENCE.getQuoteChar(),
+            delimiterChar, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols(), Charsets.UTF_8, headerLine);
   }
 
 }
