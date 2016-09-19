@@ -19,7 +19,7 @@ public class TabularDataFileReaderTest {
   public void testCsvAllwaysQuotes() throws Exception {
     File csv = FileUtils.getClasspathFile("csv/csv_optional_quotes_excel2008.csv");
 
-    TabularDataFileReader reader = TabularFiles.newTabularFileReader(new FileInputStream(csv), '"',',', true);
+    TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(new FileInputStream(csv), '"',',', true);
 
     List<String> rec = reader.read();
     assertEquals(3, rec.size());

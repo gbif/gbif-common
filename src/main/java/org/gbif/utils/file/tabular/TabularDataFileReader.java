@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Interface defining a reader for tabular data file (e.g. CSV)
  */
-public interface TabularDataFileReader extends Closeable {
+public interface TabularDataFileReader<T> extends Closeable {
 
   /**
    * Get the header line of the tabular data file (if possible).
@@ -19,10 +19,10 @@ public interface TabularDataFileReader extends Closeable {
   /**
    * Read a line of the tabular data file.
    *
-   * @return the line as List or null if the end of the file is reached.
+   * @return the next line of the tabular data file or null if the end of the file is reached.
    * @throws IOException
    */
-  List<String> read() throws IOException;
+  T read() throws IOException;
 
   void close();
 }

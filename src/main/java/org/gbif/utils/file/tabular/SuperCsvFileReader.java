@@ -15,7 +15,7 @@ import org.supercsv.prefs.CsvPreference;
 /**
  * Internal {@link TabularDataFileReader} implementation backed by Super CSV.
  */
-class SuperCsvFileReader implements TabularDataFileReader {
+class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
 
   private static final Logger LOG = LoggerFactory.getLogger(TabularDataFileReader.class);
 

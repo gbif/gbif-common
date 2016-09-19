@@ -2,6 +2,7 @@ package org.gbif.utils.file.tabular;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import com.google.common.base.Charsets;
 import org.supercsv.prefs.CsvPreference;
@@ -24,7 +25,7 @@ public class TabularFiles {
    * @param headerLine
    * @return
    */
-  public static TabularDataFileReader newTabularFileReader(InputStream in, char quoteChar, char delimiterChar,
+  public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char quoteChar, char delimiterChar,
                                                            String endOfLineSymbols, Charset charset, boolean headerLine){
     return new SuperCsvFileReader(in, quoteChar, delimiterChar, endOfLineSymbols, charset, true);
   }
@@ -38,7 +39,7 @@ public class TabularFiles {
    * @param delimiterChar
    * @param headerLine
    */
-  public static TabularDataFileReader newTabularFileReader(InputStream in, char quoteChar, char delimiterChar,
+  public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char quoteChar, char delimiterChar,
                                                            boolean headerLine){
     return newTabularFileReader( in, quoteChar, delimiterChar, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols(),
             Charsets.UTF_8, headerLine);
