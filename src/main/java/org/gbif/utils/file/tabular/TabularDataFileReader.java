@@ -10,13 +10,15 @@ import java.util.List;
 public interface TabularDataFileReader extends Closeable {
 
   /**
-   * Get the header line of the tabular data file (if possible)
+   * Get the header line of the tabular data file (if possible).
+   *
    * @return headers or null
    */
   List<String> getHeaderLine() throws IOException;
 
   /**
-   * Read a line of the tabular data file
+   * Read a line of the tabular data file.
+   *
    * @return the line as List or null if the end of the file is reached.
    * @throws IOException
    */

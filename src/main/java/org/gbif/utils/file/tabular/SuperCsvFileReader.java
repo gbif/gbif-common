@@ -49,7 +49,7 @@ class SuperCsvFileReader implements TabularDataFileReader {
 
   @Override
   public List<String> getHeaderLine() throws IOException {
-    if(headerLineIncluded && !headerLineRead){
+    if (headerLineIncluded && !headerLineRead) {
       headerLine = csvListReader.read();
       headerLineRead = true;
     }
@@ -63,7 +63,7 @@ class SuperCsvFileReader implements TabularDataFileReader {
    * @throws IOException
    */
   public List<String> read() throws IOException {
-    if(headerLineRead){
+    if (headerLineRead) {
       return csvListReader.read();
     }
     headerLine = csvListReader.read();
@@ -73,7 +73,7 @@ class SuperCsvFileReader implements TabularDataFileReader {
 
   @Override
   public void close() {
-    if(csvListReader != null){
+    if (csvListReader != null) {
       try {
         csvListReader.close();
       } catch (IOException e) {
