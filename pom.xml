@@ -23,7 +23,7 @@
     <commons-lang.version>3.4</commons-lang.version>
     <commons-io.version>2.4</commons-io.version>
     <guava.version>18.0</guava.version>
-    <owasp-java-html-sanitizer.version>20160628.1</owasp-java-html-sanitizer.version>
+    <owasp-java-html-sanitizer.version>20160827.1</owasp-java-html-sanitizer.version>
     <commons-beanutils.version>1.9.2</commons-beanutils.version>
     <super-csv.version>2.4.0</super-csv.version>
 

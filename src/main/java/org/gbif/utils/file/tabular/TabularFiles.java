@@ -31,7 +31,7 @@ public class TabularFiles {
 
     Preconditions.checkNotNull(in, "An InputStream must be provided");
     Preconditions.checkNotNull(charset, "A Charset must be provided");
-    return new SuperCsvFileReader(in, quoteChar, delimiterChar, endOfLineSymbols, charset, true);
+    return new SuperCsvFileReader(in, quoteChar, delimiterChar, endOfLineSymbols, charset, headerLine);
   }
 
 
