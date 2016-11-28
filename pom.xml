@@ -23,7 +23,7 @@
     <commons-lang.version>3.4</commons-lang.version>
     <commons-io.version>2.4</commons-io.version>
     <guava.version>18.0</guava.version>
-    <owasp-java-html-sanitizer.version>20160827.1</owasp-java-html-sanitizer.version>
+    <owasp-java-html-sanitizer.version>20160924.1</owasp-java-html-sanitizer.version>
     <commons-beanutils.version>1.9.2</commons-beanutils.version>
     <super-csv.version>2.4.0</super-csv.version>
 
@@ -92,14 +92,6 @@
       <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
       <artifactId>owasp-java-html-sanitizer</artifactId>
       <version>${owasp-java-html-sanitizer.version}</version>
-      <exclusions>
-        <!-- exclude Guava for now to ensure it can work with our version -->
-        <!-- if we run into issues we should consider shading it  -->
-        <exclusion>
-          <artifactId>com.google.guava</artifactId>
-          <groupId>guava</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
