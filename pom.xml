@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>gbif-common</artifactId>
-  <version>0.29-SNAPSHOT</version>
+  <version>0.30-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>GBIF Common</name>
