@@ -3,12 +3,16 @@ package org.gbif.utils.text;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
 import java.text.Normalizer;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -354,6 +358,28 @@ public class StringUtils {
     return sb.toString();
   }
 
+  /**
+   * Tries to decode a UTF8 string only if common UTF8 character combinations are found which are unlikely to be correctly encoded text.
+   * E.g. Ã¼ is the German Umlaut ü and indicates we have encoded utf8 text still.
+   */
+  public static String decodeUtf8Garbage(String text) {
+    Pattern UTF8_TEST = Pattern.compile("(Ã¤|Ã¼|Ã¶|Ã\u0084|Ã\u009C|Ã\u0096|" + // äüöÄÜÖ
+        "Ã±|Ã¸|Ã§|Ã®|Ã´|Ã»|Ã\u0091|Ã\u0098|Ã\u0087|Ã\u008E|Ã\u0094|Ã\u009B"  + // ñøçîôûÑØÇÎÔÛ
+        "Ã¡|Ã©|Ã³|Ãº|Ã\u00AD|Ã\u0081|Ã\u0089|Ã\u0093|Ã\u009A|Ã\u008D)"         // áéóúíÁÉÓÚÍ
+        , Pattern.CASE_INSENSITIVE);
+    if (text != null && UTF8_TEST.matcher(text).find()) {
+      // typical utf8 combinations found. Try to decode from latin1 to utf8
+      byte[] bytes = text.getBytes(Charsets.ISO_8859_1);
+      final CharsetDecoder utf8Decoder = Charsets.UTF_8.newDecoder();
+      ByteBuffer buffer = ByteBuffer.wrap(bytes);
+      try {
+        return utf8Decoder.decode(buffer).toString();
+      } catch (CharacterCodingException e) {
+        // maybe wasnt a good idea, return original
+      }
+    }
+    return text;
+  }
 
   /**
    * Joins a list of objects into a string, skipping null values and calling toString on each object.

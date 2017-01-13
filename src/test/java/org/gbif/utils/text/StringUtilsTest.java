@@ -35,6 +35,30 @@ public class StringUtilsTest {
   }
 
   @Test
+  public void testDecodeUtf8Garbage() {
+    assertUtf8(null, null);
+    assertUtf8("", "");
+    assertUtf8("a", "a");
+    assertUtf8("ä-üOØ", "ä-üOØ");
+    assertUtf8("(Günther, 1887)", "(GÃ¼nther, 1887)");
+    assertUtf8("Böhlke, 1955", "BÃ¶hlke, 1955");
+    assertUtf8("Nielsen & Quéro, 1991\n", "Nielsen & QuÃ©ro, 1991\n");
+    assertUtf8("Rosinés", "RosinÃ©s");
+    assertUtf8("S. Calderón & Standl.", "S. CalderÃ³n & Standl.");
+    assertUtf8("Strömman, 1896", "StrÃ¶mman, 1896");
+    assertUtf8("Sérus.", "SÃ©rus.");
+    assertUtf8("Thér.", "ThÃ©r.");
+    assertUtf8("Trécul", "TrÃ©cul");
+    assertUtf8("Hale & López-Fig.\n", "Hale & LÃ³pez-Fig.\n");
+  }
+
+  private void assertUtf8(String expected, String src) {
+    String decoded = StringUtils.decodeUtf8Garbage(src);
+    assertEquals(expected, decoded);
+    // make sure if we had gotten the correct string it would not be modified
+    assertEquals(expected, StringUtils.decodeUtf8Garbage(decoded));
+  }
+  @Test
   public void testFoldToAscii() throws Exception {
     assertEquals(null, StringUtils.foldToAscii(null));
     assertEquals("", StringUtils.foldToAscii(""));
