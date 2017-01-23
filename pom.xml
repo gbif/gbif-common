@@ -16,8 +16,7 @@
   <url>https://github.com/gbif/gbif-common</url>
 
   <properties>
-    <!-- The IPT depends on this project and so this must stay at java 6 until IPT is upgraded -->
-    <jdkLevel>1.6</jdkLevel>
+    <jdkLevel>1.8</jdkLevel>
 
     <commons-compress.version>1.10</commons-compress.version>
     <commons-lang.version>3.4</commons-lang.version>

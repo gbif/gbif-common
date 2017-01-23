@@ -10,8 +10,5 @@ The gbif-common shared library provides:
 mvn clean install
 ```
 
-## Policies
- * Built as Java 6 artifact until the [IPT](https://github.com/gbif/ipt) upgrades its minimal Java version (see https://github.com/gbif/ipt/issues/1222).
-
 ## Documentation
 [JavaDocs](http://gbif.github.io/gbif-common/apidocs/)
