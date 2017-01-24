@@ -43,28 +43,52 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>    }
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>    @Test
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFoldToAscii() <strong class="jxr_keyword">throws</strong> Exception {
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      assertEquals(<strong class="jxr_keyword">null</strong>, StringUtils.foldToAscii(<strong class="jxr_keyword">null</strong>));
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      assertEquals(<span class="jxr_string">""</span>, StringUtils.foldToAscii(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      assertEquals(<span class="jxr_string">"Schulhof, Gymnasium Hurth"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Schulhof, Gymnasium Hürth"</span>));
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      assertEquals(<span class="jxr_string">"Doring"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Döring"</span>));
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      assertEquals(<span class="jxr_string">"Desireno"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Désírèñø"</span>));
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      assertEquals(<span class="jxr_string">"Debreczy &amp; I. Racz"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Debreçzÿ &amp; Ï. Rácz"</span>));
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      assertEquals(<span class="jxr_string">"Donatia novae-zelandiae"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Donatia novae-zelandiæ"</span>));
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      assertEquals(<span class="jxr_string">"Carex ×cayouettei"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Carex ×cayouettei"</span>));
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      assertEquals(<span class="jxr_string">"Carex comosa × Carex lupulina"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Carex comosa × Carex lupulina"</span>));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      assertEquals(<span class="jxr_string">"Aeropyrum coil-shaped virus"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Aeropyrum coil-shaped virus"</span>));
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      assertEquals(<span class="jxr_string">"†Lachnus bonneti"</span>, StringUtils.foldToAscii(<span class="jxr_string">"†Lachnus bonneti"</span>));
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      assertEquals(<span class="jxr_string">"lachs"</span>, StringUtils.foldToAscii(<span class="jxr_string">"łachs"</span>));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      String test = <span class="jxr_string">"ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ"</span>;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      assertEquals(<span class="jxr_string">"SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy"</span>, StringUtils.foldToAscii(test));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>    }
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDecodeUtf8Garbage() {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      assertUtf8(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      assertUtf8(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      assertUtf8(<span class="jxr_string">"a"</span>, <span class="jxr_string">"a"</span>);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      assertUtf8(<span class="jxr_string">"ä-üOØ"</span>, <span class="jxr_string">"ä-üOØ"</span>);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      assertUtf8(<span class="jxr_string">"(Günther, 1887)"</span>, <span class="jxr_string">"(GÃ¼nther, 1887)"</span>);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      assertUtf8(<span class="jxr_string">"Böhlke, 1955"</span>, <span class="jxr_string">"BÃ¶hlke, 1955"</span>);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      assertUtf8(<span class="jxr_string">"Nielsen &amp; Quéro, 1991\n"</span>, <span class="jxr_string">"Nielsen &amp; QuÃ©ro, 1991\n"</span>);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      assertUtf8(<span class="jxr_string">"Rosinés"</span>, <span class="jxr_string">"RosinÃ©s"</span>);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      assertUtf8(<span class="jxr_string">"S. Calderón &amp; Standl."</span>, <span class="jxr_string">"S. CalderÃ³n &amp; Standl."</span>);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      assertUtf8(<span class="jxr_string">"Strömman, 1896"</span>, <span class="jxr_string">"StrÃ¶mman, 1896"</span>);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      assertUtf8(<span class="jxr_string">"Sérus."</span>, <span class="jxr_string">"SÃ©rus."</span>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      assertUtf8(<span class="jxr_string">"Thér."</span>, <span class="jxr_string">"ThÃ©r."</span>);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      assertUtf8(<span class="jxr_string">"Trécul"</span>, <span class="jxr_string">"TrÃ©cul"</span>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      assertUtf8(<span class="jxr_string">"Hale &amp; López-Fig.\n"</span>, <span class="jxr_string">"Hale &amp; LÃ³pez-Fig.\n"</span>);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>    }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> assertUtf8(String expected, String src) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      String decoded = StringUtils.decodeUtf8Garbage(src);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      assertEquals(expected, decoded);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_comment">// make sure if we had gotten the correct string it would not be modified</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      assertEquals(expected, StringUtils.decodeUtf8Garbage(decoded));
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>    }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    @Test
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFoldToAscii() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      assertEquals(<strong class="jxr_keyword">null</strong>, StringUtils.foldToAscii(<strong class="jxr_keyword">null</strong>));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      assertEquals(<span class="jxr_string">""</span>, StringUtils.foldToAscii(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      assertEquals(<span class="jxr_string">"Schulhof, Gymnasium Hurth"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Schulhof, Gymnasium Hürth"</span>));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      assertEquals(<span class="jxr_string">"Doring"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Döring"</span>));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      assertEquals(<span class="jxr_string">"Desireno"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Désírèñø"</span>));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      assertEquals(<span class="jxr_string">"Debreczy &amp; I. Racz"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Debreçzÿ &amp; Ï. Rácz"</span>));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      assertEquals(<span class="jxr_string">"Donatia novae-zelandiae"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Donatia novae-zelandiæ"</span>));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      assertEquals(<span class="jxr_string">"Carex ×cayouettei"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Carex ×cayouettei"</span>));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      assertEquals(<span class="jxr_string">"Carex comosa × Carex lupulina"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Carex comosa × Carex lupulina"</span>));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      assertEquals(<span class="jxr_string">"Aeropyrum coil-shaped virus"</span>, StringUtils.foldToAscii(<span class="jxr_string">"Aeropyrum coil-shaped virus"</span>));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      assertEquals(<span class="jxr_string">"†Lachnus bonneti"</span>, StringUtils.foldToAscii(<span class="jxr_string">"†Lachnus bonneti"</span>));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      assertEquals(<span class="jxr_string">"lachs"</span>, StringUtils.foldToAscii(<span class="jxr_string">"łachs"</span>));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      String test = <span class="jxr_string">"ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ"</span>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      assertEquals(<span class="jxr_string">"SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy"</span>, StringUtils.foldToAscii(test));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>    }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2017 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
 </body>
 </html>
