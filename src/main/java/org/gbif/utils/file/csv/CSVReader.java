@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<String[]>, AutoCloseable {
+public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<String[]> {
 
   private static final Logger LOG = LoggerFactory.getLogger(CSVReader.class);
   public final int headerRows;
