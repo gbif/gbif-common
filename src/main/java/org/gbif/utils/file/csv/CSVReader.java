@@ -15,6 +15,8 @@
  ***************************************************************************/
 package org.gbif.utils.file.csv;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import org.gbif.utils.file.ClosableReportingIterator;
 
 import java.io.BufferedReader;
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<String[]> {
+public class CSVReader implements ClosableReportingIterator<String[]> {
 
   private static final Logger LOG = LoggerFactory.getLogger(CSVReader.class);
   public final int headerRows;
@@ -61,8 +63,17 @@ public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<
 
   public CSVReader(InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows)
           throws IOException {
-    Cache<Integer, String> cache = CacheBuilder.newBuilder().maximumSize(1000).build();
-    this.emptyLines = cache.asMap();
+    this(stream, encoding, delimiter, quotes, headerRows, 1000);
+  }
+
+  public CSVReader(InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows, int emptyLineCache)
+          throws IOException {
+    if (emptyLineCache > 0) {
+      Cache<Integer, String> cache = CacheBuilder.newBuilder().maximumSize(emptyLineCache).build();
+      this.emptyLines = cache.asMap();
+    } else {
+      emptyLines = null;
+    }
     this.rows = 0;
     this.readRows = 0;
     this.delimiter = delimiter;
@@ -121,7 +132,7 @@ public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<
    * @return a set of the line numbers of the firsts empty rows found in the file
    */
   public Set<Integer> getEmptyLines() {
-    return emptyLines.keySet();
+    return emptyLines == null ? Sets.newHashSet() : emptyLines.keySet();
   }
 
   /**
@@ -135,18 +146,16 @@ public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<
    * (non-Javadoc)
    * @see java.util.Iterator#hasNext()
    */
+  @Override
   public boolean hasNext() {
     return row != null;
-  }
-
-  public ClosableReportingIterator<String[]> iterator() {
-    return this;
   }
 
   /*
    * (non-Javadoc)
    * @see java.util.Iterator#next()
    */
+  @Override
   public String[] next() {
     if (row == null) {
       return null;
@@ -159,7 +168,9 @@ public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<
       // skip empty lines
       while (row != null && row.length() == 0) {
         // save line number of empty line
-        emptyLines.put(rows + headerRows + 1, "");
+        if (emptyLines != null) {
+          emptyLines.put(rows + headerRows + 1, "");
+        }
         row = br.readLine();
         rows++;
       }
@@ -195,18 +206,22 @@ public class CSVReader implements ClosableReportingIterator<String[]>, Iterable<
     errorMessage = null;
   }
 
+  @Override
   public void remove() {
     throw new UnsupportedOperationException("Remove not supported");
   }
 
+  @Override
   public boolean hasRowError() {
     return rowError;
   }
 
+  @Override
   public String getErrorMessage() {
     return errorMessage;
   }
 
+  @Override
   public Exception getException() {
     return exception;
   }

@@ -1,5 +1,6 @@
 package org.gbif.utils.file.csv;
 
+import org.gbif.utils.collection.IterableUtils;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.ByteArrayInputStream;
@@ -140,9 +141,8 @@ public class CSVReaderTest {
   @Test
   public void testHeaderRows2() throws IOException {
     File source = FileUtils.getClasspathFile("csv/iucn100.csv");
-
     CSVReader reader = new CSVReader(source, UTF8, ",", '"', 7);
-    for (String[] row : reader) {
+    for (String[] row : IterableUtils.iterable(reader)) {
       assertEquals("9", row[0]);
       assertEquals("Aaptosyax grypus Rainboth, 1991", row[1]);
       assertEquals("Actinopterygii", row[4]);
