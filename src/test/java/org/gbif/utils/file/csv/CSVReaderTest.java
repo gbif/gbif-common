@@ -24,13 +24,13 @@ public class CSVReaderTest {
   @Test
   public void testCsvAllwaysQuotes() throws IOException {
     File csv = FileUtils.getClasspathFile("csv/csv_always_quoted.csv");
-    CSVReader reader = new CSVReader(csv, "utf8", ",", '"', 1);
-
-    String[] rec = reader.next();
-    rec = reader.next();
-    assertEquals("18728553", rec[0]);
-    assertEquals("-0.25864171259110291", rec[6]);
-    assertEquals("Martins Wood, Ightham", rec[10]);
+    try (CSVReader reader = new CSVReader(csv, "utf8", ",", '"', 1)) {
+      String[] rec = reader.next();
+      rec = reader.next();
+      assertEquals("18728553", rec[0]);
+      assertEquals("-0.25864171259110291", rec[6]);
+      assertEquals("Martins Wood, Ightham", rec[10]);
+    }
   }
 
   @Test
