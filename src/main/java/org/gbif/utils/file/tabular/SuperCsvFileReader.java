@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,6 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
   private List<String> headerLine;
   private boolean headerLineRead = false;
 
-
   /**
    * Package protected constructor.
    * Preconditions are assumed to be performed by caller of the constructor.
@@ -39,6 +39,9 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
    */
   SuperCsvFileReader(InputStream in, char quoteChar, char delimiterChar, String endOfLineSymbols,
                             Charset charset, boolean headerLineIncluded){
+
+    Objects.requireNonNull(in, "InputStream shall be provided");
+    Objects.requireNonNull(endOfLineSymbols, "endOfLineSymbols shall be provided");
 
     CsvPreference.Builder builder = new CsvPreference.Builder(quoteChar, delimiterChar, endOfLineSymbols)
             .ignoreEmptyLines(true);
