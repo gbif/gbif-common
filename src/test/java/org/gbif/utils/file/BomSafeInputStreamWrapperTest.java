@@ -50,10 +50,10 @@ public class BomSafeInputStreamWrapperTest {
     for (String f : new String[]{"utf8","utf8bom","utf16le","utf16be"}) {
       String fn = "/sax/" + f + ".xml";
       System.out.println(fn);
-      InputStream is = ClassLoader.class.getResourceAsStream(fn);
+      InputStream is = getClass().getResourceAsStream(fn);
       p.parse(is, new DefaultHandler2());
 
-      is = new BOMInputStream(ClassLoader.class.getResourceAsStream(fn));
+      is = new BOMInputStream(getClass().getResourceAsStream(fn));
       p.parse(is, new DefaultHandler2());
     }
   }
@@ -62,8 +62,8 @@ public class BomSafeInputStreamWrapperTest {
   public void testUTF16Stream() throws Exception {
     // should be the exact same bytes
 
-    byte[] b1 = IOUtils.toByteArray(ClassLoader.class.getResourceAsStream("/sax/utf16le.xml"));
-    byte[] b2 = IOUtils.toByteArray(new BOMInputStream(ClassLoader.class.getResourceAsStream("/sax/utf16le.xml")));
+    byte[] b1 = IOUtils.toByteArray(getClass().getResourceAsStream("/sax/utf16le.xml"));
+    byte[] b2 = IOUtils.toByteArray(new BOMInputStream(getClass().getResourceAsStream("/sax/utf16le.xml")));
 
     assertEquals(b1.length, b2.length);
     int idx=0;
