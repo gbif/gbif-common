@@ -7,8 +7,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -16,8 +14,6 @@ import org.supercsv.prefs.CsvPreference;
  * Internal {@link TabularDataFileReader} implementation backed by Super CSV.
  */
 class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
-
-  private static final Logger LOG = LoggerFactory.getLogger(TabularDataFileReader.class);
 
   //CsvListReader was chosen to allow the reading of a line with more (or less) data than declared (by the headers).
   private final CsvListReader csvListReader;
@@ -28,7 +24,6 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
 
   /**
    * Package protected constructor.
-   * Preconditions are assumed to be performed by caller of the constructor.
    *
    * @param in
    * @param quoteChar
@@ -75,13 +70,9 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     if (csvListReader != null) {
-      try {
         csvListReader.close();
-      } catch (IOException e) {
-        LOG.warn("Exception while closing tabular data file", e);
-      }
     }
   }
 }

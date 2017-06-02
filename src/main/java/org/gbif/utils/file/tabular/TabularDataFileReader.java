@@ -24,5 +24,4 @@ public interface TabularDataFileReader<T> extends Closeable {
    */
   T read() throws IOException;
 
-  void close();
 }
