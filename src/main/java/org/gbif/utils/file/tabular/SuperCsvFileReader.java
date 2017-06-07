@@ -32,14 +32,20 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
    * @param charset
    * @param headerLineIncluded
    */
-  SuperCsvFileReader(InputStream in, char quoteChar, char delimiterChar, String endOfLineSymbols,
+  SuperCsvFileReader(InputStream in, Character quoteChar, char delimiterChar, String endOfLineSymbols,
                             Charset charset, boolean headerLineIncluded){
 
     Objects.requireNonNull(in, "InputStream shall be provided");
     Objects.requireNonNull(endOfLineSymbols, "endOfLineSymbols shall be provided");
 
-    CsvPreference.Builder builder = new CsvPreference.Builder(quoteChar, delimiterChar, endOfLineSymbols)
+    CsvPreference.Builder builder = new CsvPreference.Builder(quoteChar == null ?
+            CsvPreference.STANDARD_PREFERENCE.getQuoteChar() : quoteChar, delimiterChar, endOfLineSymbols)
             .ignoreEmptyLines(true);
+
+    //that doesn't work
+    if(quoteChar == null){
+      builder = builder.useQuoteMode((s, csvContext, csvPreference) -> false);
+    }
     csvListReader = new CsvListReader(new InputStreamReader(in, charset), builder.build());
     this.headerLineIncluded = headerLineIncluded;
     headerLineRead = !headerLineIncluded;
@@ -67,6 +73,16 @@ class SuperCsvFileReader implements TabularDataFileReader<List<String>> {
     headerLine = csvListReader.read();
     headerLineRead = true;
     return csvListReader.read();
+  }
+
+  @Override
+  public long getLastRecordLineNumber() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getLastRecordNumber() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

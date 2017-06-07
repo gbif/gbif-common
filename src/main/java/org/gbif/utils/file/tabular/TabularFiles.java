@@ -1,51 +1,47 @@
 package org.gbif.utils.file.tabular;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.List;
 
-import com.google.common.base.Charsets;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.base.Preconditions;
-import org.supercsv.prefs.CsvPreference;
 
 /**
  * Static utility methods related to {@link TabularDataFileReader} instances.
- *
  */
 public class TabularFiles {
-
 
   /**
    * Get a new TabularDataFileReader.
    *
-   * @param in
-   * @param quoteChar
+   * @param reader
    * @param delimiterChar
    * @param endOfLineSymbols
-   * @param charset
+   * @param quoteChar nullable
    * @param headerLine
    * @return
    */
-  public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char quoteChar, char delimiterChar,
-                                                           String endOfLineSymbols, Charset charset, boolean headerLine){
+  public static TabularDataFileReader<List<String>> newTabularFileReader(Reader reader, char delimiterChar,
+                                                           String endOfLineSymbols, Character quoteChar, boolean headerLine) throws IOException {
 
-    Preconditions.checkNotNull(in, "An InputStream must be provided");
-    Preconditions.checkNotNull(charset, "A Charset must be provided");
-    return new SuperCsvFileReader(in, quoteChar, delimiterChar, endOfLineSymbols, charset, headerLine);
+    Preconditions.checkNotNull(reader, "A Reader must be provided");
+    Preconditions.checkNotNull(endOfLineSymbols, "A endOfLineSymbols must be provided");
+    return new JacksonCsvFileReader(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine);
   }
 
-
   /**
-   * Get a new TabularDataFileReader using UTF-8 charset, default quote char and default endOfLineSymbols.
+   * Get a new TabularDataFileReader using default quote char and default endOfLineSymbols.
    *
-   * @param in
+   * @param reader
    * @param delimiterChar
    * @param headerLine
    */
-  public static TabularDataFileReader<List<String>> newTabularFileReader(InputStream in, char delimiterChar,
-                                                                         boolean headerLine){
-    return newTabularFileReader(in, CsvPreference.STANDARD_PREFERENCE.getQuoteChar(),
-            delimiterChar, CsvPreference.STANDARD_PREFERENCE.getEndOfLineSymbols(), Charsets.UTF_8, headerLine);
+  public static TabularDataFileReader<List<String>> newTabularFileReader(Reader reader, char delimiterChar,
+                                                                         boolean headerLine) throws IOException {
+    return new JacksonCsvFileReader(reader, delimiterChar, new String(CsvSchema.DEFAULT_LINEFEED),
+            CsvSchema.DEFAULT_QUOTE_CHAR, headerLine);
   }
+
 
 }
