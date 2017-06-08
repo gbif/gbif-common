@@ -27,8 +27,8 @@ public class TabularFileNormalizerTest {
     File csvFile = FileUtils.getClasspathFile("tabular/test_normalize.csv");
     File normalizedFile = folder.newFile();
 
-    int numberOfLine = TabularFileNormalizer.normalizeFile(csvFile.toPath(), normalizedFile.toPath(), '\"', ',', "\n",
-            StandardCharsets.UTF_8);
+    int numberOfLine = TabularFileNormalizer.normalizeFile(
+            csvFile.toPath(), normalizedFile.toPath(), StandardCharsets.UTF_8, ',', "\n", '\"');
 
     List<String> rows = org.apache.commons.io.FileUtils.readLines(normalizedFile, StandardCharsets.UTF_8);
     assertEquals("1,\"a,\",b", rows.get(0));

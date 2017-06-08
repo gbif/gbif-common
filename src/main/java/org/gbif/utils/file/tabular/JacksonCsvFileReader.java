@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.commons.lang3.StringUtils;
+
+import static org.gbif.utils.file.tabular.JacksonUtils.buildCsvSchema;
 
 /**
  * Internal {@link TabularDataFileReader} implementation backed by Jackson CSV.
@@ -22,37 +25,41 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
   private long lastLineNumber = 0;
   private long recordNumber = 0;
 
+  JacksonCsvFileReader(Reader reader, char delimiterChar, String endOfLineSymbols, Character quoteChar,
+                       boolean headerLineIncluded) throws IOException {
+    this(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLineIncluded, null);
+  }
   /**
    * package protected constructor. Use {@link TabularFiles} to get instances.
    *
    * @param reader
    * @param delimiterChar
    * @param endOfLineSymbols
-   * @param quoteChar          optional, can be null
+   * @param quoteChar          Nullable.
    * @param headerLineIncluded
+   * @param lineToSkipBeforeHeader Nullable. How many line(s) is required to skip before reading the header or the data.
    *
    * @throws IOException
    */
   JacksonCsvFileReader(Reader reader, char delimiterChar, String endOfLineSymbols, Character quoteChar,
-                       boolean headerLineIncluded) throws IOException {
+                       boolean headerLineIncluded, Integer lineToSkipBeforeHeader) throws IOException {
 
     Objects.requireNonNull(reader, "reader shall be provided");
     Objects.requireNonNull(endOfLineSymbols, "endOfLineSymbols shall be provided");
 
     CsvMapper mapper = new CsvMapper();
     mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
-    CsvSchema schema = CsvSchema.emptySchema();
 
-    schema = schema
-            .withColumnSeparator(delimiterChar)
-            .withLineSeparator(endOfLineSymbols);
-
-    //quote character is optional
-    schema = quoteChar == null ? schema.withoutQuoteChar() : schema.withQuoteChar(quoteChar);
+    CsvSchema schema = buildCsvSchema(delimiterChar, endOfLineSymbols, quoteChar);
 
     it = mapper.readerFor(List.class)
             .with(schema)
             .readValues(reader);
+
+    // if we have to skip lines before the header line
+    for (int line = 0; line < Optional.ofNullable(lineToSkipBeforeHeader).orElse(0); line++) {
+      it.next();
+    }
 
     //ensure to pull the header line if we need to
     if (headerLineIncluded && it.hasNext()) {

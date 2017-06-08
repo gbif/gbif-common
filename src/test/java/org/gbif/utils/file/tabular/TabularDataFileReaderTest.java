@@ -84,4 +84,23 @@ public class TabularDataFileReaderTest {
     }
   }
 
+  @Test
+  public void testCsvWithComment() throws IOException {
+    File csv = FileUtils.getClasspathFile("csv/tab_separated_generic_comments.txt");
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+            Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), '\t', "\n", null, true, 2)) {
+
+      int numberOfRecords = 0;
+      List<String> rec = reader.read();
+      while(rec != null){
+        numberOfRecords++;
+        rec = reader.read();
+      }
+
+      assertEquals(4, numberOfRecords);
+      assertEquals(4, reader.getLastRecordNumber());
+      assertEquals(7, reader.getLastRecordLineNumber());
+    }
+  }
+
 }

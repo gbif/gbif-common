@@ -1,83 +1,83 @@
 package org.gbif.utils.file.tabular;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.io.ICsvListReader;
-import org.supercsv.io.ICsvListWriter;
-import org.supercsv.prefs.CsvPreference;
+
+import static org.gbif.utils.file.tabular.JacksonUtils.buildCsvSchema;
 
 /**
  * Utility class to rewrite a tabular file (e.g. CSV) into a normalized format.
- * The regular use case is to allow external tools to work as expected (e.g. unix split, unix sort)
+ * The regular use case is to allow external tools to work as expected (e.g. unix split, unix sort).
  */
 public class TabularFileNormalizer {
-
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-  public static final Charset OUTPUT_FILE_CHARSET = StandardCharsets.UTF_8;
 
   // A character is considered to be an ISO control character if its code is in
   // the range '\u0000' through '\u001F' or in the range '\u007F' through '\u009F'.
   private static CharMatcher CONTROL_CHAR_MATCHER = CharMatcher.JAVA_ISO_CONTROL;
 
+  public static String NORMALIZED_END_OF_LINE = "\n";
+
   /**
-   * Normalizes the provided tabular file.
+   * Normalizes the provided tabular "file" (provided as {@link Reader} to let the caller deal with charset).
    * Normalization includes: striping of Control Characters (see {@link #CONTROL_CHAR_MATCHER}),
    * usage of \n as end-line-character, ensuring there is an end-of-line character on the last line and
    * removing empty (completely empty) lines.
-   * The normalized file will always be written in UTF-8 (this could be changed).
    * The normalized content will have unnecessary quotes removed.
    *
-   * @param sourceFilePath        {@link Path} to the source file
-   * @param normalizedFilePath    {@link Path} to the normalized file that will be generated (in UTF-8)
-   * @param quoteChar
+   * @param source           {@link Path} representing the source
+   * @param destination      {@link Path} representing the destination
+   * @param sourceCharset    optionally, the {@link Charset} of the source. If null UTF-8 will be used.
    * @param delimiterChar
    * @param endOfLineSymbols
-   * @param sourceFilePathCharset {@link Charset} of the source file
+   * @param quoteChar        optional
    *
-   * @return number of line written to the file represented by normalizedFilePath.
+   * @return number of lines written
+   *
+   * @throws IOException
    */
-  public static int normalizeFile(Path sourceFilePath, Path normalizedFilePath,
-                                  char quoteChar, char delimiterChar,
-                                  String endOfLineSymbols, Charset sourceFilePathCharset) throws IOException {
-    Preconditions.checkArgument(!Files.isDirectory(sourceFilePath), "sourceFilePath must represent a file");
-    Preconditions.checkArgument(!Files.isDirectory(normalizedFilePath), "normalizedFilePath must represent a file");
-
-    CsvPreference csvPreference = new CsvPreference.Builder(quoteChar, delimiterChar, endOfLineSymbols)
-            .ignoreEmptyLines(true).build();
+  public static int normalizeFile(Path source, Path destination, Charset sourceCharset,
+                                  char delimiterChar, String endOfLineSymbols, Character quoteChar) throws IOException {
+    Objects.requireNonNull(source, "source path shall be provided");
+    Objects.requireNonNull(destination, "normalizedWriter shall be provided");
 
     int numberOfLine = 0;
-    try (ICsvListReader csvListReader = new CsvListReader(new InputStreamReader(new FileInputStream(sourceFilePath.toFile()),
-            Optional.ofNullable(sourceFilePathCharset).orElse(DEFAULT_CHARSET)), csvPreference);
-         ICsvListWriter writer = new CsvListWriter(new OutputStreamWriter(
-                 new FileOutputStream(normalizedFilePath.toFile()), OUTPUT_FILE_CHARSET), csvPreference);
-    ) {
-      List<String> line;
-      while ((line = csvListReader.read()) != null) {
-        //we do not rewrite empty lines
-        Optional<List<String>> nLine = normalizeLine(line);
-        if (nLine.isPresent()) {
-          writer.write(nLine.get());
+    CsvMapper mapper = new CsvMapper();
+    mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+
+    CsvSchema readerSchema = buildCsvSchema(delimiterChar, endOfLineSymbols, quoteChar);
+    CsvSchema writerSchema = buildCsvSchema(delimiterChar, NORMALIZED_END_OF_LINE, quoteChar);
+
+    Charset charset = Optional.ofNullable(sourceCharset).orElse(StandardCharsets.UTF_8);
+    try (Reader sourceReader = Files.newBufferedReader(source, charset);
+         Writer writer = Files.newBufferedWriter(destination, charset);
+         MappingIterator<List<String>> it = mapper.readerFor(List.class)
+                 .with(readerSchema)
+                 .readValues(sourceReader);
+         SequenceWriter csvWriter = mapper.writerFor(List.class).with(writerSchema).writeValues(writer)) {
+      Optional<List<String>> line;
+      while (it.hasNext()) {
+        line = normalizeLine(it.next());
+        if (line.isPresent()) {
+          csvWriter.write(line.get());
           numberOfLine++;
         }
       }
-    } catch (IOException ioEx) {
-      Files.deleteIfExists(normalizedFilePath);
-      throw ioEx;
     }
     return numberOfLine;
   }
