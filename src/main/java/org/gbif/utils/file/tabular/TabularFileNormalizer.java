@@ -41,7 +41,7 @@ public class TabularFileNormalizer {
    * The normalized content will have unnecessary quotes removed.
    *
    * @param source           {@link Path} representing the source
-   * @param destination      {@link Path} representing the destination
+   * @param destination      {@link Path} representing the destination. If the file already exists it will be overwritten.
    * @param sourceCharset    optionally, the {@link Charset} of the source. If null UTF-8 will be used.
    * @param delimiterChar
    * @param endOfLineSymbols
@@ -78,6 +78,11 @@ public class TabularFileNormalizer {
           numberOfLine++;
         }
       }
+    }
+    catch (IOException ioEx) {
+      //avoid keeping incomplete file
+      Files.deleteIfExists(destination);
+      throw ioEx;
     }
     return numberOfLine;
   }
