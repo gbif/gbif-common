@@ -24,8 +24,9 @@
     <guava.version>18.0</guava.version>
     <owasp-java-html-sanitizer.version>20160924.1</owasp-java-html-sanitizer.version>
     <commons-beanutils.version>1.9.2</commons-beanutils.version>
-    <super-csv.version>2.4.0</super-csv.version>
-    <jackson-csv.version>2.8.0</jackson-csv.version>
+
+    <!--Jackson libraries will be shaded-->
+    <jackson-csv.version>2.8.7</jackson-csv.version>
 
     <junit.version>4.12</junit.version>
     <logback.version>1.1.5</logback.version>
@@ -38,6 +39,7 @@
     <developerConnection>scm:git:git@github.com:gbif/gbif-common.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
+
   <distributionManagement>
     <site>
       <id>gh-pages</id>
@@ -62,6 +64,40 @@
     </repository>
   </repositories>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade-plugin.version}</version>
+        <configuration>
+          <artifactSet>
+            <includes>
+              <include>com.fasterxml.jackson.core:jackson-core</include>
+              <include>com.fasterxml.jackson.core:jackson-databind</include>
+              <include>com.fasterxml.jackson.core:jackson-annotations</include>
+              <include>com.fasterxml.jackson.dataformat:jackson-dataformat-csv</include>
+            </includes>
+          </artifactSet>
+          <relocations>
+            <relocation>
+              <pattern>com.fasterxml.jackson</pattern>
+              <shadedPattern>org.gbif.common.shaded.com.fasterxml.jackson</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -84,9 +120,19 @@
       <version>${commons-compress.version}</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.supercsv</groupId>
-      <artifactId>super-csv</artifactId>
-      <version>${super-csv.version}</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson-csv.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-csv.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson-csv.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
