@@ -49,7 +49,17 @@ public class TabularFiles {
   }
 
   /**
-   * Get a new TabularDataFileReader using default quote char and default endOfLineSymbols.
+   * Get a new TabularDataFileReader using default quote char (") and default endOfLineSymbols (\n).
+   * Usage:
+   * <pre>
+   * {@code
+   * try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+  Files.newBufferedReader(Paths.get("/tmp/test.csv"), StandardCharsets.UTF_8), ',', true)) {
+  ...
+  }
+   * }
+   * </pre>
+   *
    *
    * @param reader
    * @param delimiterChar

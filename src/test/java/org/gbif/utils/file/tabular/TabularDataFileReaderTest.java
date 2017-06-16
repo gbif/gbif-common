@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 public class TabularDataFileReaderTest {
 
   @Test
-  public void testCsvAllwaysQuotes() throws IOException {
+  public void testCsvOptionalQuotes() throws IOException {
     File csv = FileUtils.getClasspathFile("csv/csv_optional_quotes_excel2008.csv");
 
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
@@ -37,6 +37,33 @@ public class TabularDataFileReaderTest {
     }
   }
 
+  /**
+   * Test a CSV with all cells quoted.
+   * @throws IOException
+   */
+  @Test
+  public void testCsvAlwaysQuotes() throws IOException {
+    File csv = FileUtils.getClasspathFile("csv/csv_always_quoted.csv");
+
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+            Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), ',', true)) {
+      List<String> rec = reader.read();
+      //the value we retrieve should not include the quotes
+      assertEquals("8728372", rec.get(0));
+
+      //read all records
+      while(rec != null){
+        rec = reader.read();
+      }
+      assertEquals(2, reader.getLastRecordNumber());
+      assertEquals(3, reader.getLastRecordLineNumber());
+    }
+  }
+
+  /**
+   * Test a CSV file that includes a newline character (\n) inside a properly quoted cell.
+   * @throws IOException
+   */
   @Test
   public void testCsvMultiline() throws IOException {
     File csv = FileUtils.getClasspathFile("csv/csv_quote_endline.csv");
