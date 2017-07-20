@@ -39,6 +39,19 @@ public class TabularFileMetadataExtractorTest {
   }
 
   @Test
+  public void testSingleLineWithSeparatorAsValue() {
+    List<String> sample = new ArrayList<>();
+    sample.add("OccurrenceID,ScientificName,Locality");
+    sample.add("1\ta\tb\t,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,");
+    sample.add("2\tc\td\te");
+    sample.add("3\tf\tg\th");
+
+    TabularFileMetadata metadata = TabularFileMetadataExtractor.extractTabularMetadata(sample);
+    assertEquals(Character.valueOf('\t').charValue(), metadata.getDelimiter().charValue());
+    assertNull(metadata.getQuotedBy());
+  }
+
+  @Test
   public void testGetDelimiterWithHighestCount() {
     //no delimiter
     assertFalse(getDelimiterWithHighestCount("there is no delimiter here").isPresent());

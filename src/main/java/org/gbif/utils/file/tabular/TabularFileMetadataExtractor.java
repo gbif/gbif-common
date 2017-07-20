@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,6 +23,8 @@ import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+
+import static java.util.Collections.reverseOrder;
 
 /**
  * Utility class to extract metadata {@link TabularFileMetadata} from a tabular file.
@@ -37,9 +40,10 @@ public class TabularFileMetadataExtractor {
   private static final Character[] POTENTIAL_DELIMITER_CHAR = {',', '\t', ';', '|'};
   private static final Character[] POTENTIAL_QUOTES_CHAR = {'"', '\''};
 
+  private static final Comparator<Map.Entry<Character, Long>> BY_VALUE_LONG_DESC = Comparator.comparing(Map.Entry::getValue, reverseOrder());
   private static final BiFunction<Character, Character, Pattern> COMPILE_QUOTE_PATTERN_FCT = (delimiter, quoteChar)
           -> Pattern.compile("[" + delimiter + "][ ]*[" + quoteChar + "][ ]*[^" + delimiter + "]");
-  
+
   /**
    * Extract metadata from a tabular file using a sample (defined by {@link #MAX_SAMPLE_SIZE}) of the file.
    * The extraction process is based on the frequency of character in the sample. The method will return
@@ -107,13 +111,14 @@ public class TabularFileMetadataExtractor {
    */
   private static Optional<Character> getHighestCountOf(final List<String> sample, final Function<String,
           Optional<Character>> characterExtractor) {
+
     return sample.stream()
             .map(characterExtractor)
-            .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)) //ignore empty Optional
+            .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
             .entrySet()
             .stream()
-            .sorted((e1, e2) -> -1 * Long.compare(e1.getValue(), e2.getValue())) //sort DESC
+            .sorted(BY_VALUE_LONG_DESC)
             .findFirst()
             .map(Map.Entry::getKey);
   }
