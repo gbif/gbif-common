@@ -9,13 +9,16 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,14 +26,18 @@ import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Collections.reverseOrder;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Utility class to extract metadata {@link TabularFileMetadata} from a tabular file.
  */
 public class TabularFileMetadataExtractor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(TabularFileMetadataExtractor.class);
   private static final int MAX_SAMPLE_SIZE = 10;
   private static final int CHARSET_DETECTION_BUFFER_LENGTH = 16384;
 
@@ -40,6 +47,7 @@ public class TabularFileMetadataExtractor {
   private static final Character[] POTENTIAL_DELIMITER_CHAR = {',', '\t', ';', '|'};
   private static final Character[] POTENTIAL_QUOTES_CHAR = {'"', '\''};
 
+  private static final Predicate<LineDelimiterStats> CONTAINS_FREQUENCY = lineStats -> lineStats.getFrequency() > 0;
   private static final Comparator<Map.Entry<Character, Long>> BY_VALUE_LONG_DESC = Comparator.comparing(Map.Entry::getValue, reverseOrder());
   private static final BiFunction<Character, Character, Pattern> COMPILE_QUOTE_PATTERN_FCT = (delimiter, quoteChar)
           -> Pattern.compile("[" + delimiter + "][ ]*[" + quoteChar + "][ ]*[^" + delimiter + "]");
@@ -89,7 +97,7 @@ public class TabularFileMetadataExtractor {
   static TabularFileMetadata extractTabularMetadata(final List<String> sample) {
     TabularFileMetadata tabularFileMetadata = new TabularFileMetadata();
 
-    Optional<Character> delimiterFound = getHighestCountOf(sample, TabularFileMetadataExtractor::getDelimiterWithHighestCount);
+    Optional<Character> delimiterFound = getDelimiterChar(sample);
     final Character delimiter = delimiterFound.orElse(',');
 
     Optional<Character> quoteFound = getHighestCountOf(sample, line -> getQuoteCharWithHighestCount(line, delimiter));
@@ -124,6 +132,144 @@ public class TabularFileMetadataExtractor {
   }
 
   /**
+   * Given a sample of line, this method tries to determine the delimiter char used.
+   *
+   * @param sample
+   *
+   * @return the determined delimiter or Optional.empty if it can not be determined.
+   */
+  public static Optional<Character> getDelimiterChar(final List<String> sample) {
+
+    // count the frequency of all possible delimiter for each lines
+    List<LineDelimiterStats> linesStats =
+            computeLineDelimiterStats(sample);
+
+    //FIXME deal with stats equality
+
+    // get the distinct set of frequency for each delimiters to check the "stability"
+    Map<Character, Set<Integer>> delimiterDistinctFrequency =
+            computeDelimiterDistinctFrequency(linesStats);
+    Character mostStableDelimiter = delimiterDistinctFrequency.entrySet().stream()
+            .filter( entry -> entry.getValue().size() > 1 || !entry.getValue().contains(Integer.valueOf(0)))
+            .sorted( Comparator.comparing( e -> e.getValue().size())).findFirst().get().getKey();
+
+    // get the most used delimiter to check the "overall usage"
+    Map<Character, Integer> delimiterFrequencySums = computeDelimiterFrequencySums(linesStats);
+    Character mostFrequentDelimiter = delimiterFrequencySums.entrySet().stream()
+            .sorted( Comparator.comparing( (Map.Entry<Character, Integer> e) -> e.getValue()).reversed()).findFirst()
+            .get()
+            .getKey();
+
+    //get the highest frequency per line to check for "usage per line"
+    Map<Character, Long> delimiterHighestFrequencyPerLine = computeDelimiterHighestFrequencyPerLine(sample);
+    Character mostFrequentDelimiterPerLine = delimiterHighestFrequencyPerLine
+            .entrySet().stream()
+            .sorted( Comparator.comparing( (Map.Entry<Character, Long> e) -> e.getValue()).reversed()).findFirst()
+            .get()
+            .getKey();
+
+    //summary
+    LOG.debug("delimiterDistinctFrequency -> " + delimiterDistinctFrequency);
+    LOG.debug("mostStableDelimiter -> " + mostStableDelimiter);
+    LOG.debug("delimiterFrequencySums -> " + delimiterFrequencySums);
+    LOG.debug("mostFrequentDelimiter -> " + mostFrequentDelimiter );
+    LOG.debug("delimiterHighestFrequencyPerLine->" + delimiterHighestFrequencyPerLine);
+    LOG.debug("mostFrequentDelimiterPerLine ->" + mostFrequentDelimiterPerLine );
+
+    //if the most stable is also the one that is used to most within the sample
+    if(mostStableDelimiter.equals(mostFrequentDelimiter)) {
+      return Optional.of(mostFrequentDelimiter);
+    }
+
+    //otherwise, if the most stable is also the most used based on lines
+    if(mostStableDelimiter.equals(mostFrequentDelimiterPerLine)) {
+      return Optional.of(mostStableDelimiter);
+    }
+
+    //as last resort if the most frequent delimiter overall and by line is the same
+    if(mostFrequentDelimiter.equals(mostFrequentDelimiterPerLine)) {
+      return Optional.of(mostFrequentDelimiter);
+    }
+
+    // other idea
+    // give more weight to the first line (it is probably the header line where normally no quotes are used)
+    // give more weight to the first "column" (it is probably the "id" line where normally no quotes are used)
+    return Optional.empty();
+  }
+
+  static List<LineDelimiterStats> computeLineDelimiterStats(List<String> sample){
+    return sample.stream()
+            .map(TabularFileMetadataExtractor::lineToLineDelimiterStats)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+  }
+
+  /**
+   * Compute the stats for each potential delimiters on a line.
+   * @param line
+   * @return
+   */
+  private static List<LineDelimiterStats> lineToLineDelimiterStats(String line) {
+    return Arrays.stream(POTENTIAL_DELIMITER_CHAR)
+            .map( delimiter -> new LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))
+            .collect(Collectors.toList());
+  }
+
+  /**
+   * For each {@link LineDelimiterStats}, collect the distinct frequency (count) of each delimiter.
+   * This gives us an idea of the "stability" of each delimiter across the sample.
+   * Note that since quotes are not handled, noise can be introduced if a quoted cells use the delimiter.
+   *
+   * See unit test for examples of when this method will be affected by noise.
+   *
+   * The most stable delimiter is normally defined by the {@link Character} returned by the methods where
+   * the list of distinct frequency is the smallest in size excluding cases where the list contains only the element
+   * representing 0 as Integer (which means the delimiter was never used).
+   *
+   * @param linesStats
+   *
+   * @return
+   */
+  static Map<Character, Set<Integer>> computeDelimiterDistinctFrequency(List<LineDelimiterStats> linesStats) {
+    return linesStats.stream()
+            .collect(
+                    Collectors.groupingBy(LineDelimiterStats::getDelimiter,
+                            Collectors.mapping(LineDelimiterStats::getFrequency, toSet())));
+  }
+
+  /**
+   * For each line, check the delimiter that is used the most.
+   * Return the count of each delimiter.
+   * @param lines
+   * @return
+   */
+  static Map<Character, Long> computeDelimiterHighestFrequencyPerLine(List<String> lines) {
+    return lines.stream()
+            .map(TabularFileMetadataExtractor::getDelimiterWithHighestCount2)
+            .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty
+            .collect(Collectors.groupingBy(LineDelimiterStats::getDelimiter, Collectors.counting()));
+  }
+
+  /**
+   * For {@link LineDelimiterStats}, sum the frequency (count) of each delimiter.
+   * This gives us an idea of the overall usage of each delimiter across the sample.
+   * Note that since quotes are not handled, noise can be introduced if a quoted cell uses the delimiter.
+   *
+   * See unit test for examples of when this method will be affected by noise.
+   *
+   * @param linesStats
+   *
+   * @return
+   */
+  static Map<Character, Integer> computeDelimiterFrequencySums(List<LineDelimiterStats> linesStats) {
+    return linesStats.stream()
+            .filter(CONTAINS_FREQUENCY)
+            .collect(
+                    Collectors.groupingBy(LineDelimiterStats::getDelimiter,
+                            Collectors.summingInt(LineDelimiterStats::getFrequency)));
+  }
+
+  /**
    * Given a line, get the delimiter with the highest count if any can be found.
    * Note: quotes are ignored in the count so a delimiter used inside quotes will be counted.
    *
@@ -142,6 +288,20 @@ public class TabularFileMetadataExtractor {
       }
     }
     return Optional.ofNullable(highestCountDelimiter);
+  }
+
+  static Optional<LineDelimiterStats> getDelimiterWithHighestCount2(String line) {
+    int highestCount = 0;
+   // Character highestCountDelimiter = null;
+    LineDelimiterStats lineDelimiterStats = null;
+    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {
+      int currentCount = StringUtils.countMatches(line, delimiter);
+      if (currentCount > highestCount) {
+        highestCount = currentCount;
+        lineDelimiterStats = new LineDelimiterStats(delimiter,highestCount);
+      }
+    }
+    return Optional.ofNullable(lineDelimiterStats);
   }
 
   /**
@@ -168,6 +328,23 @@ public class TabularFileMetadataExtractor {
       }
     }
     return Optional.ofNullable(highestCountQuoteChar);
+  }
+
+  static class LineDelimiterStats {
+    private Character delimiter;
+    private int frequency;
+    LineDelimiterStats(Character delimiter, int frequency) {
+      this.delimiter = delimiter;
+      this.frequency = frequency;
+    }
+
+    Character getDelimiter() {
+      return delimiter;
+    }
+
+    int getFrequency() {
+      return frequency;
+    }
   }
 
 }
