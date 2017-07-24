@@ -117,7 +117,7 @@ public class TabularFileMetadataExtractorTest {
   @Test
   public void testSingleLineWithSeparatorAsValue() {
     List<String> sample = new ArrayList<>();
-    sample.add("ID\tName");
+    sample.add("ID\tName\tName1\tName2");
     sample.add("1\ta\tb\t,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,");
     sample.add("2\tc\td\te");
     sample.add("3\tf\tg\th");

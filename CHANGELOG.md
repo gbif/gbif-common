@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.36 (not released yet)
+* Added `TabularFileMetadataExtractor` (see [Issue #6](https://github.com/gbif/gbif-common/issues/6)).
+
 ## 0.35 (2017-06-16)
 
 [Complete Changelog](https://github.com/gbif/gbif-common/compare/gbif-common-0.34...gbif-common-0.35)

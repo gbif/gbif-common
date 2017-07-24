@@ -17,6 +17,7 @@ package org.gbif.utils.file.csv;
 
 import org.gbif.utils.file.CharsetDetection;
 import org.gbif.utils.file.UnkownCharsetException;
+import org.gbif.utils.file.tabular.TabularFileMetadataExtractor;
 
 import java.io.File;
 import java.io.IOException;
@@ -154,6 +155,8 @@ public class CSVReaderFactory {
   }
 
   /**
+   * Replaced by {@link TabularFileMetadataExtractor}
+   *
    * Extract metadata from a CSV file.
    * Metadata includes delimiter and quotes character.
    * 
