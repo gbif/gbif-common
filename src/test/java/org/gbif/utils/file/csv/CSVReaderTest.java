@@ -154,7 +154,7 @@ public class CSVReaderTest {
   public void testIgnoreEmptyLines() throws IOException {
     File csv = FileUtils.getClasspathFile("csv/empty_line.tab");
     CSVReader reader = new CSVReader(csv, UTF8, "\t", null, 1);
-    String[] ids = {"1", "5", "10", "12", "14", "20"};
+    String[] ids = {"1", "5", "10", "12", "14", "20", "21", "", "30"};
     int row = 0;
     while (reader.hasNext()) {
       String[] rec = reader.next();
@@ -163,7 +163,7 @@ public class CSVReaderTest {
     }
     assertTrue(reader.getEmptyLines().size() > 1);
     assertTrue(reader.getEmptyLines().contains(6));
-    assertTrue(reader.getEmptyLines().contains(9));
+    assertTrue(reader.getEmptyLines().contains(12));
   }
 
   /**

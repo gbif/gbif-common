@@ -93,7 +93,6 @@ public class TabularDataFileReaderTest {
    */
   @Test
   public void testTab() throws IOException {
-
     File csv = FileUtils.getClasspathFile("csv/escapedTab.tab");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
             Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), '\t', true)) {
@@ -127,6 +126,24 @@ public class TabularDataFileReaderTest {
       assertEquals(4, numberOfRecords);
       assertEquals(4, reader.getLastRecordNumber());
       assertEquals(7, reader.getLastRecordLineNumber());
+    }
+  }
+
+  @Test
+  public void testIgnoreEmptyLines() throws IOException {
+    File csv = FileUtils.getClasspathFile("csv/empty_line.tab");
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+            Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), '\t', "\n", null, true)) {
+      String[] ids = {"1", "5", "10", "12", "14", "20", "21", "", "30"};
+      int row = 0;
+      List<String> line = reader.read();
+      while(line != null){
+        assertEquals(ids[row], line.get(0));
+        row++;
+        line = reader.read();
+      }
+      assertEquals(9, reader.getLastRecordNumber());
+      assertEquals(12, reader.getLastRecordLineNumber());
     }
   }
 

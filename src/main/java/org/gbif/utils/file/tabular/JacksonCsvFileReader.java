@@ -88,7 +88,8 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
       //get the current line number before we read the next record
       lastLineNumber = it.getCurrentLocation().getLineNr();
       List<String> row = it.next();
-      if (row.size() != 1 && StringUtils.isNotBlank(row.get(0))) {
+      // an empty line is returned as a list of one element, check if the element is empty before skipping
+      if (row.size() != 1 || StringUtils.isNotBlank(row.get(0))) {
         recordNumber++;
         return row;
       }

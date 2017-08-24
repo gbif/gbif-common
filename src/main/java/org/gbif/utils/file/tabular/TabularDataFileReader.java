@@ -31,6 +31,8 @@ public interface TabularDataFileReader<T> extends Closeable {
   /**
    * The line number of where the last record returned by {@link #read()} starts.
    * If no records have been returned yet this method is expected to return 0.
+   * Once {@link #read()} returned null, this methods will return the number of the last line in the file.
+   * Note that if the very last line is an empty line with only an endline character it will not be counted.
    * Line number includes header line and empty lines (if applicable).
    *
    * @return line number of where the last record starts

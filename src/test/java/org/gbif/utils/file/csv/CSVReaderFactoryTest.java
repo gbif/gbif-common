@@ -89,11 +89,11 @@ public class CSVReaderFactoryTest {
   @Test
   public void detectTab() throws IOException {
     String[] files = {"csv/ipni.tab.txt", "csv/tab_separated_generic.txt", "csv/iucn100.tab.txt", "csv/ebird.tab.txt",
-            "csv/empty_line.tab", "csv/irmng.tail", "csv/MOBOT.tab.csv"};
+            "csv/irmng.tail", "csv/MOBOT.tab.csv"};
     for (String fn : files) {
       File source = FileUtils.getClasspathFile(fn);
       CSVReader reader = CSVReaderFactory.build(source);
-      assertEquals("\t", reader.delimiter);
+      assertEquals("Check " + fn, "\t", reader.delimiter);
       assertNull(reader.quoteChar);
       assertEquals(1, reader.headerRows);
       reader.close();

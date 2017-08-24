@@ -185,8 +185,7 @@ public class TabularFileMetadataExtractorTest {
     String[] files = {"csv/ipni.tab.txt", "csv/tab_separated_generic.txt", "csv/iucn100.tab.txt", "csv/ebird.tab.txt",
             "csv/empty_line.tab", "csv/irmng.tail", "csv/MOBOT.tab.csv"};
     for (String fn : files) {
-      runExtractTabularFileMetadata(FileUtils.getClasspathFile(fn).toPath(),
-              '\t', null);
+      runExtractTabularFileMetadata(FileUtils.getClasspathFile(fn).toPath(), '\t', null);
     }
   }
 
