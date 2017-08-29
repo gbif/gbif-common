@@ -7,16 +7,21 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.text.Normalizer;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.text.WordUtils;
+
 
 /**
  * Utils class adding specific string methods to existing guava {@link Strings} and
@@ -50,11 +55,30 @@ public class StringUtils {
     return MARKER.matcher(x).replaceAll("");
   }
 
+
+  /**
+   * Apply a function then join the result using a space if not null.
+   * E.g. can be used with apache.commons.lang3.StringUtils::trimToNull to compose a name when some parts are
+   * optionals.
+   *
+   * @param fct   the function to apply or Function.identity() if none
+   * @param parts
+   *
+   * @return a String that represents all parts joined by a space or empty String. Never null.
+   */
+  public static String thenJoin(Function<String, String> fct, String... parts) {
+    Objects.requireNonNull(fct, "fct shall be provided, use Function.identity() is you want to use the String as is");
+    return Arrays.stream(parts != null ? parts : new String[0])
+            .map(fct)
+            .filter(Objects::nonNull)
+            .collect(Collectors.joining(" "));
+  }
+
   /**
    * The Normalizer misses a few cases and 2 char ligatures which we deal with here
    */
   private static String replaceSpecialCases(String x) {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     for (int i = 0; i < x.length(); i++) {
       char c = x.charAt(i);

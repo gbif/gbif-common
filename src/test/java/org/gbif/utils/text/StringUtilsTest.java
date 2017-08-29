@@ -1,5 +1,7 @@
 package org.gbif.utils.text;
 
+import java.util.function.Function;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -77,5 +79,15 @@ public class StringUtilsTest {
     String test = "ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ";
     assertEquals("SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy", StringUtils.foldToAscii(test));
 
+  }
+
+  @Test
+  public void testThenJoin() {
+    assertEquals("", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, (String[]) null));
+    assertEquals("", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, (String) null));
+    assertEquals("", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "", " "));
+    assertEquals("x", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "", "  x "));
+    assertEquals("x y", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "x", "  y "));
+    assertEquals("x   y ", StringUtils.thenJoin(Function.identity(), "x", "  y "));
   }
 }
