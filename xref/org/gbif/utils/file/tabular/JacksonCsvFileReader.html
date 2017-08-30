@@ -96,19 +96,20 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>        <em class="jxr_comment">//get the current line number before we read the next record</em>
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>        lastLineNumber = it.getCurrentLocation().getLineNr();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>        List&lt;String&gt; row = it.next();
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>        <strong class="jxr_keyword">if</strong> (row.size() != 1 &amp;&amp; StringUtils.isNotBlank(row.get(0))) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          recordNumber++;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">return</strong> row;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>        }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>    }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>    @Override
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     it.close();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>   }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>        <em class="jxr_comment">// an empty line is returned as a list of one element, check if the element is empty before skipping</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>        <strong class="jxr_keyword">if</strong> (row.size() != 1 || StringUtils.isNotBlank(row.get(0))) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          recordNumber++;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">return</strong> row;
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>        }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>    }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>   @Override
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     it.close();
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>   }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2017 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>

@@ -162,7 +162,7 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testIgnoreEmptyLines() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     File csv = FileUtils.getClasspathFile(<span class="jxr_string">"csv/empty_line.tab"</span>);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     CSVReader reader = <strong class="jxr_keyword">new</strong> CSVReader(csv, UTF8, <span class="jxr_string">"\t"</span>, <strong class="jxr_keyword">null</strong>, 1);
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     String[] ids = {<span class="jxr_string">"1"</span>, <span class="jxr_string">"5"</span>, <span class="jxr_string">"10"</span>, <span class="jxr_string">"12"</span>, <span class="jxr_string">"14"</span>, <span class="jxr_string">"20"</span>};
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     String[] ids = {<span class="jxr_string">"1"</span>, <span class="jxr_string">"5"</span>, <span class="jxr_string">"10"</span>, <span class="jxr_string">"12"</span>, <span class="jxr_string">"14"</span>, <span class="jxr_string">"20"</span>, <span class="jxr_string">"21"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"30"</span>};
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">int</strong> row = 0;
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">while</strong> (reader.hasNext()) {
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>       String[] rec = reader.next();
@@ -171,7 +171,7 @@
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>     assertTrue(reader.getEmptyLines().size() &gt; 1);
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     assertTrue(reader.getEmptyLines().contains(6));
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     assertTrue(reader.getEmptyLines().contains(9));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     assertTrue(reader.getEmptyLines().contains(12));
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>   }
 <a class="jxr_linenumber" name="L168" href="#L168">168</a> 
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>   <em class="jxr_javadoccomment">/**</em>

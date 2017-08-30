@@ -57,19 +57,30 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>    }
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * Get a new TabularDataFileReader using default quote char and default endOfLineSymbols.</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   * @param reader</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * @param delimiterChar</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">   * @param headerLine</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(Reader reader, <strong class="jxr_keyword">char</strong> delimiterChar,
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                                                                           <strong class="jxr_keyword">boolean</strong> headerLine) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/tabular/JacksonCsvFileReader.html">JacksonCsvFileReader</a>(reader, delimiterChar, <strong class="jxr_keyword">new</strong> String(CsvSchema.DEFAULT_LINEFEED),
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              CsvSchema.DEFAULT_QUOTE_CHAR, headerLine);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>    }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">   * Get a new TabularDataFileReader using default quote char (") and default endOfLineSymbols (\n).</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">   * Usage:</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * {@code</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">   * try (TabularDataFileReader&lt;List&lt;String&gt;&gt; reader = TabularFiles.newTabularFileReader(</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">  Files.newBufferedReader(Paths.get("/tmp/test.csv"), StandardCharsets.UTF_8), ',', true)) {</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">  ...</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">  }</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">   * }</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">   * @param reader</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">   * @param delimiterChar</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   * @param headerLine</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(Reader reader, <strong class="jxr_keyword">char</strong> delimiterChar,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                                                                           <strong class="jxr_keyword">boolean</strong> headerLine) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/tabular/JacksonCsvFileReader.html">JacksonCsvFileReader</a>(reader, delimiterChar, <strong class="jxr_keyword">new</strong> String(CsvSchema.DEFAULT_LINEFEED),
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              CsvSchema.DEFAULT_QUOTE_CHAR, headerLine);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>    }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2017 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
