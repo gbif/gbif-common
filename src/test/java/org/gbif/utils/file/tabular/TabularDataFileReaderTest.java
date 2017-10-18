@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.ParseException;
 import java.util.List;
 
 import org.junit.Test;
@@ -18,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class TabularDataFileReaderTest {
 
   @Test
-  public void testCsvOptionalQuotes() throws IOException {
+  public void testCsvOptionalQuotes() throws IOException, ParseException {
     File csv = FileUtils.getClasspathFile("csv/csv_optional_quotes_excel2008.csv");
 
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
@@ -38,11 +39,35 @@ public class TabularDataFileReaderTest {
   }
 
   /**
+   * Ensure if we can escape a quote character with a backslash
+   * @throws IOException
+   */
+  @Test
+  public void testEscapedQuotes() throws IOException, ParseException {
+    File tsv = FileUtils.getClasspathFile("tabular/tsv_escaped_quotes.tsv");
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+            Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 0)) {
+
+      List<String> rec = reader.read();
+      assertEquals(12, rec.size());
+    }
+  }
+
+  @Test(expected = ParseException.class)
+  public void testWrongEscapedQuotes() throws IOException, ParseException {
+    File tsv = FileUtils.getClasspathFile("tabular/tsv_wrong_escaped_quotes.tsv");
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+            Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 0)) {
+      reader.read();
+    }
+  }
+
+  /**
    * Test a CSV with all cells quoted.
    * @throws IOException
    */
   @Test
-  public void testCsvAlwaysQuotes() throws IOException {
+  public void testCsvAlwaysQuotes() throws IOException, ParseException {
     File csv = FileUtils.getClasspathFile("csv/csv_always_quoted.csv");
 
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
@@ -65,7 +90,7 @@ public class TabularDataFileReaderTest {
    * @throws IOException
    */
   @Test
-  public void testCsvMultiline() throws IOException {
+  public void testCsvMultiline() throws IOException, ParseException {
     File csv = FileUtils.getClasspathFile("csv/csv_quote_endline.csv");
 
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
@@ -92,7 +117,7 @@ public class TabularDataFileReaderTest {
    * Testing classic non quoted tab files with escaped \t tabs.
    */
   @Test
-  public void testTab() throws IOException {
+  public void testTab() throws IOException, ParseException {
     File csv = FileUtils.getClasspathFile("csv/escapedTab.tab");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
             Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), '\t', true)) {
@@ -111,7 +136,7 @@ public class TabularDataFileReaderTest {
   }
 
   @Test
-  public void testCsvWithComment() throws IOException {
+  public void testCsvWithComment() throws IOException, ParseException {
     File csv = FileUtils.getClasspathFile("csv/tab_separated_generic_comments.txt");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
             Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), '\t', "\n", null, true, 2)) {
@@ -130,7 +155,7 @@ public class TabularDataFileReaderTest {
   }
 
   @Test
-  public void testIgnoreEmptyLines() throws IOException {
+  public void testIgnoreEmptyLines() throws IOException, ParseException {
     File csv = FileUtils.getClasspathFile("csv/empty_line.tab");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
             Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), '\t', "\n", null, true)) {

@@ -2,6 +2,7 @@ package org.gbif.utils.file.tabular;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -24,8 +25,9 @@ public interface TabularDataFileReader<T> extends Closeable {
    * @return the next line of the tabular data file or null if the end of the file is reached.
    *
    * @throws IOException
+   * @throws ParseException
    */
-  T read() throws IOException;
+  T read() throws IOException, ParseException;
 
 
   /**
