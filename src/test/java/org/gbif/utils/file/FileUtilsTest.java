@@ -26,7 +26,6 @@ import java.util.LinkedList;
 
 import com.google.common.base.Splitter;
 import org.apache.commons.io.LineIterator;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -68,8 +67,6 @@ public class FileUtilsTest {
   /**
    * tests deleting directory recursively.
    */
-  @Ignore(
-    "Likely causing Jenkins error: java.lang.Error: Unable to load resource hudson/maven/reporters/Messages.properties")
     public
     void testDeleteRecursive() throws IOException {
     File topFile = File.createTempFile("top", ".tmp");
