@@ -15,8 +15,6 @@
  ***************************************************************************/
 package org.gbif.utils.file.csv;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import org.gbif.utils.file.ClosableReportingIterator;
 
 import java.io.BufferedReader;
@@ -25,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -132,7 +131,7 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
    * @return a set of the line numbers of the firsts empty rows found in the file
    */
   public Set<Integer> getEmptyLines() {
-    return emptyLines == null ? Sets.newHashSet() : emptyLines.keySet();
+    return emptyLines == null ? new HashSet<>() : emptyLines.keySet();
   }
 
   /**

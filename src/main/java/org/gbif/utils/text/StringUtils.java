@@ -9,6 +9,7 @@ import java.nio.charset.CharsetDecoder;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
@@ -19,9 +20,7 @@ import java.util.stream.Collectors;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.text.WordUtils;
-
 
 /**
  * Utils class adding specific string methods to existing guava {@link Strings} and
@@ -423,7 +422,7 @@ public class StringUtils {
    * @return new map with keys and values upper cased.
    */
   public static Map<String, String> upper(Map<String, String> map) {
-    Map<String, String> upperMap = Maps.newHashMap();
+    Map<String, String> upperMap = new HashMap<>();
     for (String k : map.keySet()) {
       String v = map.get(k);
       if (v != null) {
