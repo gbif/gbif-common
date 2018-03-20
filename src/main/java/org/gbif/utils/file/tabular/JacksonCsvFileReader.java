@@ -2,10 +2,12 @@ package org.gbif.utils.file.tabular;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
@@ -83,15 +85,25 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
   }
 
   @Override
-  public List<String> read() throws IOException {
-    while (it.hasNext()) {
-      //get the current line number before we read the next record
-      lastLineNumber = it.getCurrentLocation().getLineNr();
-      List<String> row = it.next();
-      // an empty line is returned as a list of one element, check if the element is empty before skipping
-      if (row.size() != 1 || StringUtils.isNotBlank(row.get(0))) {
-        recordNumber++;
-        return row;
+  public List<String> read() throws IOException, ParseException {
+    try {
+      while (it.hasNext()) {
+        //get the current line number before we read the next record
+        lastLineNumber = it.getCurrentLocation().getLineNr();
+        List<String> row = it.next();
+        // an empty line is returned as a list of one element, check if the element is empty before skipping
+        if (row.size() != 1 || StringUtils.isNotBlank(row.get(0))) {
+          recordNumber++;
+          return row;
+        }
+      }
+    }
+    catch (RuntimeException rtEx) {
+      if(JsonParseException.class == rtEx.getCause().getClass()){
+        throw new ParseException(rtEx.getMessage(), ((JsonParseException)rtEx.getCause()).getLocation().getLineNr());
+      }
+      else{
+        throw rtEx;
       }
     }
     return null;

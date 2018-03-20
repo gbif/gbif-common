@@ -9,6 +9,13 @@ class JacksonUtils {
 
   private JacksonUtils() { /*utility class*/}
 
+  /**
+   * Build the default {@link CsvSchema}.
+   * @param delimiterChar
+   * @param endOfLineSymbols
+   * @param quoteChar
+   * @return
+   */
   static CsvSchema buildCsvSchema(char delimiterChar, String endOfLineSymbols, Character quoteChar) {
     CsvSchema schema = CsvSchema.emptySchema();
     schema = schema
@@ -17,6 +24,9 @@ class JacksonUtils {
 
     //quote character is optional
     schema = quoteChar == null ? schema.withoutQuoteChar() : schema.withQuoteChar(quoteChar);
+    schema = schema.withEscapeChar('\\');
+
     return schema;
   }
+
 }
