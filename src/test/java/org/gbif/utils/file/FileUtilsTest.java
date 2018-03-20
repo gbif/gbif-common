@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.google.common.base.Splitter;
 import org.apache.commons.io.LineIterator;
@@ -128,10 +129,9 @@ public class FileUtilsTest {
   }
 
   /**
-   * tests sorting mac line endings \r which dont work with unix sort
+   * tests sorting mac line endings \r which don't work with unix sort
    */
   @Test
-  @Ignore
   public void testSortingMac() throws IOException {
     File source = FileUtils.getClasspathFile("sorting/LF_mac.txt");
     File sorted = File.createTempFile("sort-test", "mac.txt");
@@ -149,7 +149,7 @@ public class FileUtilsTest {
   public void testSortingUnix() throws IOException {
     File source = FileUtils.getClasspathFile("sorting/LF_unix.txt");
     File sorted = File.createTempFile("sort-test", "unix.txt");
-    // sorted.deleteOnExit();
+    sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
     futils.sort(source, sorted, ENCODING, 0, "×", null, "\n", 0);
 
@@ -169,6 +169,38 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, 0, "×", null, "\r\n", 0);
 
     assertUnixSortOrder(sorted);
+  }
+
+  /**
+   * Tests sorting by a column with uneven length strings as the sort column.
+   *
+   * The order musn't be different depending whether the column is last or not.
+   *
+   * The "-k×,×" argument to sort is essential here, otherwise the delimiter from the following column is part of the sort order.
+   */
+  @Test
+  public void testSortingUnevenLengths() throws IOException {
+    FileUtils futils = new FileUtils();
+
+    File source = FileUtils.getClasspathFile("sorting/uneven_lengths_col1.txt");
+    File sorted = File.createTempFile("sort-test", "uneven_lengths_col1.txt");
+    sorted.deleteOnExit();
+    futils.sort(source, sorted, ENCODING, 0, ";", null, "\n", 0);
+
+    List<String> sortedStrings = FileUtils.streamToList(new FileInputStream(sorted), "UTF-8");
+    assertEquals("980-sp10;x" , sortedStrings.get(0));
+    assertEquals("980-sp100;x", sortedStrings.get(1));
+    assertEquals("980-sp101;x", sortedStrings.get(2));
+
+    File source2 = FileUtils.getClasspathFile("sorting/uneven_lengths_col2.txt");
+    File sorted2 = File.createTempFile("sort-test", "uneven_lengths_col2.txt");
+    sorted.deleteOnExit();
+    futils.sort(source2, sorted2, ENCODING, 1, ";", null, "\n", 0);
+
+    List<String> sortedStrings2 = FileUtils.streamToList(new FileInputStream(sorted2), "UTF-8");
+    assertEquals("x;980-sp10" , sortedStrings2.get(0));
+    assertEquals("x;980-sp100", sortedStrings2.get(1));
+    assertEquals("x;980-sp101", sortedStrings2.get(2));
   }
 
   @Test

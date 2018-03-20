@@ -51,6 +51,7 @@ public class FileUtils {
   private static int linesPerMemorySort = 100000;
   private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
 
+  private static Boolean gnuSortAvailable = null;
 
   public static String classpath2Filepath(String path) {
     return new File(ClassLoader.getSystemResource(path).getFile()).getAbsolutePath();
@@ -190,7 +191,7 @@ public class FileUtils {
   }
 
   /**
-   * @param source the source input stream encoded in UTF8
+   * @param source the source input stream encoded in UTF-8
    */
   public static LineIterator getLineIterator(InputStream source) {
     return getLineIterator(source, UTF8);
@@ -248,7 +249,7 @@ public class FileUtils {
 
   /**
    * Reads the first bytes of a file into a byte buffer.
-   * 
+   *
    * @param bufferSize the number of bytes to read from the file
    */
   public static ByteBuffer readByteBuffer(File file, int bufferSize) throws IOException {
@@ -269,7 +270,7 @@ public class FileUtils {
 
   /**
    * @param linesPerMemorySort are the number of lines that should be sorted in memory, determining the number of file
-   *        segments to be sorted when doing a java file sort. Defaults to 100000, if you have
+   *        segments to be sorted when doing a Java file sort. Defaults to 100000, if you have
    *        memory available a higher value increases performance.
    */
   public static void setLinesPerMemorySort(int linesPerMemorySort) {
@@ -544,7 +545,7 @@ public class FileUtils {
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
    * @param column the column that keeps the values to sort on
-   * @param columnDelimiter the delimiter that seperates columns in a row
+   * @param columnDelimiter the delimiter that separates columns in a row
    * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
    * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
@@ -572,7 +573,7 @@ public class FileUtils {
    * @param column the column that keeps the values to sort on
    * @param columnDelimiter the delimiter that seperates columns in a row
    * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
-   * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
+   * @param newlineDelimiter the chars used for new lines, usually \n, \r\n or \r
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    * @param lineComparator used to sort the output
    * @param ignoreCase ignore case order, this parameter couldn't have any effect if the LineComparator is used
@@ -585,10 +586,9 @@ public class FileUtils {
       LOG.warn("No encoding specified, assume UTF-8");
       encoding = "UTF-8";
     }
-    // if the id is in the first column, first try sorting via unix shell as its the fastest we can get
-    if (!sortInUnix(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter, ignoreCase)) {
-      // not first column or doesnt work - maybe running on windows. Do native java sorting
-      LOG.debug("No unix sort available, using native java sorting");
+    // if the id is in the first column, first try sorting via shell as its the fastest we can get
+    if (!sortInGnu(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter, ignoreCase)) {
+      LOG.debug("No GNU sort available, using native Java sorting");
       sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);
     }
   }
@@ -701,31 +701,86 @@ public class FileUtils {
   }
 
   /**
-   * sort a text file via an external unix sort command:
+   * Test whether we have a new enough version of GNU Sort that supports (primarily) the -k option with a start and end
+   * column.
+   *
+   * Mac OS only includes an old version of GNU sort, and will fail this test.
+   */
+  private boolean gnuSortAvailable() {
+    if (gnuSortAvailable != null) {
+      return gnuSortAvailable;
+    }
+
+    try {
+      String command = "sort -k1,1 -t',' --ignore-case /dev/null";
+      LOG.debug("Testing capability of GNU sort with command: {}", command);
+
+      Process process = new ProcessBuilder("/bin/sh", "-c", command).start();
+      int exitValue = process.waitFor();
+
+      if (exitValue == 0) {
+        LOG.debug("GNU sort is capable");
+        gnuSortAvailable = true;
+      } else {
+        LOG.warn("GNU sort does not exist or is too old, and will not be used.  Sorting large files will be slow.",
+            new InputStreamUtils().readEntireStream(process.getErrorStream()).replace('\n', ' '));
+        gnuSortAvailable = false;
+      }
+    } catch (Exception e) {
+      LOG.warn("GNU sort does not exist or is too old, and will not be used.  Sorting large files will be slow.", e);
+      gnuSortAvailable = false;
+    }
+
+    return gnuSortAvailable;
+  }
+
+  /**
+   * sort a text file via an external GNU sort command:
    * sorting tabs at 3rd column, numerical reverse order
    * sort -t$'\t' -k3 -o sorted.txt col2007.txt
    * <p/>
-   * The unix based sorting is extremely efficient and much, much faster than the current sortInJava method. It is
+   * The GNU sort based sorting is extremely efficient and much, much faster than the current sortInJava method. It is
    * locale aware though and we only want the native C sorting locale. See
    * http://www.gnu.org/software/coreutils/faq/coreutils-faq.html#Sort-does-not-sort-in-normal-order_0021
    * <p/>
-   * Example C sort oder:
+   * Example C sort order:
    * <p/>
-   * 1 oOdontoceti 10 gGlobicephala melaena melaena Traill 100 gGlobicephala melaena melaena Traill 101 gGlobicephala
-   * melaena melaena Traill 11 pPontoporia Gray 12 pPontoporia blainvillei Gervais and d'Orbigny 120 iInia d'Orbigny 121
-   * iInia geoffrensis Blainville 2 sSusuidae 20 cCetacea Amphiptera Amphiptera pacifica Giglioli Anarnak Lacépède
-   * Balaena mangidach Chamisso amphiptera amphiptera pacifica Giglioli anarnak Lacépède balaena mangidach Chamisso
-   * ånarnak Lacépède
+   * <pre>
+   * 1 oOdontoceti
+   * 10 gGlobicephala melaena melaena Traill
+   * 100 gGlobicephala melaena melaena Traill
+   * 101 gGlobicephala melaena melaena Traill
+   * 11 pPontoporia Gray
+   * 12 pPontoporia blainvillei Gervais and d'Orbigny
+   * 120 iInia d'Orbigny
+   * 121 iInia geoffrensis Blainville
+   * 2 sSusuidae
+   * 20 cCetacea
+   * Amphiptera
+   * Amphiptera pacifica Giglioli
+   * Anarnak Lacépède
+   * Balaena mangidach Chamisso
+   * amphiptera
+   * amphiptera pacifica Giglioli
+   * anarnak Lacépède
+   * balaena mangidach Chamisso
+   * </pre>
    */
-  protected boolean sortInUnix(File input, File sorted, String encoding, int ignoreHeaderLines, int column,
+  protected boolean sortInGnu(File input, File sorted, String encoding, int ignoreHeaderLines, int column,
     String columnDelimiter, String lineDelimiter, boolean ignoreCase) throws IOException {
     String command;
-    // disable unix sorting for now - behaves differently on various OSes
-    if (column != 0 || lineDelimiter == null || !lineDelimiter.contains("\n") || (columnDelimiter != null
-      && columnDelimiter.contains("\n"))) {
-      LOG.debug("Cannot use unix sort on this file");
+    // GNU sort is checked for use when:
+    // • line delimiter is \n
+    // • column delimiter is not \n or '
+    //.• sort version is sufficient to include start and end column (-k 1,1).
+    // Use the --debug option to sort if working on this code.
+    if (lineDelimiter == null || !lineDelimiter.contains("\n") ||
+        (columnDelimiter != null && columnDelimiter.contains("\n") && !columnDelimiter.contains("'")) ||
+        !gnuSortAvailable()) {
+      LOG.debug("Cannot use GNU sort on this file");
       return false;
     }
+
     // keep header rows
     boolean success = false;
     try {
@@ -738,26 +793,33 @@ public class FileUtils {
       env.clear();
       // make sure we use the C locale for sorting
       env.put("LC_ALL", "C");
+
+      String sortArgs = String.format(" %s -k%d,%d -t'%s'",
+        ignoreCase ? "--ignore-case" : "", column+1, column+1, columnDelimiter);
+
       if (ignoreHeaderLines > 0) {
-        // use
+        // copy header lines
         command = "head -n " + ignoreHeaderLines + ' ' + input.getAbsolutePath() + " > " + sorted.getAbsolutePath();
-        LOG.debug("Issue unix sort cmd: " + command);
+        LOG.debug("Issue external command: {}", command);
         cmds.removeLast();
         cmds.add(command);
         Process process = pb.start();
-        process.waitFor();
+        int exitValue = process.waitFor();
+        if (exitValue != 0) {
+          LOG.warn("Error sorting file (copying header lines) with GNU head");
+          return false;
+        }
 
         // do the sorting ignoring the header rows
-        command =
-          "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | sort "
-            + (ignoreCase ? "--ignore-case" : "") + " >> "
-            + sorted.getAbsolutePath();
+        command = "sed " + ignoreHeaderLines + "d " + input.getAbsolutePath() + " | "
+            + "sort " + sortArgs
+            + " >> " + sorted.getAbsolutePath();
       } else {
-        // do sorting directly, we dont have header rows
-        command = "sort -o " + sorted.getAbsolutePath() + ' ' + input.getAbsolutePath();
+        // do sorting directly, we don't have header rows
+        command = "sort " + sortArgs + " -o " + sorted.getAbsolutePath() + ' ' + input.getAbsolutePath();
       }
 
-      LOG.debug("Issue unix sort cmd: " + command);
+      LOG.debug("Issue external command: {}", command);
       cmds.removeLast();
       cmds.add(command);
       Process process = pb.start();
@@ -765,22 +827,22 @@ public class FileUtils {
       InputStream err = process.getErrorStream();
       int exitValue = process.waitFor();
       if (exitValue == 0) {
-        LOG.debug("Successfully sorted file with unix sort");
+        LOG.debug("Successfully sorted file with GNU sort");
         success = true;
       } else {
-        LOG.warn("Error sorting file with unix sort");
+        LOG.warn("Error sorting file with GNU sort");
         InputStreamUtils isu = new InputStreamUtils();
         System.err.append(isu.readEntireStream(err));
       }
     } catch (Exception e) {
-      LOG.warn("Caught Exception", e);
+      LOG.warn("Caught Exception using GNU sort", e);
     }
     return success;
   }
 
   /**
    * Sorts the lines and writes to file using the
-   * 
+   *
    * @param input File to base the name on
    * @param lineComparator To compare the lines for sorting
    * @param fileCount Used for the file name
