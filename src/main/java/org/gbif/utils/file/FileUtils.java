@@ -74,7 +74,7 @@ public class FileUtils {
   /**
    * Reads a file and returns a unique set of multiple columns from lines which are no comments (starting with #) and
    * trims whitespace.
-   * 
+   *
    * @param source the UTF-8 encoded text file with tab delimited columns
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
    * @param column variable length argument of column indices to process
@@ -143,7 +143,7 @@ public class FileUtils {
 
   /**
    * Delete directory recursively, including all its files, sub-folders, and sub-folder's files.
-   * 
+   *
    * @param directory directory to delete recursively
    */
   public static void deleteDirectoryRecursively(File directory) {
@@ -161,7 +161,7 @@ public class FileUtils {
 
   /**
    * Escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n.
-   * 
+   *
    * @param filename to be escaped
    */
   public static String escapeFilename(String filename) {
@@ -290,7 +290,7 @@ public class FileUtils {
 
   /**
    * Takes a utf8 encoded input stream and reads in every line/row into a list.
-   * 
+   *
    * @return list of rows
    */
   public static LinkedList<String> streamToList(InputStream source) throws IOException {
@@ -299,7 +299,7 @@ public class FileUtils {
 
   /**
    * Reads a file and returns a list of all lines which are no comments (starting with #) and trims whitespace.
-   * 
+   *
    * @param source the UTF-8 encoded text file to read
    * @param resultList the list implementation to be used. Will not be cleared before reading!
    * @return list of lines
@@ -345,7 +345,7 @@ public class FileUtils {
   /**
    * Read a hashmap from a tab delimited utf8 input stream using the row number as an integer value and the entire row
    * as the value. Ignores commented rows starting with #.
-   * 
+   *
    * @param source tab delimited text file to read
    */
   public static Map<String, String> streamToMap(InputStream source, Map<String, String> result) throws IOException {
@@ -364,7 +364,7 @@ public class FileUtils {
 
   /**
    * Read a hashmap from a tab delimited utf8 file, ignoring commented rows starting with #.
-   * 
+   *
    * @param source tab delimited input stream to read
    * @param key column number to use as key
    * @param value column number to use as value
@@ -397,7 +397,7 @@ public class FileUtils {
 
   /**
    * Reads a file and returns a unique set of all lines which are no comments (starting with #) and trims whitespace.
-   * 
+   *
    * @param source the UTF-8 encoded text file to read
    * @param resultSet the set implementation to be used. Will not be cleared before reading!
    * @return set of unique lines
@@ -433,7 +433,7 @@ public class FileUtils {
 
   /**
    * For the given list, finds the index of the lowest value using the given comparator.
-   * 
+   *
    * @param values To compare
    * @param comparator To use
    * @return The index of the lowest value, or -1 if they are all null
@@ -458,7 +458,7 @@ public class FileUtils {
   /**
    * For the given file's path, returns a proposed new filename (including path) with the extension
    * index and suffix. So a file of "/tmp/input.txt" -> "/tmp/input_part_10.txt".
-   * 
+   *
    * @param original File
    * @param index E.g. 10
    * @return The proposed name
@@ -479,7 +479,7 @@ public class FileUtils {
   /**
    * Merges a list of intermediary sort chunk files into a single sorted file. On completion, the intermediary sort
    * chunk files are deleted.
-   * 
+   *
    * @param sortFiles sort chunk files to merge
    * @param sortedFileWriter writer to merge to. Can already be open and contain data
    * @param lineComparator To use when determining the order (reuse the one that was used to sort the individual
@@ -541,7 +541,7 @@ public class FileUtils {
    * Sorts the input file into the output file using the supplied delimited line parameters.
    * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified
    * column.
-   * 
+   *
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
    * @param column the column that keeps the values to sort on
@@ -567,7 +567,7 @@ public class FileUtils {
    * Sorts the input file into the output file using the supplied delimited line parameters.
    * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified
    * column.
-   * 
+   *
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
    * @param column the column that keeps the values to sort on
@@ -595,7 +595,7 @@ public class FileUtils {
 
   /**
    * Sorts the input file into the output file using the supplied lineComparator.
-   * 
+   *
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
    * @param lineComparator To use during comparison
@@ -656,7 +656,7 @@ public class FileUtils {
 
   /**
    * Splits the supplied file into files of set line size and with a suffix.
-   * 
+   *
    * @param input To split up
    * @param linesPerOutput Lines per split file
    * @param extension The file extension to use - e.g. ".txt"
