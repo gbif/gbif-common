@@ -62,6 +62,12 @@ public class FileUtilsTest {
     assertTrue(FileUtils.humanReadableByteCount(1000000, true).equals("1.0 MB"));
     assertTrue(FileUtils.humanReadableByteCount(1000000000, true).equals("1.0 GB"));
     assertTrue(FileUtils.humanReadableByteCount(1000000000000L, true).equals("1.0 TB"));
+
+    assertTrue(FileUtils.humanReadableByteCount(11, false).equals("11 B"));
+    assertTrue(FileUtils.humanReadableByteCount(1024, false).equals("1.0 KiB"));
+    assertTrue(FileUtils.humanReadableByteCount(1024*1024, false).equals("1.0 MiB"));
+    assertTrue(FileUtils.humanReadableByteCount(1024*1024*1024, false).equals("1.0 GiB"));
+    assertTrue(FileUtils.humanReadableByteCount(1024*1024*1024*1024L, false).equals("1.0 TiB"));
   }
 
   /**
