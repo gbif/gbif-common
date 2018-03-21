@@ -1,7 +1,7 @@
 package org.gbif.utils.file.tabular;
 
 import org.gbif.utils.file.CharsetDetection;
-import org.gbif.utils.file.UnkownCharsetException;
+import org.gbif.utils.file.UnknownCharsetException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -65,9 +65,9 @@ public class TabularFileMetadataExtractor {
    * @param filePath a {@link Path} pointing to a file (not a folder).
    * @return new {@link TabularFileMetadata}, never null (but the content can be null).
    * @throws IOException
-   * @throws UnkownCharsetException
+   * @throws UnknownCharsetException
    */
-  public static TabularFileMetadata extractTabularFileMetadata(Path filePath) throws IOException, UnkownCharsetException {
+  public static TabularFileMetadata extractTabularFileMetadata(Path filePath) throws IOException, UnknownCharsetException {
     Objects.requireNonNull(filePath, "filePath shall be provided");
     Preconditions.checkArgument(!Files.isDirectory(filePath), "filePath should point to a file, not a directory");
 
@@ -75,10 +75,10 @@ public class TabularFileMetadataExtractor {
     try {
       encoding = CharsetDetection.detectEncoding(filePath.toFile(), CHARSET_DETECTION_BUFFER_LENGTH);
       if (encoding == null) {
-        throw new UnkownCharsetException("Unable to detect the files character encoding");
+        throw new UnknownCharsetException("Unable to detect the files character encoding");
       }
     } catch (IOException e) {
-      throw new UnkownCharsetException(e);
+      throw new UnknownCharsetException(e);
     }
 
     // open a first stream to read a sample of the file

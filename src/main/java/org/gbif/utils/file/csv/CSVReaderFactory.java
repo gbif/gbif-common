@@ -16,7 +16,7 @@
 package org.gbif.utils.file.csv;
 
 import org.gbif.utils.file.CharsetDetection;
-import org.gbif.utils.file.UnkownCharsetException;
+import org.gbif.utils.file.UnknownCharsetException;
 import org.gbif.utils.file.tabular.TabularFileMetadataExtractor;
 
 import java.io.File;
@@ -159,13 +159,13 @@ public class CSVReaderFactory {
    *
    * Extract metadata from a CSV file.
    * Metadata includes delimiter and quotes character.
-   * 
+   *
    * @param source
    * @param encoding
    * @return
-   * @throws UnkownDelimitersException
+   * @throws UnknownDelimitersException
    */
-  public static CSVMetadata extractCsvMetadata(File source, String encoding) throws UnkownDelimitersException {
+  public static CSVMetadata extractCsvMetadata(File source, String encoding) throws UnknownDelimitersException {
     CSVMetadata csvMetadata = new CSVMetadata();
     // try csv, tab and then other popular delimiters
     // keep number of resulting columns for comparisons
@@ -215,7 +215,7 @@ public class CSVReaderFactory {
     }
 
     if (maxColumns < 1) {
-      throw new UnkownDelimitersException("Unable to detect field delimiter");
+      throw new UnknownDelimitersException("Unable to detect field delimiter");
     }
 
     return csvMetadata;
@@ -248,15 +248,15 @@ public class CSVReaderFactory {
     return columns;
   }
 
-  private static String detectEncoding(File source) throws UnkownCharsetException {
+  private static String detectEncoding(File source) throws UnknownCharsetException {
     Charset encoding;
     try {
       encoding = CharsetDetection.detectEncoding(source, 16384);
       if (encoding == null) {
-        throw new UnkownCharsetException("Unable to detect the files character encoding");
+        throw new UnknownCharsetException("Unable to detect the files character encoding");
       }
     } catch (IOException e) {
-      throw new UnkownCharsetException(e);
+      throw new UnknownCharsetException(e);
     }
     return encoding.displayName();
   }
