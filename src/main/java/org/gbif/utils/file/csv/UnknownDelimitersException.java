@@ -1,6 +1,8 @@
 package org.gbif.utils.file.csv;
 
-public class UnknownDelimitersException extends RuntimeException {
+import java.io.IOException;
+
+public class UnknownDelimitersException extends IOException {
 
   public UnknownDelimitersException(Exception e) {
     super(e);
