@@ -1,11 +1,12 @@
 package org.gbif.utils.file;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,40 +42,40 @@ public class InputStreamUtils {
 
   /**
    * Converts an entire InputStream to a single String with explicitly provided character encoding.
-   * <p/>
-   * To convert the InputStream to String we use the BufferedReader.readLine()
-   * method. We iterate until the BufferedReader return null which means
-   * there's no more data to read. Each line will appended to a StringBuilder
-   * and returned as String.
    *
    * @param source   source input stream to convert
-   * @param encoding the streams character encoding
+   * @param encoding the stream's character encoding
    *
    * @return the string representing the entire input stream
    */
   public String readEntireStream(InputStream source, String encoding) {
-    BufferedReader reader;
-    try {
-      reader = new BufferedReader(new InputStreamReader(source, encoding));
-    } catch (UnsupportedEncodingException e1) {
-      throw new IllegalArgumentException("Unsupported encoding" + encoding, e1);
-    }
-    StringBuilder sb = new StringBuilder();
+    if (!Charset.isSupported(encoding)) {
+      throw new IllegalArgumentException("Unsupported encoding " + encoding);
+    };
+
+    ByteArrayOutputStream result = new ByteArrayOutputStream();
 
     try {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        sb.append(line).append('\n');
+      byte[] buffer = new byte[1024];
+      int length;
+      while ((length = source.read(buffer)) != -1) {
+        result.write(buffer, 0, length);
       }
     } catch (IOException e) {
-      LOG.warn("Caught exception", e);
+      LOG.error("Caught exception", e);
     } finally {
       try {
         source.close();
       } catch (IOException e) {
-        LOG.warn("Caught exception", e);
+        LOG.error("Caught exception", e);
       }
     }
-    return sb.toString();
+
+    // StandardCharsets.UTF_8.name() > JDK 7
+    try {
+      return result.toString(StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalArgumentException("Could not decode stream as " + encoding);
+    }
   }
 }

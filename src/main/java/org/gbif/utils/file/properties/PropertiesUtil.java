@@ -30,6 +30,7 @@ import com.google.common.io.Closer;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.gbif.utils.file.FileUtils;
 
 /**
  * Utility class for handling properties files.
@@ -40,7 +41,7 @@ public class PropertiesUtil {
   /**
    * When we encode strings, we always specify UTF8 encoding
    */
-  public static final String UTF8_ENCODING = "UTF-8";
+  public static final String UTF8_ENCODING = FileUtils.UTF8;
 
   /**
    * Private default constructor.
@@ -52,7 +53,7 @@ public class PropertiesUtil {
   /**
    * Loads a properties file.
    * The file should be available in the classpath, the default {@link ClassLoader} is used to load the file.
-   * 
+   *
    * @throws IOException Should there be an issue in loading the file
    * @throws IllegalArgumentException If the file does not exist
    */
@@ -98,7 +99,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and casts the named property as an Double.
-   * 
+   *
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
@@ -129,7 +130,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and casts the named property as an Float.
-   * 
+   *
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
@@ -160,7 +161,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and casts the named property as an Integer.
-   * 
+   *
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is
@@ -208,7 +209,7 @@ public class PropertiesUtil {
 
   /**
    * Reads and converts the named property as UTF8 bytes.
-   * 
+   *
    * @param p The properties file to read from.
    * @param key To read the value of.
    * @param exceptionForNull If true, and the property is not found an IAE is thrown, otherwise defaultValue is

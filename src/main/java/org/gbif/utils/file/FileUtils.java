@@ -22,6 +22,7 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FileUtils {
 
-  public static final String UTF8 = "UTF8";
+  public static final String UTF8 = StandardCharsets.UTF_8.name();
 
   public static final Pattern TAB_DELIMITED = Pattern.compile("\t");
 
@@ -294,7 +295,7 @@ public class FileUtils {
    * @return list of rows
    */
   public static LinkedList<String> streamToList(InputStream source) throws IOException {
-    return streamToList(source, "UTF-8");
+    return streamToList(source, FileUtils.UTF8);
   }
 
   /**
@@ -584,7 +585,7 @@ public class FileUtils {
     LOG.debug("sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
     if (encoding == null) {
       LOG.warn("No encoding specified, assume UTF-8");
-      encoding = "UTF-8";
+      encoding = FileUtils.UTF8;
     }
     // if the id is in the first column, first try sorting via shell as its the fastest we can get
     if (!sortInGnu(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter, ignoreCase)) {

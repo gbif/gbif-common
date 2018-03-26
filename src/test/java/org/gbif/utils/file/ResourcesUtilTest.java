@@ -50,6 +50,6 @@ public class ResourcesUtilTest {
   }
 
   private void assertTestFile(File tf) throws FileNotFoundException {
-    assertEquals("hallo\n", isu.readEntireStream(FileUtils.getInputStream(tf)));
+    assertEquals("hallo", isu.readEntireStream(FileUtils.getInputStream(tf)));
   }
 }

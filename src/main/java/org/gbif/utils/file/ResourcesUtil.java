@@ -113,7 +113,7 @@ public class ResourcesUtil {
         if (dirURL.getProtocol().equals("jar")) {
         /* A JAR path */
             String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
-            JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
+            JarFile jar = new JarFile(URLDecoder.decode(jarPath, FileUtils.UTF8));
             Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
             Set<String> result = new HashSet<String>(); //avoid duplicates in case it is a subdirectory
             while(entries.hasMoreElements()) {
