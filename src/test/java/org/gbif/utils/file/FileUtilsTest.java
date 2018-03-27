@@ -27,6 +27,7 @@ import java.util.List;
 
 import com.google.common.base.Splitter;
 import org.apache.commons.io.LineIterator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -125,6 +126,51 @@ public class FileUtilsTest {
       } else if (line == 100000) {
         assertTrue(row.startsWith("vir10000981"));
       }
+    }
+  }
+
+  /**
+   * Sorting strings containing characters which are surrogate pairs, meaning Unicode characters beyond U+FFFF, will
+   * give different results between GNU Sort and a Java String comparator.
+   *
+   * "ﬂ LATIN SMALL LIGATURE FL" is U+FB02.
+   * "ð LINEAR B IDEOGRAM B241 CHARIOT" is U+100CD.
+   *
+   * GNU sort will use this order, based on the value of the whole character.
+   *
+   * Java represents ð as a surrogate pair \ud800\udccd in UTF-16, and sorts based on parts of pairs. Therefore, it
+   * gives the wrong order.
+   */
+  @Ignore("Expected to fail")
+  @Test
+  public void testSortingUnicodeFile() throws IOException {
+    FileUtils futils = new FileUtils();
+    final int IDCOLUMN = 0;
+
+    File source = FileUtils.getClasspathFile("sorting/unicode-supplementary-multilingual-plane.txt");
+    File gnuSorted = File.createTempFile("gbif-common-file-sort", "sorted-gnu.txt");
+    File javaSorted = File.createTempFile("gbif-common-file-sort", "sorted-java.txt");
+    gnuSorted.deleteOnExit();
+    javaSorted.deleteOnExit();
+
+    futils.sort(source, gnuSorted, ENCODING, IDCOLUMN, "\t", null, "\n", 0);
+    // The columnDelimiter of ' prevents GNU Sort from being used.
+    futils.sort(source, javaSorted, ENCODING, IDCOLUMN, "'", null, "\n", 0);
+
+    // read file
+    BufferedReader gnuBr = new BufferedReader(new InputStreamReader(new FileInputStream(gnuSorted), "UTF-8"));
+    BufferedReader javaBr = new BufferedReader(new InputStreamReader(new FileInputStream(javaSorted), "UTF-8"));
+
+    int line = 0;
+    String gnuRow, javaRow;
+    while ((gnuRow = gnuBr.readLine()) != null) {
+      javaRow = javaBr.readLine();
+
+      line++;
+
+      System.out.println(gnuRow + "\t\t\t\t" + javaRow);
+
+      assertEquals("Line "+line, gnuRow, javaRow);
     }
   }
 

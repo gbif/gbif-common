@@ -540,8 +540,10 @@ public class FileUtils {
 
   /**
    * Sorts the input file into the output file using the supplied delimited line parameters.
-   * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified
-   * column.
+   *
+   * This method is not reliable when the sort field may contain Unicode codepoints outside the Basic Multilingual Plane,
+   * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
+   * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
    *
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
@@ -566,13 +568,15 @@ public class FileUtils {
 
   /**
    * Sorts the input file into the output file using the supplied delimited line parameters.
-   * The resulting rows will be sorted according to the @See UnixSortComparator with values taken from the specified
-   * column.
+   *
+   * This method is not reliable when the sort field may contain Unicode codepoints outside the Basic Multilingual Plane,
+   * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
+   * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
    *
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
    * @param column the column that keeps the values to sort on
-   * @param columnDelimiter the delimiter that seperates columns in a row
+   * @param columnDelimiter the delimiter that separates columns in a row
    * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
    * @param newlineDelimiter the chars used for new lines, usually \n, \r\n or \r
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
@@ -776,7 +780,7 @@ public class FileUtils {
     //.• sort version is sufficient to include start and end column (-k 1,1).
     // Use the --debug option to sort if working on this code.
     if (lineDelimiter == null || !lineDelimiter.contains("\n") ||
-        (columnDelimiter != null && columnDelimiter.contains("\n") && !columnDelimiter.contains("'")) ||
+        (columnDelimiter != null && (columnDelimiter.contains("\n") || columnDelimiter.contains("'"))) ||
         !gnuSortAvailable()) {
       LOG.debug("Cannot use GNU sort on this file");
       return false;
