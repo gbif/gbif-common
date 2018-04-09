@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> org.gbif.utils.file.tabular;
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> org.gbif.utils.file.CharsetDetection;
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> org.gbif.utils.file.UnkownCharsetException;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> org.gbif.utils.file.UnknownCharsetException;
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.io.BufferedReader;
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.io.IOException;
@@ -73,9 +73,9 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">   * @param filePath a {@link Path} pointing to a file (not a folder).</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   * @return new {@link TabularFileMetadata}, never null (but the content can be null).</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   * @throws IOException</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * @throws UnkownCharsetException</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * @throws UnknownCharsetException</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> extractTabularFileMetadata(Path filePath) <strong class="jxr_keyword">throws</strong> IOException, UnkownCharsetException {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> extractTabularFileMetadata(Path filePath) <strong class="jxr_keyword">throws</strong> IOException, UnknownCharsetException {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      Objects.requireNonNull(filePath, <span class="jxr_string">"filePath shall be provided"</span>);
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      Preconditions.checkArgument(!Files.isDirectory(filePath), <span class="jxr_string">"filePath should point to a file, not a directory"</span>);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
@@ -83,10 +83,10 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>        encoding = CharsetDetection.detectEncoding(filePath.toFile(), CHARSET_DETECTION_BUFFER_LENGTH);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>        <strong class="jxr_keyword">if</strong> (encoding == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnkownCharsetException.html">UnkownCharsetException</a>(<span class="jxr_string">"Unable to detect the files character encoding"</span>);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(<span class="jxr_string">"Unable to detect the files character encoding"</span>);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>        }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnkownCharsetException.html">UnkownCharsetException</a>(e);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(e);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_comment">// open a first stream to read a sample of the file</em>
@@ -427,6 +427,6 @@
 <a class="jxr_linenumber" name="L419" href="#L419">419</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2017 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2018 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
 </body>
 </html>

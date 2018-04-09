@@ -24,7 +24,7 @@
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">package</strong> org.gbif.utils.file.csv;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.gbif.utils.file.CharsetDetection;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.gbif.utils.file.UnkownCharsetException;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.gbif.utils.file.UnknownCharsetException;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.gbif.utils.file.tabular.TabularFileMetadataExtractor;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.File;
@@ -167,13 +167,13 @@
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">   * Extract metadata from a CSV file.</em>
 <a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">   * Metadata includes delimiter and quotes character.</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">   * @param source</em>
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">   * @param encoding</em>
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">   * @throws UnkownDelimitersException</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">   * @throws UnknownDelimitersException</em>
 <a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/csv/CSVReaderFactory.html">CSVMetadata</a> extractCsvMetadata(File source, String encoding) <strong class="jxr_keyword">throws</strong> UnkownDelimitersException {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/csv/CSVReaderFactory.html">CSVMetadata</a> extractCsvMetadata(File source, String encoding) <strong class="jxr_keyword">throws</strong> UnknownDelimitersException {
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>     <a href="../../../../../org/gbif/utils/file/csv/CSVReaderFactory.html">CSVMetadata</a> csvMetadata = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/csv/CSVReaderFactory.html">CSVMetadata</a>();
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     <em class="jxr_comment">// try csv, tab and then other popular delimiters</em>
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>     <em class="jxr_comment">// keep number of resulting columns for comparisons</em>
@@ -223,7 +223,7 @@
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>     }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">if</strong> (maxColumns &lt; 1) {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/csv/UnkownDelimitersException.html">UnkownDelimitersException</a>(<span class="jxr_string">"Unable to detect field delimiter"</span>);
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/csv/UnknownDelimitersException.html">UnknownDelimitersException</a>(<span class="jxr_string">"Unable to detect field delimiter"</span>);
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>     }
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> 
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">return</strong> csvMetadata;
@@ -256,15 +256,15 @@
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">return</strong> columns;
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>   }
 <a class="jxr_linenumber" name="L250" href="#L250">250</a> 
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String detectEncoding(File source) <strong class="jxr_keyword">throws</strong> UnkownCharsetException {
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String detectEncoding(File source) <strong class="jxr_keyword">throws</strong> UnknownCharsetException {
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>     Charset encoding;
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>       encoding = CharsetDetection.detectEncoding(source, 16384);
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>       <strong class="jxr_keyword">if</strong> (encoding == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnkownCharsetException.html">UnkownCharsetException</a>(<span class="jxr_string">"Unable to detect the files character encoding"</span>);
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(<span class="jxr_string">"Unable to detect the files character encoding"</span>);
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>       }
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnkownCharsetException.html">UnkownCharsetException</a>(e);
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(e);
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>     }
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>     <strong class="jxr_keyword">return</strong> encoding.displayName();
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>   }
@@ -310,6 +310,6 @@
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2017 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2018 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
 </body>
 </html>

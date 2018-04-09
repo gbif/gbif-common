@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">if</strong> (dirURL.getProtocol().equals(<span class="jxr_string">"jar"</span>)) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">/* A JAR path */</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>             String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf(<span class="jxr_string">"!"</span>)); <em class="jxr_comment">//strip out only the JAR file</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             JarFile jar = <strong class="jxr_keyword">new</strong> JarFile(URLDecoder.decode(jarPath, <span class="jxr_string">"UTF-8"</span>));
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             JarFile jar = <strong class="jxr_keyword">new</strong> JarFile(URLDecoder.decode(jarPath, FileUtils.UTF8));
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             Enumeration&lt;JarEntry&gt; entries = jar.entries(); <em class="jxr_comment">//gives ALL entries in jar</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>             Set&lt;String&gt; result = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;(); <em class="jxr_comment">//avoid duplicates in case it is a subdirectory</em>
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">while</strong>(entries.hasMoreElements()) {
@@ -147,6 +147,6 @@
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2017 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2018 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
 </body>
 </html>
