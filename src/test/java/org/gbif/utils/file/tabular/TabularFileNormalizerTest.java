@@ -31,9 +31,10 @@ public class TabularFileNormalizerTest {
             csvFile.toPath(), normalizedFile.toPath(), StandardCharsets.UTF_8, ',', "\n", '\"');
 
     List<String> rows = org.apache.commons.io.FileUtils.readLines(normalizedFile, StandardCharsets.UTF_8);
-    assertEquals("1,\"a,\",b", rows.get(0));
-    assertEquals("2,c,d", rows.get(1));
-    assertEquals("3,é,f", rows.get(2));
-    assertEquals(3, numberOfLine);
+    assertEquals("Quoted delimiter", "1,\"a,\",b", rows.get(0));
+    assertEquals("Trailing newline", "2,c,d", rows.get(1));
+    assertEquals("Quoted non-ASCII and null character", "3,é,f", rows.get(2));
+    assertEquals("Long values", "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986,\"Pi, Pi, Pi, Pi, Pi, Pi, Pi, Pi\",ππππππππππππππππππππππππππππππππππππππππππππππ", rows.get(3));
+    assertEquals(4, numberOfLine);
   }
 }

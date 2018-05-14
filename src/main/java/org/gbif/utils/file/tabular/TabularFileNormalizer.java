@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -59,6 +60,8 @@ public class TabularFileNormalizer {
     int numberOfLine = 0;
     CsvMapper mapper = new CsvMapper();
     mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+
+    mapper.configure(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING, true);
 
     CsvSchema readerSchema = buildCsvSchema(delimiterChar, endOfLineSymbols, quoteChar);
     CsvSchema writerSchema = buildCsvSchema(delimiterChar, NORMALIZED_END_OF_LINE, quoteChar);
