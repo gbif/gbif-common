@@ -39,12 +39,13 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>              csvFile.toPath(), normalizedFile.toPath(), StandardCharsets.UTF_8, ',', <span class="jxr_string">"\n"</span>, '\&quot;');
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>      List&lt;String&gt; rows = org.apache.commons.io.FileUtils.readLines(normalizedFile, StandardCharsets.UTF_8);
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      assertEquals(<span class="jxr_string">"1,\&quot;a,\&quot;,b"</span>, rows.get(0));
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      assertEquals(<span class="jxr_string">"2,c,d"</span>, rows.get(1));
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      assertEquals(<span class="jxr_string">"3,é,f"</span>, rows.get(2));
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      assertEquals(3, numberOfLine);
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>    }
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      assertEquals(<span class="jxr_string">"Quoted delimiter"</span>, <span class="jxr_string">"1,\&quot;a,\&quot;,b"</span>, rows.get(0));
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      assertEquals(<span class="jxr_string">"Trailing newline"</span>, <span class="jxr_string">"2,c,d"</span>, rows.get(1));
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      assertEquals(<span class="jxr_string">"Quoted non-ASCII and null character"</span>, <span class="jxr_string">"3,é,f"</span>, rows.get(2));
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      assertEquals(<span class="jxr_string">"Long values"</span>, <span class="jxr_string">"3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986,\&quot;Pi, Pi, Pi, Pi, Pi, Pi, Pi, Pi\&quot;,ππππππππππππππππππππππππππππππππππππππππππππππ"</span>, rows.get(3));
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      assertEquals(4, numberOfLine);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>    }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
