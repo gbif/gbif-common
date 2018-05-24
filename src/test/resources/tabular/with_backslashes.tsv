@@ -1,0 +1,5 @@
+# Backslash escapes aren't supported in TSV, see the "spec", such as it is: https://www.iana.org/assignments/media-types/text/tab-separated-values
+key	value
+1	Around 1\4 mile along the road
+2	Near the Cloud\Mitchell county line
+3	{"jKey": "jValue with \"quotes\""}

@@ -44,20 +44,31 @@ public class TabularDataFileReaderTest {
    */
   @Test
   public void testEscapedQuotes() throws IOException, ParseException {
-    File tsv = FileUtils.getClasspathFile("tabular/tsv_escaped_quotes.tsv");
+    File tsv = FileUtils.getClasspathFile("csv/csv_escaped_quotes.csv");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
-            Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 0)) {
+      Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 1)) {
 
       List<String> rec = reader.read();
       assertEquals(12, rec.size());
+      assertEquals("Danish Mycological Society (2017-09-04). Fungal records database (http://svampe.databasen.org), contributed by Frøslev, T., Heilmann-Clausen, J., Jeppesen, T.S., Lange, C., Læssøe, T., Petersen, J.H., Søchting, U., \"Vesterholt\", J.", rec.get(5));
+      assertEquals("{\"Substrate\":\"wood\"}", rec.get(10));
     }
   }
 
   @Test(expected = ParseException.class)
-  public void testWrongEscapedQuotes() throws IOException, ParseException {
-    File tsv = FileUtils.getClasspathFile("tabular/tsv_wrong_escaped_quotes.tsv");
+  public void testWrongEscapedQuotes1() throws IOException, ParseException {
+    File tsv = FileUtils.getClasspathFile("csv/csv_wrong_escaped_quotes_1.csv");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
-            Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 0)) {
+      Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 1)) {
+      reader.read();
+    }
+  }
+
+  @Test(expected = ParseException.class)
+  public void testWrongEscapedQuotes2() throws IOException, ParseException {
+    File tsv = FileUtils.getClasspathFile("csv/csv_wrong_escaped_quotes_2.csv");
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+      Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 1)) {
       reader.read();
     }
   }
@@ -172,4 +183,54 @@ public class TabularDataFileReaderTest {
     }
   }
 
+  /**
+   * Test extracting a CSV file containing embedded JSON, which itself contains escaped quotes.
+   *
+   * JSON value like: { "test": "value, \"like\" this" }
+   *
+   * Would become in CSV: "{ ""test"": ""value, \""like\"" this"" }"
+   */
+  @Test
+  public void testCsvJsonEscapedQuotes() throws IOException, ParseException {
+    File csv = FileUtils.getClasspathFile("csv/csv_json_escaped_quotes2.csv");
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+      Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', true)) {
+
+      List<String> atom = reader.read();
+      assertEquals(3, atom.size());
+      assertEquals("779", atom.get(0));
+      // Without the Java escapes: {"chronostratigraphy": "Cretaceous, Early Cretaceous, Albian - Late Cretaceous, Cenomanian", "cataloguedescription": "Very worn vertebra. Old catalogue says \"fragments of bone\".", "created": "2009-05-13", "barcode": "010039076", "project": "eMesozoic", "determinationnames": "Ornithocheirus", "subdepartment": "Vertebrates", "lithostratigraphy": "Selborne Group, Upper Greensand Formation, Cambridge Greensand Member", "imagecategory": ["Register;Specimen"]}
+      assertEquals("{\"jsonKey\": \"jsonValue\"}", atom.get(1));
+      assertEquals("Cambridge, Cambridge", atom.get(2));
+
+      atom = reader.read();
+      assertEquals("{\"jsonKey\": \"jsonValue with a \"quote\" in the middle (invalid JSON)\"}", atom.get(1));
+
+      atom = reader.read();
+      assertEquals("{\"jsonKey\": \"jsonValue with a \\\"quote\\\" in the middle (valid JSON)\"}", atom.get(1));
+
+    }
+  }
+
+  /**
+   * TSV cannot encode tabs or newlines, so there is no escape character.
+   */
+  @Test
+  public void testTsvBackslashes() throws IOException, ParseException {
+    File csv = FileUtils.getClasspathFile("tabular/with_backslashes.tsv");
+    try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
+      Files.newBufferedReader(csv.toPath(), StandardCharsets.UTF_8), '\t', "\n", null, true)) {
+
+      List<String> atom = reader.read();
+      assertEquals(2, atom.size());
+      assertEquals("key", atom.get(0));
+      assertEquals("value", atom.get(1));
+      atom = reader.read();
+      assertEquals("Around 1\\4 mile along the road", atom.get(1));
+      atom = reader.read();
+      assertEquals("Near the Cloud\\Mitchell county line", atom.get(1));
+      atom = reader.read();
+      assertEquals("{\"jKey\": \"jValue with \\\"quotes\\\"\"}", atom.get(1));
+    }
+  }
 }

@@ -24,7 +24,6 @@ class JacksonUtils {
 
     //quote character is optional
     schema = quoteChar == null ? schema.withoutQuoteChar() : schema.withQuoteChar(quoteChar);
-    schema = schema.withEscapeChar('\\');
 
     return schema;
   }

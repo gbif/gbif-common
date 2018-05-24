@@ -1,0 +1,4 @@
+_id,dynamicProperties,locality
+779,"{""jsonKey"": ""jsonValue""}","Cambridge, Cambridge"
+780,"{""jsonKey"": ""jsonValue with a ""quote"" in the middle (invalid JSON)""}","Cambridge, Cambridge"
+781,"{""jsonKey"": ""jsonValue with a \""quote\"" in the middle (valid JSON)""}","Cambridge, Cambridge"

@@ -23,7 +23,7 @@ public class CSVReaderTest {
   private static final String UTF8 = Charsets.UTF_8.name();
 
   @Test
-  public void testCsvAllwaysQuotes() throws IOException {
+  public void testCsvAlwaysQuotes() throws IOException {
     File csv = FileUtils.getClasspathFile("csv/csv_always_quoted.csv");
     try (CSVReader reader = new CSVReader(csv, "utf8", ",", '"', 1)) {
       String[] rec = reader.next();
@@ -182,6 +182,28 @@ public class CSVReaderTest {
       lineCount++;
     }
     assertEquals(8, lineCount);
+  }
+
+  /**
+   * Test extracting a CSV file containing embedded JSON, which itself contains escaped quotes.
+   *
+   * JSON value like: { "test": "value, \"like\" this" }
+   *
+   * Would become in CSV: "{ ""test"": ""value, \""like\"" this"" }"
+   */
+  @Test
+  public void testCsvJsonEscapedQuotes() throws IOException {
+    File csv = FileUtils.getClasspathFile("csv/csv_json_escaped_quotes.csv");
+    CSVReader reader = new CSVReader(csv, UTF8, ",", '"', 1);
+
+    String[] atom = reader.next();
+    assertEquals(71, atom.length);
+    assertEquals("779", atom[0]);
+    assertEquals("Cambridge, Cambridge", atom[62]);
+    // Without the Java escapes: {"chronostratigraphy": "Cretaceous, Early Cretaceous, Albian - Late Cretaceous, Cenomanian", "cataloguedescription": "Very worn vertebra. Old catalogue says \"fragments of bone\".", "created": "2009-05-13", "barcode": "010039076", "project": "eMesozoic", "determinationnames": "Ornithocheirus", "subdepartment": "Vertebrates", "lithostratigraphy": "Selborne Group, Upper Greensand Formation, Cambridge Greensand Member", "imagecategory": ["Register;Specimen"]}
+    assertEquals("{\"chronostratigraphy\": \"Cretaceous, Early Cretaceous, Albian - Late Cretaceous, Cenomanian\", \"cataloguedescription\": \"Very worn vertebra. Old catalogue says \\\"fragments of bone\\\".\", \"created\": \"2009-05-13\", \"barcode\": \"010039076\", \"project\": \"eMesozoic\", \"determinationnames\": \"Ornithocheirus\", \"subdepartment\": \"Vertebrates\", \"lithostratigraphy\": \"Selborne Group, Upper Greensand Formation, Cambridge Greensand Member\", \"imagecategory\": [\"Register;Specimen\"]}", atom[2]);
+
+    reader.close();
   }
 
 }
