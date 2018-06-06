@@ -31,6 +31,7 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
                        boolean headerLineIncluded) throws IOException {
     this(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLineIncluded, null);
   }
+
   /**
    * package protected constructor. Use {@link TabularFiles} to get instances.
    *
@@ -40,7 +41,6 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
    * @param quoteChar          Nullable.
    * @param headerLineIncluded
    * @param lineToSkipBeforeHeader Nullable. How many line(s) is required to skip before reading the header or the data.
-   *
    * @throws IOException
    */
   JacksonCsvFileReader(Reader reader, char delimiterChar, String endOfLineSymbols, Character quoteChar,
