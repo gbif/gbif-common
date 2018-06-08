@@ -35,7 +35,7 @@ public class ExcelConverterTest {
     //testFile = new File("/tmp/test.csv");
     //System.out.println(testFile.toPath());
 
-    long lines = ExcelXmlConverter.convertToCSV(testXlsxFile.toPath(),
+    long lines = ExcelXmlConverter.convert(testXlsxFile.toPath(),
       new CsvSpreadsheetConsumer(new FileWriter(testFile)));
 
     assertTrue(org.apache.commons.io.FileUtils.contentEqualsIgnoreEOL(testFile, testCsvFile, "UTF-8"));

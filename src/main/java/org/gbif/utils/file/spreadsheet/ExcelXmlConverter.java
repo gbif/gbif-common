@@ -86,14 +86,14 @@ public class ExcelXmlConverter {
   /**
    * Convert a workbook (.xlsx format) to some other format like CSV.
    *
-   * Example: ExcelXmlConverter.convertToCSV(xlsxPath, new CsvSpreadsheetConsumer(new FileWriter(outputCsvFile)));
+   * Example: ExcelXmlConverter.convert(xlsxPath, new CsvSpreadsheetConsumer(new FileWriter(outputCsvFile)));
    *
    * @param workbookFile Path to the workbook file
    * @param writer A writer which will be given many List<String>s
    * @throws IOException
    * @throws InvalidFormatException Thrown if invalid XML is found whilst parsing an input SpreadsheetML file.
    */
-  public static long convertToCSV(Path workbookFile, SpreadsheetConsumer writer) throws IOException, SAXException, OpenXML4JException {
+  public static long convert(Path workbookFile, SpreadsheetConsumer writer) throws IOException, SAXException, OpenXML4JException {
     OPCPackage p = OPCPackage.open(workbookFile.toFile(), PackageAccess.READ);
     ExcelXmlConverter converter = new ExcelXmlConverter(p, writer);
 
