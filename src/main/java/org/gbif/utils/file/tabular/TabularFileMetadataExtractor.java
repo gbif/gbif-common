@@ -43,7 +43,9 @@ public class TabularFileMetadataExtractor {
 
   private static final Logger LOG = LoggerFactory.getLogger(TabularFileMetadataExtractor.class);
   private static final int MAX_SAMPLE_SIZE = 15;
-  private static final int CHARSET_DETECTION_BUFFER_LENGTH = 16384;
+
+  // This needs to be large enough to stumble upon a non-ASCII character.
+  private static final int CHARSET_DETECTION_BUFFER_LENGTH = 1024*1024;
 
   private TabularFileMetadataExtractor() {
   }
@@ -75,7 +77,7 @@ public class TabularFileMetadataExtractor {
     try {
       encoding = CharsetDetection.detectEncoding(filePath.toFile(), CHARSET_DETECTION_BUFFER_LENGTH);
       if (encoding == null) {
-        throw new UnknownCharsetException("Unable to detect the files character encoding");
+        throw new UnknownCharsetException("Unable to detect the file's character encoding");
       }
     } catch (IOException e) {
       throw new UnknownCharsetException(e);

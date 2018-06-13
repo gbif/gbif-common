@@ -3,6 +3,8 @@ package org.gbif.utils.file.tabular;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,14 +172,12 @@ public class TabularFileMetadataExtractorTest {
 
   @Test
   public void detectPipe() throws IOException {
-    runExtractTabularFileMetadata(FileUtils.getClasspathFile("csv/pipe_separator.txt").toPath(),
-            '|', null);
+    runExtractTabularFileMetadata("csv/pipe_separator.txt", '|', null, StandardCharsets.UTF_8);
   }
 
   @Test
   public void detectSemicolon() throws IOException {
-    runExtractTabularFileMetadata(FileUtils.getClasspathFile("csv/semicolon_separator.csv").toPath(),
-            ';', null);
+    runExtractTabularFileMetadata("csv/semicolon_separator.csv", ';', null, StandardCharsets.UTF_8);
   }
 
   @Test
@@ -185,7 +185,7 @@ public class TabularFileMetadataExtractorTest {
     String[] files = {"csv/ipni.tab.txt", "csv/tab_separated_generic.txt", "csv/iucn100.tab.txt", "csv/ebird.tab.txt",
             "csv/empty_line.tab", "csv/irmng.tail", "csv/MOBOT.tab.csv"};
     for (String fn : files) {
-      runExtractTabularFileMetadata(FileUtils.getClasspathFile(fn).toPath(), '\t', null);
+      runExtractTabularFileMetadata(fn, '\t', null, StandardCharsets.UTF_8);
     }
   }
 
@@ -194,12 +194,13 @@ public class TabularFileMetadataExtractorTest {
     String[] files = {"csv/eol/my_darwincore_tab_separated_quoted.txt",
             "csv/eol/my_dataobject_tab_separated_quoted.txt", "csv/borza_tab_separated_quoted.txt"};
     for (String fn : files) {
-      runExtractTabularFileMetadata(FileUtils.getClasspathFile(fn).toPath(),
-              '\t', '"');
+      runExtractTabularFileMetadata(fn,'\t', '"', StandardCharsets.UTF_8);
     }
   }
 
-  private static void runExtractTabularFileMetadata(Path source, Character expectedDelimiter, Character expectedQuoteChar) throws IOException {
+  private static void runExtractTabularFileMetadata(String classPathFile, Character expectedDelimiter, Character expectedQuoteChar,
+                                                    Charset expectedCharset) throws IOException {
+    Path source = FileUtils.getClasspathFile(classPathFile).toPath();
     TabularFileMetadata tabFileMetadata = extractTabularFileMetadata(source);
     Assert.assertEquals(expectedDelimiter.charValue(), tabFileMetadata.getDelimiter().charValue());
 
@@ -210,6 +211,13 @@ public class TabularFileMetadataExtractorTest {
       assertNotNull("Expect a quote character -> " + source, tabFileMetadata.getQuotedBy());
       Assert.assertEquals("Source file -> " + source, expectedQuoteChar.charValue(), tabFileMetadata.getQuotedBy().charValue());
     }
+
+    Assert.assertEquals(expectedCharset, tabFileMetadata.getEncoding());
   }
 
+  @Test
+  public void detectEncoding() throws IOException {
+    runExtractTabularFileMetadata("tabular/test_encoding_detection.iso-8859-1.csv",',', null, StandardCharsets.ISO_8859_1);
+    runExtractTabularFileMetadata("tabular/test_encoding_detection.utf-8.csv",',', null, StandardCharsets.UTF_8);
+  }
 }

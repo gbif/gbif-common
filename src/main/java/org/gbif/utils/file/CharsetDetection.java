@@ -26,7 +26,8 @@ import static org.gbif.utils.file.FileUtils.readByteBuffer;
  * if the buffer is wide enough, it's easy to guess.
  * </p>
  * <p>
- * A byte buffer of 4KB or 8KB is sufficient to be able to guess the encoding.
+ * To determine whether mostly-English text is UTF-8 or ISO-8859-1, a fairly large buffer may be necessary to find an
+ * instance of é, ° etc.
  * </p>
  * This class is a heavily modified version of the original written by Guillaume LAFORGE:
  * com.glaforge.i18n.io.CharsetToolkit
@@ -48,7 +49,7 @@ public class CharsetDetection {
   private static final char[] COMMON_NON_ASCII_CHARS;
 
   static {
-    String commonChars = "äåáàæœčéèêëïñøöüßšž";
+    String commonChars = "äåáàæœčéèêëïñøöüßšž°±";
     CharBuffer cbuf = CharBuffer.allocate(commonChars.length() * 2);
     for (char c : commonChars.toCharArray()) {
       cbuf.append(c);
@@ -101,7 +102,8 @@ public class CharsetDetection {
   }
 
   /**
-   * @param bufferLength number of bytes to read in for the detection. 8192 is a reasonable value
+   * @param bufferLength number of bytes to read in for the detection. Needs to be long enough to encounter non-ASCII
+   *                     characters, which could be unusual in English text.
    */
   public static Charset detectEncoding(File file, int bufferLength) throws IOException {
     byte[] data = readByteBuffer(file, bufferLength).array();
