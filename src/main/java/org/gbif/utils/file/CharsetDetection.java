@@ -20,13 +20,11 @@ import static org.gbif.utils.file.FileUtils.readByteBuffer;
  * Especially for 8-bit charsets. It's not possible
  * to know which 8-bit charset is used. Except through statistical analysis.
  * </p>
- * <p/>
  * <p>
  * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are
  * easy to find. For UTF-8 files with no BOM,
  * if the buffer is wide enough, it's easy to guess.
  * </p>
- * <p/>
  * <p>
  * A byte buffer of 4KB or 8KB is sufficient to be able to guess the encoding.
  * </p>
@@ -267,14 +265,14 @@ public class CharsetDetection {
    * <p>
    * Guess the encoding of the provided buffer.
    * </p>
-   * If Byte Order Markers are encountered at the beginning of the buffer, we immidiately
+   * If Byte Order Markers are encountered at the beginning of the buffer, we immediately
    * return the charset implied by this BOM. Otherwise, the file would not be a human
-   * readable text file.</p>
+   * readable text file.
    * <p/>
    * <p>
    * If there is no BOM, this method tries to discern whether the file is UTF-8 or not. If it is not UTF-8, we assume
-   * the encoding is the default system
-   * encoding (of course, it might be any 8-bit charset, but usually, an 8-bit charset is the default one).
+   * the encoding is the default system encoding (of course, it might be any 8-bit charset, but usually, an 8-bit
+   * charset is the default one).
    * </p>
    * <p/>
    * <p>
@@ -332,50 +330,50 @@ public class CharsetDetection {
       byte b5 = buffer[i + 5];
       if (b0 < 0) {
         // a high order bit was encountered, thus the encoding is not US-ASCII
-        // a two-bytes sequence was encoutered
+        // a two-byte sequence was encountered
         if (isTwoBytesSequence(b0)) {
           // there must be one continuation byte of the form 10xxxxxx,
-          // otherwise the following characteris is not a valid UTF-8 construct
+          // otherwise the following character is is not a valid UTF-8 construct
           if (isContinuationChar(b1)) {
             i++;
           } else {
             validU8Char = false;
           }
         }
-        // a three-bytes sequence was encoutered
+        // a three-byte sequence was encountered
         else if (isThreeBytesSequence(b0)) {
           // there must be two continuation bytes of the form 10xxxxxx,
-          // otherwise the following characteris is not a valid UTF-8 construct
+          // otherwise the following character is is not a valid UTF-8 construct
           if (isContinuationChar(b1) && isContinuationChar(b2)) {
             i += 2;
           } else {
             validU8Char = false;
           }
         }
-        // a four-bytes sequence was encoutered
+        // a four-byte sequence was encountered
         else if (isFourBytesSequence(b0)) {
           // there must be three continuation bytes of the form 10xxxxxx,
-          // otherwise the following characteris is not a valid UTF-8 construct
+          // otherwise the following character is is not a valid UTF-8 construct
           if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3)) {
             i += 3;
           } else {
             validU8Char = false;
           }
         }
-        // a five-bytes sequence was encoutered
+        // a five-byte sequence was encountered
         else if (isFiveBytesSequence(b0)) {
           // there must be four continuation bytes of the form 10xxxxxx,
-          // otherwise the following characteris is not a valid UTF-8 construct
+          // otherwise the following character is is not a valid UTF-8 construct
           if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)) {
             i += 4;
           } else {
             validU8Char = false;
           }
         }
-        // a six-bytes sequence was encoutered
+        // a six-byte sequence was encountered
         else if (isSixBytesSequence(b0)) {
           // there must be five continuation bytes of the form 10xxxxxx,
-          // otherwise the following characteris is not a valid UTF-8 construct
+          // otherwise the following character is is not a valid UTF-8 construct
           if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)
               && isContinuationChar(b5)) {
             i += 5;
@@ -417,7 +415,7 @@ public class CharsetDetection {
       i++;
       even = !even;
       if (b == 0x00) {
-        // zero occurr a lot in utf16 with latin characters
+        // zero occur a lot in utf16 with latin characters
         if (even) {
           zerosLE++;
         } else {
@@ -457,7 +455,7 @@ public class CharsetDetection {
     Charset charset = Charsets.ISO_8859_1;
     CharsetDecoder decoder = charset.newDecoder();
 
-    long suspicous = 0;
+    long suspicious = 0;
     // count the following
 
     // first try to decode the whole lot and count common non ascii chars
@@ -466,11 +464,11 @@ public class CharsetDetection {
       while (cbuf.hasRemaining()) {
         char c = cbuf.get();
         if (isCommonChar(c)) {
-          suspicous--;
+          suspicious--;
         }
       }
 
-      // if that worked without a problem try to count suspicous characters which are rarely used in our texts
+      // if that worked without a problem try to count suspicious characters which are rarely used in our texts
       int length = buffer.length;
       int i = 0;
       while (i < length) {
@@ -478,20 +476,20 @@ public class CharsetDetection {
         i++;
         // range 7f-9f undefined, see http://de.wikipedia.org/wiki/ISO_8859-1
         if (b >= (byte) 0x80 && b <= (byte) 0x9f) {
-          suspicous += UNDEFINED_PENALTY;
+          suspicious += UNDEFINED_PENALTY;
         }
       }
     } catch (CharacterCodingException e) {
-      suspicous = Long.MAX_VALUE;
+      suspicious = Long.MAX_VALUE;
     }
 
-    return suspicous;
+    return suspicious;
   }
 
   private long testMacRoman() {
     CharsetDecoder decoder = MACROMAN.newDecoder();
 
-    long suspicous = 0;
+    long suspicious = 0;
 
     // first try to decode the whole lot
     try {
@@ -499,7 +497,7 @@ public class CharsetDetection {
       while (cbuf.hasRemaining()) {
         char c = cbuf.get();
         if (isCommonChar(c)) {
-          suspicous--;
+          suspicious--;
         }
       }
       // if that worked without a problem try to count suspicious characters which are rarely used in our texts
@@ -511,15 +509,15 @@ public class CharsetDetection {
         // all ranges defined I am afraid
       }
     } catch (CharacterCodingException e) {
-      suspicous = Long.MAX_VALUE;
+      suspicious = Long.MAX_VALUE;
     }
 
-    return suspicous;
+    return suspicious;
   }
 
   private long testWindows1252() {
     CharsetDecoder decoder = WINDOWS1252.newDecoder();
-    long suspicous = 0;
+    long suspicious = 0;
 
     // first try to decode the whole lot
     try {
@@ -527,7 +525,7 @@ public class CharsetDetection {
       while (cbuf.hasRemaining()) {
         char c = cbuf.get();
         if (isCommonChar(c)) {
-          suspicous--;
+          suspicious--;
         }
       }
       // if that worked without a problem try to count suspicous characters which are rarely used in our texts
@@ -539,14 +537,14 @@ public class CharsetDetection {
         i++;
         // 5 undefined chars
         if (b == (byte) 0x81 || b == (byte) 0x8d || b == (byte) 0x8f || b == (byte) 0x90 || b == (byte) 0x9d) {
-          suspicous += UNDEFINED_PENALTY;
+          suspicious += UNDEFINED_PENALTY;
         }
       }
     } catch (CharacterCodingException e) {
-      suspicous = Long.MAX_VALUE;
+      suspicious = Long.MAX_VALUE;
     }
 
-    return suspicous;
+    return suspicious;
   }
 
 }
