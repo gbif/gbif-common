@@ -28,90 +28,90 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * Especially for 8-bit charsets. It's not possible</em>
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * to know which 8-bit charset is used. Except through statistical analysis.</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * &lt;p/&gt;</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * easy to find. For UTF-8 files with no BOM,</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * if the buffer is wide enough, it's easy to guess.</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p/&gt;</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * A byte buffer of 4KB or 8KB is sufficient to be able to guess the encoding.</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * This class is a heavily modified version of the original written by Guillaume LAFORGE:</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * com.glaforge.i18n.io.CharsetToolkit</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * taken from</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * <a href="http://glaforge.free.fr/wiki/index.php?wiki=GuessEncodin" target="alexandria_uri">http://glaforge.free.fr/wiki/index.php?wiki=GuessEncodin</a>g</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author Guillaume LAFORGE</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * @author Markus Döring</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a> {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(CharsetDetection.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <em class="jxr_comment">// encodings to test and very unlikely chars in that encoding</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte LF = 0x0a;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte CR = 0x0d;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte TAB = 0x09;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UNDEFINED_PENALTY = 100;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">char</strong>[] COMMON_NON_ASCII_CHARS;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>    <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      String commonChars = <span class="jxr_string">"äåáàæœčéèêëïñøöüßšž"</span>;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      CharBuffer cbuf = CharBuffer.allocate(commonChars.length() * 2);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">char</strong> c : commonChars.toCharArray()) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>        cbuf.append(c);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>        cbuf.append(Character.toUpperCase(c));
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      COMMON_NON_ASCII_CHARS = cbuf.array();
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>    }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Charset LATIN1 = Charsets.ISO_8859_1;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Charset WINDOWS1252;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Charset MACROMAN;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>    <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      Charset cs = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>        cs = Charset.forName(<span class="jxr_string">"Cp1252"</span>);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>        LOG.warn(<span class="jxr_string">"Windows 1252 encoding not supported on this Virtual Machine"</span>);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      WINDOWS1252 = cs;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      cs = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>        cs = Charset.forName(<span class="jxr_string">"MacRoman"</span>);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>        LOG.warn(<span class="jxr_string">"MacRoman encoding not supported on this Virtual Machine"</span>);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      MACROMAN = cs;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>    }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] buffer;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">   * Constructor of the &lt;code&gt;com.glaforge.i18n.io.CharsetToolkit&lt;/code&gt; utility class.</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">   * @param buffer the byte buffer of which we want to know the encoding.</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a>(byte[] buffer) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">this</strong>.buffer = buffer;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>    }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Charset detectEncoding(File file) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      byte[] data = readByteBuffer(file).array();
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a> detector = <strong class="jxr_keyword">new</strong> <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a>(data);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      Charset charset = detector.detectEncoding();
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     LOG.debug(<span class="jxr_string">"Detected character encoding "</span> + charset.displayName());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">return</strong> charset;
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>   }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">   * @param bufferLength number of bytes to read in for the detection. 8192 is a reasonable value</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * easy to find. For UTF-8 files with no BOM,</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * if the buffer is wide enough, it's easy to guess.</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * To determine whether mostly-English text is UTF-8 or ISO-8859-1, a fairly large buffer may be necessary to find an</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * instance of é, ° etc.</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * This class is a heavily modified version of the original written by Guillaume LAFORGE:</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * com.glaforge.i18n.io.CharsetToolkit</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * taken from</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * <a href="http://glaforge.free.fr/wiki/index.php?wiki=GuessEncodin" target="alexandria_uri">http://glaforge.free.fr/wiki/index.php?wiki=GuessEncodin</a>g</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * @author Guillaume LAFORGE</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * @author Markus Döring</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(CharsetDetection.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>    <em class="jxr_comment">// encodings to test and very unlikely chars in that encoding</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte LF = 0x0a;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte CR = 0x0d;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte TAB = 0x09;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UNDEFINED_PENALTY = 100;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">char</strong>[] COMMON_NON_ASCII_CHARS;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>    <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      String commonChars = <span class="jxr_string">"äåáàæœčéèêëïñøöüßšž°±"</span>;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      CharBuffer cbuf = CharBuffer.allocate(commonChars.length() * 2);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">char</strong> c : commonChars.toCharArray()) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>        cbuf.append(c);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>        cbuf.append(Character.toUpperCase(c));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      COMMON_NON_ASCII_CHARS = cbuf.array();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>    }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Charset LATIN1 = Charsets.ISO_8859_1;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Charset WINDOWS1252;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Charset MACROMAN;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>    <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      Charset cs = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>        cs = Charset.forName(<span class="jxr_string">"Cp1252"</span>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>        LOG.warn(<span class="jxr_string">"Windows 1252 encoding not supported on this Virtual Machine"</span>);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      WINDOWS1252 = cs;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      cs = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>        cs = Charset.forName(<span class="jxr_string">"MacRoman"</span>);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>        LOG.warn(<span class="jxr_string">"MacRoman encoding not supported on this Virtual Machine"</span>);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      MACROMAN = cs;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] buffer;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">   * Constructor of the &lt;code&gt;com.glaforge.i18n.io.CharsetToolkit&lt;/code&gt; utility class.</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">   * @param buffer the byte buffer of which we want to know the encoding.</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a>(byte[] buffer) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">this</strong>.buffer = buffer;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>    }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Charset detectEncoding(File file) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      byte[] data = readByteBuffer(file).array();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a> detector = <strong class="jxr_keyword">new</strong> <a href="../../../../org/gbif/utils/file/CharsetDetection.html">CharsetDetection</a>(data);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      Charset charset = detector.detectEncoding();
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     LOG.debug(<span class="jxr_string">"Detected character encoding "</span> + charset.displayName());
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">return</strong> charset;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>   }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">   * @param bufferLength number of bytes to read in for the detection. Needs to be long enough to encounter non-ASCII</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">   *                     characters, which could be unusual in English text.</em>
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Charset detectEncoding(File file, <strong class="jxr_keyword">int</strong> bufferLength) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     byte[] data = readByteBuffer(file, bufferLength).array();
@@ -275,14 +275,14 @@
 <a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">   * Guess the encoding of the provided buffer.</em>
 <a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">   * &lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">   * If Byte Order Markers are encountered at the beginning of the buffer, we immidiately</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">   * If Byte Order Markers are encountered at the beginning of the buffer, we immediately</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">   * return the charset implied by this BOM. Otherwise, the file would not be a human</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">   * readable text file.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">   * readable text file.</em>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   * &lt;p/&gt;</em>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
 <a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">   * If there is no BOM, this method tries to discern whether the file is UTF-8 or not. If it is not UTF-8, we assume</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * the encoding is the default system</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * encoding (of course, it might be any 8-bit charset, but usually, an 8-bit charset is the default one).</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * the encoding is the default system encoding (of course, it might be any 8-bit charset, but usually, an 8-bit</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * charset is the default one).</em>
 <a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   * &lt;/p&gt;</em>
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   * &lt;p/&gt;</em>
 <a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
@@ -340,50 +340,50 @@
 <a class="jxr_linenumber" name="L332" href="#L332">332</a>       byte b5 = buffer[i + 5];
 <a class="jxr_linenumber" name="L333" href="#L333">333</a>       <strong class="jxr_keyword">if</strong> (b0 &lt; 0) {
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>         <em class="jxr_comment">// a high order bit was encountered, thus the encoding is not US-ASCII</em>
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <em class="jxr_comment">// a two-bytes sequence was encoutered</em>
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <em class="jxr_comment">// a two-byte sequence was encountered</em>
 <a class="jxr_linenumber" name="L336" href="#L336">336</a>         <strong class="jxr_keyword">if</strong> (isTwoBytesSequence(b0)) {
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>           <em class="jxr_comment">// there must be one continuation byte of the form 10xxxxxx,</em>
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>           <em class="jxr_comment">// otherwise the following characteris is not a valid UTF-8 construct</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>           <em class="jxr_comment">// otherwise the following character is is not a valid UTF-8 construct</em>
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>           <strong class="jxr_keyword">if</strong> (isContinuationChar(b1)) {
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>             i++;
 <a class="jxr_linenumber" name="L341" href="#L341">341</a>           } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>             validU8Char = false;
 <a class="jxr_linenumber" name="L343" href="#L343">343</a>           }
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>         }
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <em class="jxr_comment">// a three-bytes sequence was encoutered</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <em class="jxr_comment">// a three-byte sequence was encountered</em>
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (isThreeBytesSequence(b0)) {
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>           <em class="jxr_comment">// there must be two continuation bytes of the form 10xxxxxx,</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>           <em class="jxr_comment">// otherwise the following characteris is not a valid UTF-8 construct</em>
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>           <em class="jxr_comment">// otherwise the following character is is not a valid UTF-8 construct</em>
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>           <strong class="jxr_keyword">if</strong> (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2)) {
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>             i += 2;
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>           } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>             validU8Char = false;
 <a class="jxr_linenumber" name="L353" href="#L353">353</a>           }
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>         }
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <em class="jxr_comment">// a four-bytes sequence was encoutered</em>
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <em class="jxr_comment">// a four-byte sequence was encountered</em>
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (isFourBytesSequence(b0)) {
 <a class="jxr_linenumber" name="L357" href="#L357">357</a>           <em class="jxr_comment">// there must be three continuation bytes of the form 10xxxxxx,</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>           <em class="jxr_comment">// otherwise the following characteris is not a valid UTF-8 construct</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>           <em class="jxr_comment">// otherwise the following character is is not a valid UTF-8 construct</em>
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>           <strong class="jxr_keyword">if</strong> (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3)) {
 <a class="jxr_linenumber" name="L360" href="#L360">360</a>             i += 3;
 <a class="jxr_linenumber" name="L361" href="#L361">361</a>           } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>             validU8Char = false;
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>           }
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>         }
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <em class="jxr_comment">// a five-bytes sequence was encoutered</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <em class="jxr_comment">// a five-byte sequence was encountered</em>
 <a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (isFiveBytesSequence(b0)) {
 <a class="jxr_linenumber" name="L367" href="#L367">367</a>           <em class="jxr_comment">// there must be four continuation bytes of the form 10xxxxxx,</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>           <em class="jxr_comment">// otherwise the following characteris is not a valid UTF-8 construct</em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>           <em class="jxr_comment">// otherwise the following character is is not a valid UTF-8 construct</em>
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>           <strong class="jxr_keyword">if</strong> (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3) &amp;&amp; isContinuationChar(b4)) {
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>             i += 4;
 <a class="jxr_linenumber" name="L371" href="#L371">371</a>           } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L372" href="#L372">372</a>             validU8Char = false;
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>           }
 <a class="jxr_linenumber" name="L374" href="#L374">374</a>         }
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <em class="jxr_comment">// a six-bytes sequence was encoutered</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <em class="jxr_comment">// a six-byte sequence was encountered</em>
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (isSixBytesSequence(b0)) {
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>           <em class="jxr_comment">// there must be five continuation bytes of the form 10xxxxxx,</em>
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>           <em class="jxr_comment">// otherwise the following characteris is not a valid UTF-8 construct</em>
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>           <em class="jxr_comment">// otherwise the following character is is not a valid UTF-8 construct</em>
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>           <strong class="jxr_keyword">if</strong> (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3) &amp;&amp; isContinuationChar(b4)
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>               &amp;&amp; isContinuationChar(b5)) {
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>             i += 5;
@@ -425,7 +425,7 @@
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>       i++;
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>       even = !even;
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>       <strong class="jxr_keyword">if</strong> (b == 0x00) {
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <em class="jxr_comment">// zero occurr a lot in utf16 with latin characters</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <em class="jxr_comment">// zero occur a lot in utf16 with latin characters</em>
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>         <strong class="jxr_keyword">if</strong> (even) {
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>           zerosLE++;
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>         } <strong class="jxr_keyword">else</strong> {
@@ -465,7 +465,7 @@
 <a class="jxr_linenumber" name="L457" href="#L457">457</a>     Charset charset = Charsets.ISO_8859_1;
 <a class="jxr_linenumber" name="L458" href="#L458">458</a>     CharsetDecoder decoder = charset.newDecoder();
 <a class="jxr_linenumber" name="L459" href="#L459">459</a> 
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <strong class="jxr_keyword">long</strong> suspicous = 0;
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <strong class="jxr_keyword">long</strong> suspicious = 0;
 <a class="jxr_linenumber" name="L461" href="#L461">461</a>     <em class="jxr_comment">// count the following</em>
 <a class="jxr_linenumber" name="L462" href="#L462">462</a> 
 <a class="jxr_linenumber" name="L463" href="#L463">463</a>     <em class="jxr_comment">// first try to decode the whole lot and count common non ascii chars</em>
@@ -474,11 +474,11 @@
 <a class="jxr_linenumber" name="L466" href="#L466">466</a>       <strong class="jxr_keyword">while</strong> (cbuf.hasRemaining()) {
 <a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">char</strong> c = cbuf.get();
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>         <strong class="jxr_keyword">if</strong> (isCommonChar(c)) {
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>           suspicous--;
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>           suspicious--;
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>         }
 <a class="jxr_linenumber" name="L471" href="#L471">471</a>       }
 <a class="jxr_linenumber" name="L472" href="#L472">472</a> 
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>       <em class="jxr_comment">// if that worked without a problem try to count suspicous characters which are rarely used in our texts</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>       <em class="jxr_comment">// if that worked without a problem try to count suspicious characters which are rarely used in our texts</em>
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>       <strong class="jxr_keyword">int</strong> length = buffer.length;
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>       <strong class="jxr_keyword">int</strong> i = 0;
 <a class="jxr_linenumber" name="L476" href="#L476">476</a>       <strong class="jxr_keyword">while</strong> (i &lt; length) {
@@ -486,20 +486,20 @@
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>         i++;
 <a class="jxr_linenumber" name="L479" href="#L479">479</a>         <em class="jxr_comment">// range 7f-9f undefined, see http://de.wikipedia.org/wiki/ISO_8859-1</em>
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>         <strong class="jxr_keyword">if</strong> (b &gt;= (byte) 0x80 &amp;&amp; b &lt;= (byte) 0x9f) {
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>           suspicous += UNDEFINED_PENALTY;
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>           suspicious += UNDEFINED_PENALTY;
 <a class="jxr_linenumber" name="L482" href="#L482">482</a>         }
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>       }
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>     } <strong class="jxr_keyword">catch</strong> (CharacterCodingException e) {
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>       suspicous = Long.MAX_VALUE;
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>       suspicious = Long.MAX_VALUE;
 <a class="jxr_linenumber" name="L486" href="#L486">486</a>     }
 <a class="jxr_linenumber" name="L487" href="#L487">487</a> 
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>     <strong class="jxr_keyword">return</strong> suspicous;
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>     <strong class="jxr_keyword">return</strong> suspicious;
 <a class="jxr_linenumber" name="L489" href="#L489">489</a>   }
 <a class="jxr_linenumber" name="L490" href="#L490">490</a> 
 <a class="jxr_linenumber" name="L491" href="#L491">491</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> testMacRoman() {
 <a class="jxr_linenumber" name="L492" href="#L492">492</a>     CharsetDecoder decoder = MACROMAN.newDecoder();
 <a class="jxr_linenumber" name="L493" href="#L493">493</a> 
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>     <strong class="jxr_keyword">long</strong> suspicous = 0;
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>     <strong class="jxr_keyword">long</strong> suspicious = 0;
 <a class="jxr_linenumber" name="L495" href="#L495">495</a> 
 <a class="jxr_linenumber" name="L496" href="#L496">496</a>     <em class="jxr_comment">// first try to decode the whole lot</em>
 <a class="jxr_linenumber" name="L497" href="#L497">497</a>     <strong class="jxr_keyword">try</strong> {
@@ -507,7 +507,7 @@
 <a class="jxr_linenumber" name="L499" href="#L499">499</a>       <strong class="jxr_keyword">while</strong> (cbuf.hasRemaining()) {
 <a class="jxr_linenumber" name="L500" href="#L500">500</a>         <strong class="jxr_keyword">char</strong> c = cbuf.get();
 <a class="jxr_linenumber" name="L501" href="#L501">501</a>         <strong class="jxr_keyword">if</strong> (isCommonChar(c)) {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>           suspicous--;
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>           suspicious--;
 <a class="jxr_linenumber" name="L503" href="#L503">503</a>         }
 <a class="jxr_linenumber" name="L504" href="#L504">504</a>       }
 <a class="jxr_linenumber" name="L505" href="#L505">505</a>       <em class="jxr_comment">// if that worked without a problem try to count suspicious characters which are rarely used in our texts</em>
@@ -519,15 +519,15 @@
 <a class="jxr_linenumber" name="L511" href="#L511">511</a>         <em class="jxr_comment">// all ranges defined I am afraid</em>
 <a class="jxr_linenumber" name="L512" href="#L512">512</a>       }
 <a class="jxr_linenumber" name="L513" href="#L513">513</a>     } <strong class="jxr_keyword">catch</strong> (CharacterCodingException e) {
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>       suspicous = Long.MAX_VALUE;
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>       suspicious = Long.MAX_VALUE;
 <a class="jxr_linenumber" name="L515" href="#L515">515</a>     }
 <a class="jxr_linenumber" name="L516" href="#L516">516</a> 
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>     <strong class="jxr_keyword">return</strong> suspicous;
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>     <strong class="jxr_keyword">return</strong> suspicious;
 <a class="jxr_linenumber" name="L518" href="#L518">518</a>   }
 <a class="jxr_linenumber" name="L519" href="#L519">519</a> 
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> testWindows1252() {
 <a class="jxr_linenumber" name="L521" href="#L521">521</a>     CharsetDecoder decoder = WINDOWS1252.newDecoder();
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <strong class="jxr_keyword">long</strong> suspicous = 0;
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <strong class="jxr_keyword">long</strong> suspicious = 0;
 <a class="jxr_linenumber" name="L523" href="#L523">523</a> 
 <a class="jxr_linenumber" name="L524" href="#L524">524</a>     <em class="jxr_comment">// first try to decode the whole lot</em>
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>     <strong class="jxr_keyword">try</strong> {
@@ -535,7 +535,7 @@
 <a class="jxr_linenumber" name="L527" href="#L527">527</a>       <strong class="jxr_keyword">while</strong> (cbuf.hasRemaining()) {
 <a class="jxr_linenumber" name="L528" href="#L528">528</a>         <strong class="jxr_keyword">char</strong> c = cbuf.get();
 <a class="jxr_linenumber" name="L529" href="#L529">529</a>         <strong class="jxr_keyword">if</strong> (isCommonChar(c)) {
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>           suspicous--;
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>           suspicious--;
 <a class="jxr_linenumber" name="L531" href="#L531">531</a>         }
 <a class="jxr_linenumber" name="L532" href="#L532">532</a>       }
 <a class="jxr_linenumber" name="L533" href="#L533">533</a>       <em class="jxr_comment">// if that worked without a problem try to count suspicous characters which are rarely used in our texts</em>
@@ -547,14 +547,14 @@
 <a class="jxr_linenumber" name="L539" href="#L539">539</a>         i++;
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>         <em class="jxr_comment">// 5 undefined chars</em>
 <a class="jxr_linenumber" name="L541" href="#L541">541</a>         <strong class="jxr_keyword">if</strong> (b == (byte) 0x81 || b == (byte) 0x8d || b == (byte) 0x8f || b == (byte) 0x90 || b == (byte) 0x9d) {
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>           suspicous += UNDEFINED_PENALTY;
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>           suspicious += UNDEFINED_PENALTY;
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>         }
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>       }
 <a class="jxr_linenumber" name="L545" href="#L545">545</a>     } <strong class="jxr_keyword">catch</strong> (CharacterCodingException e) {
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>       suspicous = Long.MAX_VALUE;
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>       suspicious = Long.MAX_VALUE;
 <a class="jxr_linenumber" name="L547" href="#L547">547</a>     }
 <a class="jxr_linenumber" name="L548" href="#L548">548</a> 
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>     <strong class="jxr_keyword">return</strong> suspicous;
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>     <strong class="jxr_keyword">return</strong> suspicious;
 <a class="jxr_linenumber" name="L550" href="#L550">550</a>   }
 <a class="jxr_linenumber" name="L551" href="#L551">551</a> 
 <a class="jxr_linenumber" name="L552" href="#L552">552</a> }
