@@ -128,21 +128,28 @@ public class ExcelXmlConverter {
       this.numColumns = minColumns;
     }
 
+    /**
+     * Blank rows are skipped; this creates them.
+     */
     private void outputMissingRows(int number) {
-      for (int i = 0; i < number; i++) {
-        for (int j = 0; j < numColumns; j++) {
-          row.add("");
+      List<String> blankRow = new ArrayList<>();
+      for (int j = 0; j < numColumns; j++) {
+        blankRow.add("");
+      }
+
+      try {
+        for (int i = 0; i < number; i++) {
+          writer.write(blankRow);
         }
-        try {
-          writer.write(row);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+      } catch (IOException e) {
+        LOG.error("Exception adding blank rows", e);
+        e.printStackTrace();
       }
     }
 
     @Override
     public void startRow(int rowNum) {
+      LOG.trace("Start row {} (current: {})", rowNum, currentRow);
       // If there were gaps, output the missing rows
       outputMissingRows(rowNum - currentRow - 1);
       // Prepare for this row
@@ -152,6 +159,7 @@ public class ExcelXmlConverter {
 
     @Override
     public void endRow(int rowNum) {
+      LOG.trace("End row {} (current: {})", rowNum, currentRow);
       // Ensure the correct number of columns
       for (int i = currentCol+1; i < numColumns; i++) {
         row.add("");
@@ -166,6 +174,7 @@ public class ExcelXmlConverter {
 
     @Override
     public void cell(String cellReference, String formattedValue, XSSFComment comment) {
+      LOG.trace("Cell {} “{}”", cellReference, formattedValue);
       // gracefully handle missing CellRef here in a similar way as XSSFCell does
       if (cellReference == null) {
         cellReference = new CellAddress(currentRow, currentCol).formatAsString();

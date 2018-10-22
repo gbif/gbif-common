@@ -4,14 +4,13 @@ import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.apache.commons.io.FileUtils.contentEqualsIgnoreEOL;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -39,7 +38,7 @@ public class ExcelConverterTest {
     long lines = ExcelConverter.convert(testXlsFile.toPath(),
       new CsvSpreadsheetConsumer(new FileWriter(testFile)));
 
-    assertTrue(org.apache.commons.io.FileUtils.contentEqualsIgnoreEOL(testFile, testCsvFile, "UTF-8"));
+    assertTrue(contentEqualsIgnoreEOL(testFile, testCsvFile, "UTF-8"));
     assertEquals(7L, lines);
   }
 
@@ -52,7 +51,20 @@ public class ExcelConverterTest {
     long lines = ExcelXmlConverter.convert(testXlsxFile.toPath(),
       new CsvSpreadsheetConsumer(new FileWriter(testFile)));
 
-    assertTrue(org.apache.commons.io.FileUtils.contentEqualsIgnoreEOL(testFile, testCsvFile, "UTF-8"));
+    assertTrue(contentEqualsIgnoreEOL(testFile, testCsvFile, "UTF-8"));
     assertEquals(7L, lines);
+  }
+
+  @Test
+  public void testExcelXmlConverterBlankLines() throws Exception {
+    File testFile = folder.newFile();
+    //testFile = new File("/tmp/test.csv");
+    //System.out.println(testFile.toPath());
+
+    long lines = ExcelXmlConverter.convert(FileUtils.getClasspathFile("spreadsheet/blank-rows.xlsx").toPath(),
+      new CsvSpreadsheetConsumer(new FileWriter(testFile)));
+
+    assertTrue(contentEqualsIgnoreEOL(testFile, FileUtils.getClasspathFile("spreadsheet/blank-rows.csv"), "UTF-8"));
+    assertEquals(1_048_576L, lines);
   }
 }
