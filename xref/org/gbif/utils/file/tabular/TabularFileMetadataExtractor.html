@@ -6,427 +6,443 @@
 </head>
 <body>
 <div id="overview"><a href="../../../../../../apidocs/org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">View Javadoc</a></div><pre>
-<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> org.gbif.utils.file.tabular;
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> org.gbif.utils.file.CharsetDetection;
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> org.gbif.utils.file.UnknownCharsetException;
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.io.BufferedReader;
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.io.IOException;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.nio.charset.Charset;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.nio.file.Files;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Path;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashMap;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.Objects;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Optional;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.function.BiFunction;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.function.Function;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.function.Predicate;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Matcher;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Stream;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.google.common.base.Preconditions;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.google.common.collect.Sets;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.lang3.StringUtils;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.Collections.reverseOrder;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.stream.Collectors.counting;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.stream.Collectors.toSet;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * Utility class to extract metadata {@link TabularFileMetadata} from a tabular file.</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">TabularFileMetadataExtractor</a> {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(TabularFileMetadataExtractor.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MAX_SAMPLE_SIZE = 15;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <em class="jxr_comment">// This needs to be large enough to stumble upon a non-ASCII character.</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CHARSET_DETECTION_BUFFER_LENGTH = 1024*1024;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">TabularFileMetadataExtractor</a>() {
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>    }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Character[] POTENTIAL_DELIMITER_CHAR = {',', '\t', ';', '|'};
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Character[] POTENTIAL_QUOTES_CHAR = {'&quot;', '\''};
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Predicate&lt;LineDelimiterStats&gt; CONTAINS_FREQUENCY = lineStats -&gt; lineStats.getFrequency() &gt; 0;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Comparator&lt;Map.Entry&lt;Character, Long&gt;&gt; BY_VALUE_LONG_DESC = Comparator.comparing(Map.Entry::getValue, reverseOrder());
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> BiFunction&lt;Character, Character, Pattern&gt; COMPILE_QUOTE_PATTERN_FCT = (delimiter, quoteChar)
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>            -&gt; Pattern.compile(<span class="jxr_string">"["</span> + delimiter + <span class="jxr_string">"][ ]*["</span> + quoteChar + <span class="jxr_string">"][ ]*[^"</span> + delimiter + <span class="jxr_string">"]"</span>);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   * Extract metadata from a tabular file using a sample (defined by {@link #MAX_SAMPLE_SIZE}) of the file.</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   * The extraction process is based on the frequency of character in the sample using 3 different approaches.</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">   * The method will not return any default value if no delimiter and/or quote character can be found in the sample.</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">   * The caller should decide which default values should be used to read the file.</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   * @param filePath a {@link Path} pointing to a file (not a folder).</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * @return new {@link TabularFileMetadata}, never null (but the content can be null).</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   * @throws IOException</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">   * @throws UnknownCharsetException</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> extractTabularFileMetadata(Path filePath) <strong class="jxr_keyword">throws</strong> IOException, UnknownCharsetException {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      Objects.requireNonNull(filePath, <span class="jxr_string">"filePath shall be provided"</span>);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      Preconditions.checkArgument(!Files.isDirectory(filePath), <span class="jxr_string">"filePath should point to a file, not a directory"</span>);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      Charset encoding;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>        encoding = CharsetDetection.detectEncoding(filePath.toFile(), CHARSET_DETECTION_BUFFER_LENGTH);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>        <strong class="jxr_keyword">if</strong> (encoding == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(<span class="jxr_string">"Unable to detect the file's character encoding"</span>);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>        }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(e);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_comment">// open a first stream to read a sample of the file</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      List&lt;String&gt; lines = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">try</strong> (BufferedReader bf = Files.newBufferedReader(filePath, encoding)) {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>        String line;
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>        <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          line = bf.readLine();
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">if</strong>(line != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>            lines.add(line);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>        }
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>        <strong class="jxr_keyword">while</strong>(line != <strong class="jxr_keyword">null</strong> &amp;&amp; lines.size() &lt; MAX_SAMPLE_SIZE);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> tabularFileMetadata = extractTabularMetadata(lines);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      tabularFileMetadata.setEncoding(encoding);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">return</strong> tabularFileMetadata;
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>   }
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">   * Tries to extract the {@link TabularFileMetadata} from a sample of lines of a tabular file.</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">   * @param sample</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">   * @return new {@link TabularFileMetadata}, never null (but the content can be null).</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> extractTabularMetadata(<strong class="jxr_keyword">final</strong> List&lt;String&gt; sample) {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     Objects.requireNonNull(sample, <span class="jxr_string">"sample shall be provided"</span>);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> tabularFileMetadata = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a>();
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     Optional&lt;Character&gt; delimiterFound = getDelimiterChar(sample);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">final</strong> Character delimiter = delimiterFound.orElse(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">if</strong>(delimiter == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>       <strong class="jxr_keyword">return</strong> tabularFileMetadata;
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/***************************************************************************</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Copyright 2017 Global Biodiversity Information Facility Secretariat</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Licensed under the Apache License, Version 2.0 (the "License"); you may not</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * use this file except in compliance with the License. You may obtain a copy of</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * the License at</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * License for the specific language governing permissions and limitations under</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * the License.</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> ***************************************************************************/</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">package</strong> org.gbif.utils.file.tabular;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.gbif.utils.file.CharsetDetection;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.gbif.utils.file.UnknownCharsetException;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.BufferedReader;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.nio.charset.Charset;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Path;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.Comparator;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashMap;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> java.util.Objects;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> java.util.Optional;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> java.util.function.BiFunction;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> java.util.function.Function;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> java.util.function.Predicate;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Matcher;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Stream;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.google.common.base.Preconditions;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> com.google.common.collect.Sets;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.lang3.StringUtils;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.Collections.reverseOrder;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.stream.Collectors.counting;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.stream.Collectors.toSet;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment"> * Utility class to extract metadata {@link TabularFileMetadata} from a tabular file.</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">TabularFileMetadataExtractor</a> {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(TabularFileMetadataExtractor.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MAX_SAMPLE_SIZE = 15;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>    <em class="jxr_comment">// This needs to be large enough to stumble upon a non-ASCII character.</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CHARSET_DETECTION_BUFFER_LENGTH = 1024*1024;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">TabularFileMetadataExtractor</a>() {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>    }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Character[] POTENTIAL_DELIMITER_CHAR = {',', '\t', ';', '|'};
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Character[] POTENTIAL_QUOTES_CHAR = {'&quot;', '\''};
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Predicate&lt;LineDelimiterStats&gt; CONTAINS_FREQUENCY = lineStats -&gt; lineStats.getFrequency() &gt; 0;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Comparator&lt;Map.Entry&lt;Character, Long&gt;&gt; BY_VALUE_LONG_DESC = Comparator.comparing(Map.Entry::getValue, reverseOrder());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> BiFunction&lt;Character, Character, Pattern&gt; COMPILE_QUOTE_PATTERN_FCT = (delimiter, quoteChar)
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>            -&gt; Pattern.compile(<span class="jxr_string">"["</span> + delimiter + <span class="jxr_string">"][ ]*["</span> + quoteChar + <span class="jxr_string">"][ ]*[^"</span> + delimiter + <span class="jxr_string">"]"</span>);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   * Extract metadata from a tabular file using a sample (defined by {@link #MAX_SAMPLE_SIZE}) of the file.</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">   * The extraction process is based on the frequency of character in the sample using 3 different approaches.</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">   * The method will not return any default value if no delimiter and/or quote character can be found in the sample.</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">   * The caller should decide which default values should be used to read the file.</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">   * @param filePath a {@link Path} pointing to a file (not a folder).</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">   * @return new {@link TabularFileMetadata}, never null (but the content can be null).</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">   * @throws IOException</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">   * @throws UnknownCharsetException</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> extractTabularFileMetadata(Path filePath) <strong class="jxr_keyword">throws</strong> IOException, UnknownCharsetException {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      Objects.requireNonNull(filePath, <span class="jxr_string">"filePath shall be provided"</span>);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      Preconditions.checkArgument(!Files.isDirectory(filePath), <span class="jxr_string">"filePath should point to a file, not a directory"</span>);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      Charset encoding;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>        encoding = CharsetDetection.detectEncoding(filePath.toFile(), CHARSET_DETECTION_BUFFER_LENGTH);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>        <strong class="jxr_keyword">if</strong> (encoding == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(<span class="jxr_string">"Unable to detect the file's character encoding"</span>);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>        }
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/UnknownCharsetException.html">UnknownCharsetException</a>(e);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <em class="jxr_comment">// open a first stream to read a sample of the file</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     List&lt;String&gt; lines = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">try</strong> (BufferedReader bf = Files.newBufferedReader(filePath, encoding)) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>       String line;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>       <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         line = bf.readLine();
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">if</strong>(line != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>           lines.add(line);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>       }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>       <strong class="jxr_keyword">while</strong>(line != <strong class="jxr_keyword">null</strong> &amp;&amp; lines.size() &lt; MAX_SAMPLE_SIZE);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> tabularFileMetadata = extractTabularMetadata(lines);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     tabularFileMetadata.setEncoding(encoding);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">return</strong> tabularFileMetadata;
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>   }
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> 
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     Optional&lt;Character&gt; quoteFound = getHighestCountOf(sample, line -&gt; getQuoteCharWithHighestCount(line, delimiter));
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">final</strong> Character quote = quoteFound.orElse(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     tabularFileMetadata.setDelimiter(delimiter);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     tabularFileMetadata.setQuotedBy(quote);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">return</strong> tabularFileMetadata;
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>   }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">   * Extract a character from a line using the given function.</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">   * Return the character with the highest counts.</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">   * @param sample</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">   * @param characterExtractor function to apply on each line to extract a character</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getHighestCountOf(<strong class="jxr_keyword">final</strong> List&lt;String&gt; sample, <strong class="jxr_keyword">final</strong> Function&lt;String,
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>           Optional&lt;Character&gt;&gt; characterExtractor) {
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> 
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">return</strong> sample.stream()
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>             .map(characterExtractor)
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>             .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) <em class="jxr_comment">//remove Optional wrapper and ignore Optional.empty</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>             .collect(Collectors.groupingBy(Function.identity(), counting()))
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>             .entrySet()
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>             .stream()
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             .sorted(BY_VALUE_LONG_DESC)
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             .findFirst()
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>             .map(Map.Entry::getKey);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>   }
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   * Given a sample of line, this method tries to determine the delimiter char used.</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">   * @param sample</em>
-<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">   * @return the determined delimiter or Optional.empty if it can not be determined.</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getDelimiterChar(<strong class="jxr_keyword">final</strong> List&lt;String&gt; sample) {
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> 
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <em class="jxr_comment">// count the frequency of all possible delimiter for each lines</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     List&lt;LineDelimiterStats&gt; linesStats =
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             computeLineDelimiterStats(sample);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <em class="jxr_comment">// get the distinct set of frequency for each delimiters to check the "stability"</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     Map&lt;Character, Set&lt;Integer&gt;&gt; delimiterDistinctFrequency =
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>             computeDelimiterDistinctFrequency(linesStats)
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                     .entrySet().stream()
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                     <em class="jxr_comment">// filter out delimiter that we never saw</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>                     .filter(entry -&gt; entry.getValue().size() &gt; 1 || !entry.getValue().contains(Integer.valueOf(0)))
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>                     .sorted(Comparator.comparing(e -&gt; e.getValue().size()))
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>                             (e1, e2) -&gt; e2, LinkedHashMap::<strong class="jxr_keyword">new</strong>));
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <em class="jxr_comment">// we can have more than one</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>     Set&lt;Character&gt; mostStableDelimiter =
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>             getAllEqualsToFirst(delimiterDistinctFrequency, (s1,s2) -&gt; s1.size() == s2.size());
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <em class="jxr_comment">// get the most used delimiter to check the "overall usage"</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     Map&lt;Character, Integer&gt; delimiterFrequencySums = computeDelimiterFrequencySums(linesStats)
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             .entrySet().stream()
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             .sorted( Comparator.comparing( (Map.Entry&lt;Character, Integer&gt; e) -&gt; e.getValue()).reversed())
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                     (e1, e2) -&gt; e2, LinkedHashMap::<strong class="jxr_keyword">new</strong>));
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     Set&lt;Character&gt; mostFrequentDelimiter = getAllEqualsToFirst(delimiterFrequencySums, Integer::equals);
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <em class="jxr_comment">//get the highest frequency per line to check for "usage per line"</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     Map&lt;Character, Long&gt; delimiterHighestFrequencyPerLine = computeDelimiterHighestFrequencyPerLine(sample)
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>             .entrySet().stream()
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             .sorted( Comparator.comparing( (Map.Entry&lt;Character, Long&gt; e) -&gt; e.getValue()).reversed())
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                     (e1, e2) -&gt; e2, LinkedHashMap::<strong class="jxr_keyword">new</strong>));
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     Set&lt;Character&gt; mostFrequentDelimiterPerLine = getAllEqualsToFirst(delimiterHighestFrequencyPerLine,
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>            Long::equals);
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <em class="jxr_comment">//summary</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>       LOG.debug(<span class="jxr_string">"delimiterDistinctFrequency -&gt; "</span> + delimiterDistinctFrequency);
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>       LOG.debug(<span class="jxr_string">"mostStableDelimiter -&gt; "</span> + mostStableDelimiter);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>       LOG.debug(<span class="jxr_string">"delimiterFrequencySums -&gt; "</span> + delimiterFrequencySums);
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>       LOG.debug(<span class="jxr_string">"mostFrequentDelimiter -&gt; "</span> + mostFrequentDelimiter);
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>       LOG.debug(<span class="jxr_string">"delimiterHighestFrequencyPerLine-&gt;"</span> + delimiterHighestFrequencyPerLine);
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>       LOG.debug(<span class="jxr_string">"mostFrequentDelimiterPerLine -&gt;"</span> + mostFrequentDelimiterPerLine);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>     }
-<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <em class="jxr_comment">//if the most stable is also the one that is used to most within the sample</em>
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     Optional&lt;Character&gt; resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiter);
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">if</strong>(resultCharacter.isPresent()) {
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>       <strong class="jxr_keyword">return</strong> resultCharacter;
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">   * Tries to extract the {@link TabularFileMetadata} from a sample of lines of a tabular file.</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">   * @param sample</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">   * @return new {@link TabularFileMetadata}, never null (but the content can be null).</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>   <strong class="jxr_keyword">static</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> extractTabularMetadata(<strong class="jxr_keyword">final</strong> List&lt;String&gt; sample) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     Objects.requireNonNull(sample, <span class="jxr_string">"sample shall be provided"</span>);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a> tabularFileMetadata = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadata.html">TabularFileMetadata</a>();
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     Optional&lt;Character&gt; delimiterFound = getDelimiterChar(sample);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">final</strong> Character delimiter = delimiterFound.orElse(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">if</strong>(delimiter == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>       <strong class="jxr_keyword">return</strong> tabularFileMetadata;
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     Optional&lt;Character&gt; quoteFound = getHighestCountOf(sample, line -&gt; getQuoteCharWithHighestCount(line, delimiter));
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">final</strong> Character quote = quoteFound.orElse(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     tabularFileMetadata.setDelimiter(delimiter);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     tabularFileMetadata.setQuotedBy(quote);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">return</strong> tabularFileMetadata;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>   }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">   * Extract a character from a line using the given function.</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">   * Return the character with the highest counts.</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">   * @param sample</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">   * @param characterExtractor function to apply on each line to extract a character</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getHighestCountOf(<strong class="jxr_keyword">final</strong> List&lt;String&gt; sample, <strong class="jxr_keyword">final</strong> Function&lt;String,
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>           Optional&lt;Character&gt;&gt; characterExtractor) {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">return</strong> sample.stream()
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             .map(characterExtractor)
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>             .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) <em class="jxr_comment">//remove Optional wrapper and ignore Optional.empty</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             .collect(Collectors.groupingBy(Function.identity(), counting()))
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             .entrySet()
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             .stream()
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             .sorted(BY_VALUE_LONG_DESC)
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             .findFirst()
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             .map(Map.Entry::getKey);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>   }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">   * Given a sample of line, this method tries to determine the delimiter char used.</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">   * @param sample</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">   * @return the determined delimiter or Optional.empty if it can not be determined.</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getDelimiterChar(<strong class="jxr_keyword">final</strong> List&lt;String&gt; sample) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <em class="jxr_comment">// count the frequency of all possible delimiter for each lines</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     List&lt;LineDelimiterStats&gt; linesStats =
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>             computeLineDelimiterStats(sample);
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <em class="jxr_comment">// get the distinct set of frequency for each delimiters to check the "stability"</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     Map&lt;Character, Set&lt;Integer&gt;&gt; delimiterDistinctFrequency =
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             computeDelimiterDistinctFrequency(linesStats)
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                     .entrySet().stream()
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                     <em class="jxr_comment">// filter out delimiter that we never saw</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                     .filter(entry -&gt; entry.getValue().size() &gt; 1 || !entry.getValue().contains(Integer.valueOf(0)))
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                     .sorted(Comparator.comparing(e -&gt; e.getValue().size()))
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                             (e1, e2) -&gt; e2, LinkedHashMap::<strong class="jxr_keyword">new</strong>));
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <em class="jxr_comment">// we can have more than one</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     Set&lt;Character&gt; mostStableDelimiter =
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             getAllEqualsToFirst(delimiterDistinctFrequency, (s1,s2) -&gt; s1.size() == s2.size());
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <em class="jxr_comment">// get the most used delimiter to check the "overall usage"</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     Map&lt;Character, Integer&gt; delimiterFrequencySums = computeDelimiterFrequencySums(linesStats)
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             .entrySet().stream()
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             .sorted( Comparator.comparing( (Map.Entry&lt;Character, Integer&gt; e) -&gt; e.getValue()).reversed())
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                     (e1, e2) -&gt; e2, LinkedHashMap::<strong class="jxr_keyword">new</strong>));
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>     Set&lt;Character&gt; mostFrequentDelimiter = getAllEqualsToFirst(delimiterFrequencySums, Integer::equals);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <em class="jxr_comment">//get the highest frequency per line to check for "usage per line"</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     Map&lt;Character, Long&gt; delimiterHighestFrequencyPerLine = computeDelimiterHighestFrequencyPerLine(sample)
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             .entrySet().stream()
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>             .sorted( Comparator.comparing( (Map.Entry&lt;Character, Long&gt; e) -&gt; e.getValue()).reversed())
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>                     (e1, e2) -&gt; e2, LinkedHashMap::<strong class="jxr_keyword">new</strong>));
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     Set&lt;Character&gt; mostFrequentDelimiterPerLine = getAllEqualsToFirst(delimiterHighestFrequencyPerLine,
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>            Long::equals);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> 
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <em class="jxr_comment">//otherwise, if the most stable is also the most used based on lines</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiterPerLine);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">if</strong>(resultCharacter.isPresent()) {
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>       <strong class="jxr_keyword">return</strong> resultCharacter;
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <em class="jxr_comment">//as last resort if the most frequent delimiter overall and by line is the same</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>     resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     <strong class="jxr_keyword">if</strong>(resultCharacter.isPresent()) {
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>       <strong class="jxr_keyword">return</strong> resultCharacter;
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     }
-<a class="jxr_linenumber" name="L223" href="#L223">223</a> 
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>     <em class="jxr_comment">// other idea</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <em class="jxr_comment">// give more weight to the first line (it is probably the header line where normally no quotes are used)</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <em class="jxr_comment">// give more weight to the first "column" (it is probably the "id" line where normally no quotes are used)</em>
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <strong class="jxr_keyword">return</strong> Optional.empty();
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>   }
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">   * Return the {@link Character} represents the intersection between 2 sets only if the resulting set represents</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">   * a single element.</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">   * @param set1</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">   * @param set2</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; intersectSingle(Set&lt;Character&gt; set1, Set&lt;Character&gt; set2) {
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     Sets.SetView&lt;Character&gt; intersection = Sets.intersection(set1, set2);
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">return</strong> intersection.size() == 1 ? intersection.stream().findFirst() : Optional.empty();
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>   }
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">   * Given a {@link Map}, return all elements that are equals to the first element (including itself)</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">   * based on the provided equals function.</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">   * @param map</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">   * @param equalsPredicate</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">   * @return all elements that are equals to the first one or an empty set if the map is empty</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; Set&lt;Character&gt; getAllEqualsToFirst(Map&lt;Character, T&gt; map, BiFunction&lt;T,T, Boolean&gt; equalsPredicate) {
-<a class="jxr_linenumber" name="L251" href="#L251">251</a> 
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     Optional&lt;Map.Entry&lt;Character, T&gt;&gt; firstMapEntry = map.entrySet().stream().findFirst();
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">if</strong>(!firstMapEntry.isPresent()){
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>       <strong class="jxr_keyword">return</strong> Collections.EMPTY_SET;
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     }
-<a class="jxr_linenumber" name="L256" href="#L256">256</a> 
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>     <strong class="jxr_keyword">final</strong> T firstValue = firstMapEntry.get().getValue();
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">return</strong> map.entrySet().stream().filter( e -&gt; equalsPredicate.apply(firstValue,e.getValue()))
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>             .map(Map.Entry::getKey).collect(Collectors.toSet());
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>   }
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">   * For each element(line) of the sample, compute a {@link LineDelimiterStats} for each delimiter.</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   * Note: delimiter that are not used within a line will be included with the frequency 0.</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">   * @param sample</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">   * @return new List, never null</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>   <strong class="jxr_keyword">static</strong> List&lt;LineDelimiterStats&gt; computeLineDelimiterStats(List&lt;String&gt; sample){
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">return</strong> sample.stream()
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>             .map(TabularFileMetadataExtractor::lineToLineDelimiterStats)
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             .flatMap(List::stream)
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             .collect(Collectors.toList());
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>   }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * Compute the stats for each potential delimiters on a line.</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * @param line</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;LineDelimiterStats&gt; lineToLineDelimiterStats(String line) {
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">return</strong> Arrays.stream(POTENTIAL_DELIMITER_CHAR)
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             .map( delimiter -&gt; <strong class="jxr_keyword">new</strong> LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             .collect(Collectors.toList());
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>   }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">   * For each {@link LineDelimiterStats}, collect the distinct frequency (count) of each delimiter.</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">   * This gives us an idea of the "stability" of each delimiter across the sample.</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">   * Note that since quotes are not handled, noise can be introduced if a quoted cells use the delimiter.</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">   * See unit test for examples of when this method will be affected by noise.</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   * The most stable delimiter is normally defined by the {@link Character} returned by the methods where</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   * the list of distinct frequency is the smallest in size excluding cases where the list contains only the element</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">   * representing 0 as Integer (which means the delimiter was never used).</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">   * @param linesStats</em>
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>   <strong class="jxr_keyword">static</strong> Map&lt;Character, Set&lt;Integer&gt;&gt; computeDelimiterDistinctFrequency(List&lt;LineDelimiterStats&gt; linesStats) {
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <strong class="jxr_keyword">return</strong> linesStats.stream()
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>             .collect(
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>                     Collectors.groupingBy(LineDelimiterStats::getDelimiter,
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>                             Collectors.mapping(LineDelimiterStats::getFrequency, toSet())));
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>   }
-<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">   * For each line, check the delimiter that is used the most.</em>
-<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">   * Return the count of each delimiter.</em>
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">   * @param lines</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>   <strong class="jxr_keyword">static</strong> Map&lt;Character, Long&gt; computeDelimiterHighestFrequencyPerLine(List&lt;String&gt; lines) {
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">return</strong> lines.stream()
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>             .map(TabularFileMetadataExtractor::getDelimiterWithHighestCount2)
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>             .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) <em class="jxr_comment">//remove Optional wrapper and ignore Optional.empty</em>
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>             .collect(Collectors.groupingBy(LineDelimiterStats::getDelimiter, counting()));
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>   }
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> 
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">   * For {@link LineDelimiterStats}, sum the frequency (count) of each delimiter.</em>
-<a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">   * This gives us an idea of the overall usage of each delimiter across the sample.</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a> <em class="jxr_javadoccomment">   * Note that since quotes are not handled, noise can be introduced if a quoted cell uses the delimiter.</em>
-<a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L326" href="#L326">326</a> <em class="jxr_javadoccomment">   * See unit test for examples of when this method will be affected by noise.</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_javadoccomment">   * @param linesStats</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L330" href="#L330">330</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L331" href="#L331">331</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>   <strong class="jxr_keyword">static</strong> Map&lt;Character, Integer&gt; computeDelimiterFrequencySums(List&lt;LineDelimiterStats&gt; linesStats) {
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <strong class="jxr_keyword">return</strong> linesStats.stream()
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>             .filter(CONTAINS_FREQUENCY)
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>             .collect(
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                     Collectors.groupingBy(LineDelimiterStats::getDelimiter,
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>                             Collectors.summingInt(LineDelimiterStats::getFrequency)));
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>   }
-<a class="jxr_linenumber" name="L339" href="#L339">339</a> 
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">   * Given a line, get the delimiter with the highest count if any can be found.</em>
-<a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_javadoccomment">   * Note: quotes are ignored in the count so a delimiter used inside quotes will be counted.</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <em class="jxr_comment">//summary</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>       LOG.debug(<span class="jxr_string">"delimiterDistinctFrequency -&gt; "</span> + delimiterDistinctFrequency);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>       LOG.debug(<span class="jxr_string">"mostStableDelimiter -&gt; "</span> + mostStableDelimiter);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>       LOG.debug(<span class="jxr_string">"delimiterFrequencySums -&gt; "</span> + delimiterFrequencySums);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>       LOG.debug(<span class="jxr_string">"mostFrequentDelimiter -&gt; "</span> + mostFrequentDelimiter);
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>       LOG.debug(<span class="jxr_string">"delimiterHighestFrequencyPerLine-&gt;"</span> + delimiterHighestFrequencyPerLine);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>       LOG.debug(<span class="jxr_string">"mostFrequentDelimiterPerLine -&gt;"</span> + mostFrequentDelimiterPerLine);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     }
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <em class="jxr_comment">//if the most stable is also the one that is used to most within the sample</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     Optional&lt;Character&gt; resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiter);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     <strong class="jxr_keyword">if</strong>(resultCharacter.isPresent()) {
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>       <strong class="jxr_keyword">return</strong> resultCharacter;
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <em class="jxr_comment">//otherwise, if the most stable is also the most used based on lines</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiterPerLine);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">if</strong>(resultCharacter.isPresent()) {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>       <strong class="jxr_keyword">return</strong> resultCharacter;
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     }
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <em class="jxr_comment">//as last resort if the most frequent delimiter overall and by line is the same</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">if</strong>(resultCharacter.isPresent()) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>       <strong class="jxr_keyword">return</strong> resultCharacter;
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     }
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_comment">// other idea</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <em class="jxr_comment">// give more weight to the first line (it is probably the header line where normally no quotes are used)</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <em class="jxr_comment">// give more weight to the first "column" (it is probably the "id" line where normally no quotes are used)</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <strong class="jxr_keyword">return</strong> Optional.empty();
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>   }
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">   * Return the {@link Character} represents the intersection between 2 sets only if the resulting set represents</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">   * a single element.</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">   * @param set1</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">   * @param set2</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; intersectSingle(Set&lt;Character&gt; set1, Set&lt;Character&gt; set2) {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     Sets.SetView&lt;Character&gt; intersection = Sets.intersection(set1, set2);
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <strong class="jxr_keyword">return</strong> intersection.size() == 1 ? intersection.stream().findFirst() : Optional.empty();
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>   }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">   * Given a {@link Map}, return all elements that are equals to the first element (including itself)</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">   * based on the provided equals function.</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">   * @param map</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">   * @param equalsPredicate</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   * @return all elements that are equals to the first one or an empty set if the map is empty</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; Set&lt;Character&gt; getAllEqualsToFirst(Map&lt;Character, T&gt; map, BiFunction&lt;T,T, Boolean&gt; equalsPredicate) {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     Optional&lt;Map.Entry&lt;Character, T&gt;&gt; firstMapEntry = map.entrySet().stream().findFirst();
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">if</strong>(!firstMapEntry.isPresent()){
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>       <strong class="jxr_keyword">return</strong> Collections.EMPTY_SET;
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     }
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">final</strong> T firstValue = firstMapEntry.get().getValue();
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">return</strong> map.entrySet().stream().filter( e -&gt; equalsPredicate.apply(firstValue,e.getValue()))
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>             .map(Map.Entry::getKey).collect(Collectors.toSet());
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>   }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   * For each element(line) of the sample, compute a {@link LineDelimiterStats} for each delimiter.</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">   * Note: delimiter that are not used within a line will be included with the frequency 0.</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">   * @param sample</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">   * @return new List, never null</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>   <strong class="jxr_keyword">static</strong> List&lt;LineDelimiterStats&gt; computeLineDelimiterStats(List&lt;String&gt; sample){
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">return</strong> sample.stream()
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>             .map(TabularFileMetadataExtractor::lineToLineDelimiterStats)
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>             .flatMap(List::stream)
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>   }
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">   * Compute the stats for each potential delimiters on a line.</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   * @param line</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;LineDelimiterStats&gt; lineToLineDelimiterStats(String line) {
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">return</strong> Arrays.stream(POTENTIAL_DELIMITER_CHAR)
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>             .map( delimiter -&gt; <strong class="jxr_keyword">new</strong> LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>   }
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> 
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">   * For each {@link LineDelimiterStats}, collect the distinct frequency (count) of each delimiter.</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">   * This gives us an idea of the "stability" of each delimiter across the sample.</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">   * Note that since quotes are not handled, noise can be introduced if a quoted cells use the delimiter.</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">   * See unit test for examples of when this method will be affected by noise.</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">   * The most stable delimiter is normally defined by the {@link Character} returned by the methods where</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">   * the list of distinct frequency is the smallest in size excluding cases where the list contains only the element</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">   * representing 0 as Integer (which means the delimiter was never used).</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">   * @param linesStats</em>
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>   <strong class="jxr_keyword">static</strong> Map&lt;Character, Set&lt;Integer&gt;&gt; computeDelimiterDistinctFrequency(List&lt;LineDelimiterStats&gt; linesStats) {
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>     <strong class="jxr_keyword">return</strong> linesStats.stream()
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>             .collect(
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>                     Collectors.groupingBy(LineDelimiterStats::getDelimiter,
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>                             Collectors.mapping(LineDelimiterStats::getFrequency, toSet())));
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>   }
+<a class="jxr_linenumber" name="L323" href="#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_javadoccomment">   * For each line, check the delimiter that is used the most.</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a> <em class="jxr_javadoccomment">   * Return the count of each delimiter.</em>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_javadoccomment">   * @param lines</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>   <strong class="jxr_keyword">static</strong> Map&lt;Character, Long&gt; computeDelimiterHighestFrequencyPerLine(List&lt;String&gt; lines) {
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     <strong class="jxr_keyword">return</strong> lines.stream()
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>             .map(TabularFileMetadataExtractor::getDelimiterWithHighestCount2)
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>             .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) <em class="jxr_comment">//remove Optional wrapper and ignore Optional.empty</em>
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>             .collect(Collectors.groupingBy(LineDelimiterStats::getDelimiter, counting()));
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>   }
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> 
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">   * For {@link LineDelimiterStats}, sum the frequency (count) of each delimiter.</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">   * This gives us an idea of the overall usage of each delimiter across the sample.</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> <em class="jxr_javadoccomment">   * Note that since quotes are not handled, noise can be introduced if a quoted cell uses the delimiter.</em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_javadoccomment">   * See unit test for examples of when this method will be affected by noise.</em>
 <a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">   * @param line line of text to analyse</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">   * @param linesStats</em>
 <a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">   * @return</em>
 <a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>   <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getDelimiterWithHighestCount(String line) {
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">int</strong> highestCount = 0;
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>     Character highestCountDelimiter = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>     <strong class="jxr_keyword">for</strong> (Character delimiter : POTENTIAL_DELIMITER_CHAR) {
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>       <strong class="jxr_keyword">int</strong> currentCount = StringUtils.countMatches(line, delimiter);
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>       <strong class="jxr_keyword">if</strong> (currentCount &gt; highestCount) {
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         highestCount = currentCount;
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         highestCountDelimiter = delimiter;
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>       }
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>     }
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <strong class="jxr_keyword">return</strong> Optional.ofNullable(highestCountDelimiter);
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>   }
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> 
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">static</strong> Optional&lt;LineDelimiterStats&gt; getDelimiterWithHighestCount2(String line) {
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <strong class="jxr_keyword">int</strong> highestCount = 0;
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>    <em class="jxr_comment">// Character highestCountDelimiter = null;</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>     <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a> lineDelimiterStats = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">for</strong> (Character delimiter : POTENTIAL_DELIMITER_CHAR) {
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>       <strong class="jxr_keyword">int</strong> currentCount = StringUtils.countMatches(line, delimiter);
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>       <strong class="jxr_keyword">if</strong> (currentCount &gt; highestCount) {
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         highestCount = currentCount;
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         lineDelimiterStats = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a>(delimiter,highestCount);
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>       }
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>     }
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     <strong class="jxr_keyword">return</strong> Optional.ofNullable(lineDelimiterStats);
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>   }
-<a class="jxr_linenumber" name="L374" href="#L374">374</a> 
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">   * Given a line and a delimiter, try to determine the quoting character if any can be found.</em>
-<a class="jxr_linenumber" name="L377" href="#L377">377</a> <em class="jxr_javadoccomment">   * To check if a quote character is used we run a regex to check for a delimiter followed by a quoting character.</em>
-<a class="jxr_linenumber" name="L378" href="#L378">378</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L379" href="#L379">379</a> <em class="jxr_javadoccomment">   * @param line line of text to analyse</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a> <em class="jxr_javadoccomment">   * @param delimiter delimiter used in the line of text</em>
-<a class="jxr_linenumber" name="L381" href="#L381">381</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>   <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getQuoteCharWithHighestCount(String line, Character delimiter) {
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <strong class="jxr_keyword">int</strong> highestCount = 0;
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>     Character highestCountQuoteChar = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>     <strong class="jxr_keyword">for</strong> (Character quoteChar : POTENTIAL_QUOTES_CHAR) {
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>       <strong class="jxr_keyword">int</strong> currentCount = 0;
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>       Matcher m = COMPILE_QUOTE_PATTERN_FCT.apply(delimiter, quoteChar).matcher(line);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>       <strong class="jxr_keyword">while</strong> (m.find()) {
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         currentCount++;
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>       }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>       <strong class="jxr_keyword">if</strong> (currentCount &gt; highestCount) {
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>         highestCount = currentCount;
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>         highestCountQuoteChar = quoteChar;
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>       }
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>     }
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>     <strong class="jxr_keyword">return</strong> Optional.ofNullable(highestCountQuoteChar);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>   }
-<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">   * Inner representation of stats (frequency) of a delimiter</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a> {
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>     <strong class="jxr_keyword">private</strong> Character delimiter;
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> frequency;
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>     <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a>(Character delimiter, <strong class="jxr_keyword">int</strong> frequency) {
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>       <strong class="jxr_keyword">this</strong>.delimiter = delimiter;
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>       <strong class="jxr_keyword">this</strong>.frequency = frequency;
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>     }
-<a class="jxr_linenumber" name="L411" href="#L411">411</a> 
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>     Character getDelimiter() {
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>       <strong class="jxr_keyword">return</strong> delimiter;
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>     }
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> 
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">int</strong> getFrequency() {
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>       <strong class="jxr_keyword">return</strong> frequency;
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>     }
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>   }
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> 
-<a class="jxr_linenumber" name="L421" href="#L421">421</a> }
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>   <strong class="jxr_keyword">static</strong> Map&lt;Character, Integer&gt; computeDelimiterFrequencySums(List&lt;LineDelimiterStats&gt; linesStats) {
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">return</strong> linesStats.stream()
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>             .filter(CONTAINS_FREQUENCY)
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             .collect(
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                     Collectors.groupingBy(LineDelimiterStats::getDelimiter,
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                             Collectors.summingInt(LineDelimiterStats::getFrequency)));
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>   }
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">   * Given a line, get the delimiter with the highest count if any can be found.</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">   * Note: quotes are ignored in the count so a delimiter used inside quotes will be counted.</em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">   * @param line line of text to analyse</em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>   <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getDelimiterWithHighestCount(String line) {
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">int</strong> highestCount = 0;
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     Character highestCountDelimiter = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <strong class="jxr_keyword">for</strong> (Character delimiter : POTENTIAL_DELIMITER_CHAR) {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>       <strong class="jxr_keyword">int</strong> currentCount = StringUtils.countMatches(line, delimiter);
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>       <strong class="jxr_keyword">if</strong> (currentCount &gt; highestCount) {
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         highestCount = currentCount;
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         highestCountDelimiter = delimiter;
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>       }
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>     }
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>     <strong class="jxr_keyword">return</strong> Optional.ofNullable(highestCountDelimiter);
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>   }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>   <strong class="jxr_keyword">static</strong> Optional&lt;LineDelimiterStats&gt; getDelimiterWithHighestCount2(String line) {
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">int</strong> highestCount = 0;
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>    <em class="jxr_comment">// Character highestCountDelimiter = null;</em>
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a> lineDelimiterStats = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <strong class="jxr_keyword">for</strong> (Character delimiter : POTENTIAL_DELIMITER_CHAR) {
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>       <strong class="jxr_keyword">int</strong> currentCount = StringUtils.countMatches(line, delimiter);
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>       <strong class="jxr_keyword">if</strong> (currentCount &gt; highestCount) {
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>         highestCount = currentCount;
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         lineDelimiterStats = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a>(delimiter,highestCount);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>       }
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>     }
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <strong class="jxr_keyword">return</strong> Optional.ofNullable(lineDelimiterStats);
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>   }
+<a class="jxr_linenumber" name="L390" href="#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a> <em class="jxr_javadoccomment">   * Given a line and a delimiter, try to determine the quoting character if any can be found.</em>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_javadoccomment">   * To check if a quote character is used we run a regex to check for a delimiter followed by a quoting character.</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L395" href="#L395">395</a> <em class="jxr_javadoccomment">   * @param line line of text to analyse</em>
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> <em class="jxr_javadoccomment">   * @param delimiter delimiter used in the line of text</em>
+<a class="jxr_linenumber" name="L397" href="#L397">397</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>   <strong class="jxr_keyword">static</strong> Optional&lt;Character&gt; getQuoteCharWithHighestCount(String line, Character delimiter) {
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <strong class="jxr_keyword">int</strong> highestCount = 0;
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>     Character highestCountQuoteChar = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">for</strong> (Character quoteChar : POTENTIAL_QUOTES_CHAR) {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>       <strong class="jxr_keyword">int</strong> currentCount = 0;
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>       Matcher m = COMPILE_QUOTE_PATTERN_FCT.apply(delimiter, quoteChar).matcher(line);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>       <strong class="jxr_keyword">while</strong> (m.find()) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         currentCount++;
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>       }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>       <strong class="jxr_keyword">if</strong> (currentCount &gt; highestCount) {
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         highestCount = currentCount;
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         highestCountQuoteChar = quoteChar;
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>       }
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>     <strong class="jxr_keyword">return</strong> Optional.ofNullable(highestCountQuoteChar);
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>   }
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> 
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">   * Inner representation of stats (frequency) of a delimiter</em>
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a> {
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     <strong class="jxr_keyword">private</strong> Character delimiter;
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> frequency;
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>     <a href="../../../../../org/gbif/utils/file/tabular/TabularFileMetadataExtractor.html">LineDelimiterStats</a>(Character delimiter, <strong class="jxr_keyword">int</strong> frequency) {
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>       <strong class="jxr_keyword">this</strong>.delimiter = delimiter;
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>       <strong class="jxr_keyword">this</strong>.frequency = frequency;
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>     }
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>     Character getDelimiter() {
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>       <strong class="jxr_keyword">return</strong> delimiter;
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     }
+<a class="jxr_linenumber" name="L431" href="#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <strong class="jxr_keyword">int</strong> getFrequency() {
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>       <strong class="jxr_keyword">return</strong> frequency;
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     }
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>   }
+<a class="jxr_linenumber" name="L436" href="#L436">436</a> 
+<a class="jxr_linenumber" name="L437" href="#L437">437</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
