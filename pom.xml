@@ -21,8 +21,6 @@
     <commons-compress.version>1.14</commons-compress.version>
     <commons-lang.version>3.6</commons-lang.version>
     <commons-io.version>2.5</commons-io.version>
-    <owasp-java-html-sanitizer.version>20160924.1</owasp-java-html-sanitizer.version>
-    <commons-beanutils.version>1.9.3</commons-beanutils.version>
 
     <!-- Guava will be shaded -->
     <guava.version>23.0</guava.version>
@@ -145,16 +143,6 @@
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-csv</artifactId>
       <version>${jackson-csv.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-      <artifactId>owasp-java-html-sanitizer</artifactId>
-      <version>${owasp-java-html-sanitizer.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-      <version>${commons-beanutils.version}</version>
     </dependency>
 
     <dependency>
