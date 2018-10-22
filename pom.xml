@@ -18,9 +18,6 @@
   <properties>
     <jdkLevel>1.8</jdkLevel>
 
-    <apache-poi.version>3.15</apache-poi.version>
-    <apache-odftoolkit.version>0.8.2-incubating</apache-odftoolkit.version>
-
     <commons-compress.version>1.14</commons-compress.version>
     <commons-lang.version>3.6</commons-lang.version>
     <commons-io.version>2.5</commons-io.version>
@@ -48,24 +45,24 @@
   <distributionManagement>
     <site>
       <id>gh-pages</id>
-      <url>http://gbif.github.io/${project.artifactId}/</url>
+      <url>https://gbif.github.io/${project.artifactId}/</url>
     </site>
   </distributionManagement>
 
   <issueManagement>
     <system>JIRA</system>
-    <url>http://dev.gbif.org/issues</url>
+    <url>https://github.com/gbif/gbif-common/issues</url>
   </issueManagement>
 
   <ciManagement>
     <system>jenkins</system>
-    <url>http://builds.gbif.org/job/gbif-common</url>
+    <url>https://builds.gbif.org/job/gbif-common</url>
   </ciManagement>
 
   <repositories>
     <repository>
       <id>gbif-all</id>
-      <url>http://repository.gbif.org/content/groups/gbif</url>
+      <url>https://repository.gbif.org/content/groups/gbif</url>
     </repository>
   </repositories>
 
@@ -158,32 +155,6 @@
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>${commons-beanutils.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>${apache-poi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-      <version>${apache-poi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.odftoolkit</groupId>
-      <artifactId>simple-odf</artifactId>
-      <version>${apache-odftoolkit.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
