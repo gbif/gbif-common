@@ -281,4 +281,21 @@ public class CompressionUtilTest {
     int decompressedRootFileNum = tmpDir.listFiles().length;
     assertEquals(rootFileNum, decompressedRootFileNum);
   }
+
+  /**
+   * Check we can unpack ZIP64 archives.
+   *
+   * infozip64.zip was created with <code>echo 'hello | zip infozip.zip -</code>, following comments on
+   * https://bugs.openjdk.java.net/browse/JDK-8186464
+   */
+  @Test
+  public void testDecompressZippedFolderWithNoSubdirectoriesx() throws IOException {
+    File tmpDir = createTempDirectory();
+    File testZippedFolder = classpathFile("compression/infozip64.zip");
+
+    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder);
+    assertEquals(1, files.size());
+    File dash = new File(tmpDir, "-");
+    assertTrue(dash.exists());
+  }
 }

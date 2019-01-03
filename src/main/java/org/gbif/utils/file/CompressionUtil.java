@@ -25,10 +25,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +36,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -120,24 +121,38 @@ public class CompressionUtil {
   public static List<File> decompressFile(File directory, File compressedFile, boolean keepSubdirectories)
     throws IOException, UnsupportedCompressionType {
     List<File> files = null;
-    // first try zip
-    try {
-      files = unzipFile(directory, compressedFile, keepSubdirectories);
-    } catch (ZipException e) {
-      LOG.debug("No zip compression");
-    }
 
-    // Try gzip if needed
-    if (files == null) {
+    // Test before trying gzip format
+    if (isGzipFormat(compressedFile)) {
       try {
         files = ungzipFile(directory, compressedFile);
       } catch (Exception e) {
         LOG.debug("No gzip compression");
+      }
+    }
+
+    // Then try zip
+    if (files == null) {
+      try {
+        files = unzipFile(directory, compressedFile, keepSubdirectories);
+      } catch (ZipException e) {
+        LOG.debug("No zip compression");
         throw new UnsupportedCompressionType("Unknown compression type. Neither zip nor gzip", e);
       }
     }
 
     return files;
+  }
+
+  /**
+   * Check the file's first two bytes, to see if they are the gzip magic number.
+   * @param compressedFile compressed file
+   * @return               true if the file is in gzip format
+   * @throws IOException   if a problem occurred reading compressed file
+   */
+  private static boolean isGzipFormat(File compressedFile) throws IOException {
+    RandomAccessFile file = new RandomAccessFile(compressedFile, "r");
+    return GZIPInputStream.GZIP_MAGIC == (file.read() & 0xff | ((file.read() << 8) & 0xff00));
   }
 
   /**
@@ -331,10 +346,14 @@ public class CompressionUtil {
    */
   public static List<File> unzipFile(File directory, File zipFile, boolean keepSubdirectories) throws IOException {
     LOG.debug("Unzipping archive " + zipFile.getName() + " into directory: " + directory.getAbsolutePath());
-    ZipFile zf = new ZipFile(zipFile);
-    Enumeration<? extends ZipEntry> entries = zf.entries();
-    while (entries.hasMoreElements()) {
-      ZipEntry entry = entries.nextElement();
+
+    // This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain Zip64 files.
+    // https://bugs.openjdk.java.net/browse/JDK-8186464
+    FileInputStream fInput = new FileInputStream(zipFile);
+    ZipInputStream zipInput = new ZipInputStream(fInput);
+    ZipEntry entry;
+
+    while ((entry = zipInput.getNextEntry()) != null) {
       // ignore resource fork directories and subfiles
       if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {
         LOG.debug("Ignoring resource fork file: " + entry.getName());
@@ -358,11 +377,15 @@ public class CompressionUtil {
             : new File(directory, new File(entry.getName()).getName());
           // ensure parent folder always exists, and extract file
           createParentFolder(targetFile);
-          extractFile(zf, entry, targetFile);
+
+          LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
+          try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+            IOUtils.copy(zipInput, out);
+          }
         }
       }
     }
-    zf.close();
+    zipInput.close();
     // remove the wrapping root directory and flatten structure
     if (keepSubdirectories) {
       removeRootDirectory(directory);
@@ -399,29 +422,6 @@ public class CompressionUtil {
         }
         root.delete();
       }
-    }
-  }
-
-  /**
-   * Extract an entry from a zipped file into a target file.
-   *
-   * @param zf         .zip file being unzipped (ZipFile)
-   * @param entry      entry in .zip file currently being examined (ZipEntry)
-   * @param targetFile destination file to extract to
-   */
-  private static void extractFile(ZipFile zf, ZipEntry entry, File targetFile) {
-    try {
-      LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
-      InputStream in = zf.getInputStream(entry);
-      OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
-      try {
-        IOUtils.copy(zf.getInputStream(entry), out);
-      } finally {
-        in.close();
-        out.close();
-      }
-    } catch (IOException e) {
-      LOG.error("File could not be extraced: " + e.getMessage(), e);
     }
   }
 
