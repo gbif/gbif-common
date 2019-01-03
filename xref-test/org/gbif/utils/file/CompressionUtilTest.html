@@ -289,9 +289,26 @@
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">int</strong> decompressedRootFileNum = tmpDir.listFiles().length;
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>     assertEquals(rootFileNum, decompressedRootFileNum);
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>   }
-<a class="jxr_linenumber" name="L284" href="#L284">284</a> }
+<a class="jxr_linenumber" name="L284" href="#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">   * Check we can unpack ZIP64 archives.</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">   * infozip64.zip was created with &lt;code&gt;echo 'hello | zip infozip.zip -&lt;/code&gt;, following comments on</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">   * https://bugs.openjdk.java.net/browse/JDK-8186464</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>   @Test
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDecompressZippedFolderWithNoSubdirectoriesx() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     File tmpDir = createTempDirectory();
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     File testZippedFolder = classpathFile(<span class="jxr_string">"compression/infozip64.zip"</span>);
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> 
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     List&lt;File&gt; files = CompressionUtil.unzipFile(tmpDir, testZippedFolder);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     assertEquals(1, files.size());
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     File dash = <strong class="jxr_keyword">new</strong> File(tmpDir, <span class="jxr_string">"-"</span>);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     assertTrue(dash.exists());
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>   }
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2018 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019 <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. All rights reserved.</div>
 </body>
 </html>
