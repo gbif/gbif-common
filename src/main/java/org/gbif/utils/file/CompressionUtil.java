@@ -349,43 +349,43 @@ public class CompressionUtil {
 
     // This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain Zip64 files.
     // https://bugs.openjdk.java.net/browse/JDK-8186464
-    FileInputStream fInput = new FileInputStream(zipFile);
-    ZipInputStream zipInput = new ZipInputStream(fInput);
-    ZipEntry entry;
+    try (FileInputStream fInput = new FileInputStream(zipFile);
+         ZipInputStream zipInput = new ZipInputStream(fInput)) {
+      ZipEntry entry;
 
-    while ((entry = zipInput.getNextEntry()) != null) {
-      // ignore resource fork directories and subfiles
-      if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {
-        LOG.debug("Ignoring resource fork file: " + entry.getName());
-      }
-      // ignore directories and hidden directories (e.g. .svn) (based on flag)
-      else if (entry.isDirectory()) {
-        if (isHiddenFile(new File(entry.getName()))) {
-          LOG.debug("Ignoring hidden directory: " + entry.getName());
-        } else if (keepSubdirectories) {
-          new File(directory, entry.getName()).mkdir();
-        } else {
-          LOG.debug("Ignoring (sub)directory: " + entry.getName());
+      while ((entry = zipInput.getNextEntry()) != null) {
+        // ignore resource fork directories and subfiles
+        if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {
+          LOG.debug("Ignoring resource fork file: " + entry.getName());
         }
-      }
-      // ignore hidden files
-      else {
-        if (isHiddenFile(new File(entry.getName()))) {
-          LOG.debug("Ignoring hidden file: " + entry.getName());
-        } else {
-          File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())
-            : new File(directory, new File(entry.getName()).getName());
-          // ensure parent folder always exists, and extract file
-          createParentFolder(targetFile);
+        // ignore directories and hidden directories (e.g. .svn) (based on flag)
+        else if (entry.isDirectory()) {
+          if (isHiddenFile(new File(entry.getName()))) {
+            LOG.debug("Ignoring hidden directory: " + entry.getName());
+          } else if (keepSubdirectories) {
+            new File(directory, entry.getName()).mkdir();
+          } else {
+            LOG.debug("Ignoring (sub)directory: " + entry.getName());
+          }
+        }
+        // ignore hidden files
+        else {
+          if (isHiddenFile(new File(entry.getName()))) {
+            LOG.debug("Ignoring hidden file: " + entry.getName());
+          } else {
+            File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())
+              : new File(directory, new File(entry.getName()).getName());
+            // ensure parent folder always exists, and extract file
+            createParentFolder(targetFile);
 
-          LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
-          try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
-            IOUtils.copy(zipInput, out);
+            LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+              IOUtils.copy(zipInput, out);
+            }
           }
         }
       }
     }
-    zipInput.close();
     // remove the wrapping root directory and flatten structure
     if (keepSubdirectories) {
       removeRootDirectory(directory);

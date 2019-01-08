@@ -18,9 +18,12 @@ package org.gbif.utils.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.net.URL;
 import java.util.List;
 
+import com.sun.management.UnixOperatingSystemMXBean;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -294,6 +297,37 @@ public class CompressionUtilTest {
     File testZippedFolder = classpathFile("compression/infozip64.zip");
 
     List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder);
+    assertEquals(1, files.size());
+    File dash = new File(tmpDir, "-");
+    assertTrue(dash.exists());
+  }
+
+  /**
+   * Check that files are closed after use.
+   */
+  @Test
+  public void testFilesClosedCorrectly() throws Exception {
+    File tmpDir = createTempDirectory();
+    File testZippedFolder = classpathFile("compression/infozip64.zip");
+
+    // Unzip first, to use the code path.  (Various things like /dev/random are opened.)
+    CompressionUtil.unzipFile(tmpDir, testZippedFolder);
+
+    OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+    long openFiles = 0;
+    if (os instanceof UnixOperatingSystemMXBean) {
+      openFiles = ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount();
+    }
+
+    tmpDir = createTempDirectory();
+    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder);
+
+    if (os instanceof UnixOperatingSystemMXBean) {
+      assertEquals(openFiles, ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount());
+    } else {
+      System.err.println("Cannot check files are closed except on Unix.");
+    }
+
     assertEquals(1, files.size());
     File dash = new File(tmpDir, "-");
     assertTrue(dash.exists());
