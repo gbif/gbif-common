@@ -357,43 +357,43 @@
 <a class="jxr_linenumber" name="L349" href="#L349">349</a> 
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>     <em class="jxr_comment">// This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain Zip64 files.</em>
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>     <em class="jxr_comment">// https://bugs.openjdk.java.net/browse/JDK-8186464</em>
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>     FileInputStream fInput = <strong class="jxr_keyword">new</strong> FileInputStream(zipFile);
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>     ZipInputStream zipInput = <strong class="jxr_keyword">new</strong> ZipInputStream(fInput);
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>     ZipEntry entry;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>     <strong class="jxr_keyword">try</strong> (FileInputStream fInput = <strong class="jxr_keyword">new</strong> FileInputStream(zipFile);
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>          ZipInputStream zipInput = <strong class="jxr_keyword">new</strong> ZipInputStream(fInput)) {
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>       ZipEntry entry;
 <a class="jxr_linenumber" name="L355" href="#L355">355</a> 
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>     <strong class="jxr_keyword">while</strong> ((entry = zipInput.getNextEntry()) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>       <em class="jxr_comment">// ignore resource fork directories and subfiles</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>       <strong class="jxr_keyword">if</strong> (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>         LOG.debug(<span class="jxr_string">"Ignoring resource fork file: "</span> + entry.getName());
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>       }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>       <em class="jxr_comment">// ignore directories and hidden directories (e.g. .svn) (based on flag)</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>       <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (entry.isDirectory()) {
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>         <strong class="jxr_keyword">if</strong> (isHiddenFile(<strong class="jxr_keyword">new</strong> File(entry.getName()))) {
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>           LOG.debug(<span class="jxr_string">"Ignoring hidden directory: "</span> + entry.getName());
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (keepSubdirectories) {
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>           <strong class="jxr_keyword">new</strong> File(directory, entry.getName()).mkdir();
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>           LOG.debug(<span class="jxr_string">"Ignoring (sub)directory: "</span> + entry.getName());
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         }
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>       }
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>       <em class="jxr_comment">// ignore hidden files</em>
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>       <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <strong class="jxr_keyword">if</strong> (isHiddenFile(<strong class="jxr_keyword">new</strong> File(entry.getName()))) {
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>           LOG.debug(<span class="jxr_string">"Ignoring hidden file: "</span> + entry.getName());
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>           File targetFile = (keepSubdirectories) ? <strong class="jxr_keyword">new</strong> File(directory, entry.getName())
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>             : <strong class="jxr_keyword">new</strong> File(directory, <strong class="jxr_keyword">new</strong> File(entry.getName()).getName());
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>           <em class="jxr_comment">// ensure parent folder always exists, and extract file</em>
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>           createParentFolder(targetFile);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>       <strong class="jxr_keyword">while</strong> ((entry = zipInput.getNextEntry()) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         <em class="jxr_comment">// ignore resource fork directories and subfiles</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         <strong class="jxr_keyword">if</strong> (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>           LOG.debug(<span class="jxr_string">"Ignoring resource fork file: "</span> + entry.getName());
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         }
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         <em class="jxr_comment">// ignore directories and hidden directories (e.g. .svn) (based on flag)</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (entry.isDirectory()) {
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>           <strong class="jxr_keyword">if</strong> (isHiddenFile(<strong class="jxr_keyword">new</strong> File(entry.getName()))) {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>             LOG.debug(<span class="jxr_string">"Ignoring hidden directory: "</span> + entry.getName());
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>           } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (keepSubdirectories) {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>             <strong class="jxr_keyword">new</strong> File(directory, entry.getName()).mkdir();
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>           } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>             LOG.debug(<span class="jxr_string">"Ignoring (sub)directory: "</span> + entry.getName());
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>           }
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         }
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <em class="jxr_comment">// ignore hidden files</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>           <strong class="jxr_keyword">if</strong> (isHiddenFile(<strong class="jxr_keyword">new</strong> File(entry.getName()))) {
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>             LOG.debug(<span class="jxr_string">"Ignoring hidden file: "</span> + entry.getName());
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>           } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>             File targetFile = (keepSubdirectories) ? <strong class="jxr_keyword">new</strong> File(directory, entry.getName())
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>               : <strong class="jxr_keyword">new</strong> File(directory, <strong class="jxr_keyword">new</strong> File(entry.getName()).getName());
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>             <em class="jxr_comment">// ensure parent folder always exists, and extract file</em>
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>             createParentFolder(targetFile);
 <a class="jxr_linenumber" name="L380" href="#L380">380</a> 
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>           LOG.debug(<span class="jxr_string">"Extracting file: {} to: {}"</span>, entry.getName(), targetFile.getAbsolutePath());
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>           <strong class="jxr_keyword">try</strong> (OutputStream out = <strong class="jxr_keyword">new</strong> BufferedOutputStream(<strong class="jxr_keyword">new</strong> FileOutputStream(targetFile))) {
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>             IOUtils.copy(zipInput, out);
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>           }
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         }
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>       }
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>     }
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>     zipInput.close();
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             LOG.debug(<span class="jxr_string">"Extracting file: {} to: {}"</span>, entry.getName(), targetFile.getAbsolutePath());
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>             <strong class="jxr_keyword">try</strong> (OutputStream out = <strong class="jxr_keyword">new</strong> BufferedOutputStream(<strong class="jxr_keyword">new</strong> FileOutputStream(targetFile))) {
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>               IOUtils.copy(zipInput, out);
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>             }
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>           }
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         }
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>       }
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     }
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>     <em class="jxr_comment">// remove the wrapping root directory and flatten structure</em>
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>     <strong class="jxr_keyword">if</strong> (keepSubdirectories) {
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>       removeRootDirectory(directory);
