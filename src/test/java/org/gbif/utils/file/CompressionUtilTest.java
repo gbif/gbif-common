@@ -23,6 +23,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.net.URL;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.sun.management.UnixOperatingSystemMXBean;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -319,8 +320,25 @@ public class CompressionUtilTest {
       openFiles = ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount();
     }
 
-    tmpDir = createTempDirectory();
-    List<File> files = CompressionUtil.unzipFile(tmpDir, testZippedFolder);
+    // From all the other tests.
+    List<String> files = ImmutableList.of(
+      "compression/archive/meta.xml",
+      "compression/archive/quote_in_quote.csv",
+      "compression/archive.tgz",
+      "compression/archive-tgz.dat",
+      "compression/archive.zip",
+      "compression/archive-zip.dat",
+      "compression/cate.zip",
+      "compression/infozip64.zip",
+      "compression/test.txt.gz",
+      "compression/with_dot_svn.zip",
+      "compression/withSubdirsAndHiddenFiles.zip"
+    );
+
+    for (String file : files) {
+      tmpDir = createTempDirectory();
+      CompressionUtil.decompressFile(tmpDir, classpathFile(file));
+    }
 
     if (os instanceof UnixOperatingSystemMXBean) {
       assertEquals(openFiles, ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount());
@@ -328,8 +346,7 @@ public class CompressionUtilTest {
       System.err.println("Cannot check files are closed except on Unix.");
     }
 
-    assertEquals(1, files.size());
-    File dash = new File(tmpDir, "-");
-    assertTrue(dash.exists());
+    // Try ls -l /proc/`pgrep -f java -n`/fd
+    // Thread.sleep(30000);
   }
 }
