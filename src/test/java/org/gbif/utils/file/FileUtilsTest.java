@@ -318,6 +318,38 @@ public class FileUtilsTest {
   }
 
   /**
+   * If only columns containing delimiters are quoted in CSV, we can't use GNU sort.
+   *   X,"Look, now!",1
+   *   X,Why should I,2
+   */
+  @Test
+  public void testSortingWithQuotedDelimiters() throws IOException {
+    File source = FileUtils.getClasspathFile("sorting/csv_quoted_delimiters.csv");
+    File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
+    sorted.deleteOnExit();
+    FileUtils futils = new FileUtils();
+    futils.sort(source, sorted, ENCODING, 19, ",", '"', "\n", 1);
+
+    // read file
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    int line = 30950;
+    while (true) {
+      String row = br.readLine();
+      if (row == null) {
+        break;
+      }
+
+      if (line == 30950) {
+        assertEquals("catalogNumber", row.substring(0, 13));
+      } else {
+        // Catalog number ends in 30951 to 30961.
+        assertEquals("ZMA.COL.P." + line, row.substring(0, 15));
+      }
+      line++;
+    }
+  }
+
+  /**
    * Test that ensures the chunk file is deleted at the end of sortInJava method. Otherwise, unwanted chunk files
    * will be left over.
    */

@@ -804,11 +804,10 @@ public class FileUtils {
     String command;
     // GNU sort is checked for use when:
     // • line delimiter is \n
-    // • column delimiter is not \n or '
+    // • column delimiter is set and we're not using the first column
     // • sort version is sufficient to include start and end column (-k 1,1).
     // Use the --debug option to sort if working on this code.
-    if (lineDelimiter == null || !lineDelimiter.contains("\n") ||
-        (columnDelimiter != null && (columnDelimiter.contains("\n") || columnDelimiter.contains("'"))) ||
+    if (lineDelimiter == null || !lineDelimiter.contains("\n") || (columnDelimiter != null && column > 0) ||
         !gnuSortAvailable()) {
       LOG.debug("Cannot use GNU sort on this file");
       return false;
