@@ -70,6 +70,8 @@ public class FileUtils {
 
   private static Boolean gnuSortAvailable = null;
 
+  private static final Object sortLock = new Object();
+
   public static String classpath2Filepath(String path) {
     return new File(ClassLoader.getSystemResource(path).getFile()).getAbsolutePath();
   }
@@ -581,13 +583,15 @@ public class FileUtils {
       lineComparator, false);
   }
 
-
   /**
    * Sorts the input file into the output file using the supplied delimited line parameters.
    *
    * This method is not reliable when the sort field may contain Unicode codepoints outside the Basic Multilingual Plane,
    * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
    * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
+   *
+   * TODO: This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
+   * This could be improved to allow synchronizing against the destination file, rather than for all sorts.
    *
    * @param input To sort
    * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
@@ -602,15 +606,23 @@ public class FileUtils {
   public void sort(File input, File sorted, String encoding, int column, String columnDelimiter, Character enclosedBy,
     String newlineDelimiter, int ignoreHeaderLines, Comparator<String> lineComparator, boolean ignoreCase)
     throws IOException {
-    LOG.debug("sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
+    LOG.debug("Sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
     if (encoding == null) {
       LOG.warn("No encoding specified, assume UTF-8");
       encoding = FileUtils.UTF8;
     }
-    // if the id is in the first column, first try sorting via shell as its the fastest we can get
-    if (!sortInGnu(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter, ignoreCase)) {
-      LOG.debug("No GNU sort available, using native Java sorting");
-      sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);
+    synchronized (sortLock) {
+      if (sorted.exists()) {
+        // Delete a file, which will allow processes with it open to continue reading it.
+        // The GNU sort truncates and appends, which would mean a partial read otherwise.
+        LOG.warn("Deleting existed sorted file {}", sorted.getAbsoluteFile());
+        sorted.delete();
+      }
+      // if the id is in the first column, first try sorting via shell as its the fastest we can get
+      if (!sortInGnu(input, sorted, encoding, ignoreHeaderLines, column, columnDelimiter, newlineDelimiter, ignoreCase)) {
+        LOG.debug("No GNU sort available, using native Java sorting");
+        sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);
+      }
     }
   }
 
@@ -793,7 +805,7 @@ public class FileUtils {
     // GNU sort is checked for use when:
     // • line delimiter is \n
     // • column delimiter is not \n or '
-    //.• sort version is sufficient to include start and end column (-k 1,1).
+    // • sort version is sufficient to include start and end column (-k 1,1).
     // Use the --debug option to sort if working on this code.
     if (lineDelimiter == null || !lineDelimiter.contains("\n") ||
         (columnDelimiter != null && (columnDelimiter.contains("\n") || columnDelimiter.contains("'"))) ||
