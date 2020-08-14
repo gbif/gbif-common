@@ -829,7 +829,7 @@ public class FileUtils {
         env.put("TMPDIR", System.getProperty("java.io.tmpdir"));
       }
       // make sure we use the C locale for sorting
-      env.put("LC_ALL", "C");     
+      env.put("LC_ALL", "C");
 
       String sortArgs = String.format(" %s -k%d,%d -t'%s'",
         ignoreCase ? "--ignore-case" : "", column+1, column+1, columnDelimiter);
