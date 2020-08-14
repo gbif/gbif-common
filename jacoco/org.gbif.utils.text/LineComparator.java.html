@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LineComparator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.text</a> &gt; <span class="el_source">LineComparator.java</span></div><h1>LineComparator.java</h1><pre class="source lang-java linenums">/***************************************************************************
+ * Copyright 2014 Global Biodiversity Information Facility Secretariat
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ***************************************************************************/
+
+package org.gbif.utils.text;
+
+import java.util.Comparator;
+
+import com.google.common.collect.Ordering;
+import org.apache.commons.lang3.text.StrTokenizer;
+
+/**
+ * A comparator for delimited lines that compares the content of a given column number for all rows.
+ * This allows to sort for example tab delimited files by any column and not only the first one.
+ * &lt;p/&gt;
+ * If no explicit comparator is given a string comparison is done for the actual column content.
+ */
+public class LineComparator implements Comparator&lt;String&gt; {
+
+  private final StrTokenizer tokenizer;
+  private final int column;
+  private final Comparator&lt;String&gt; comp;
+
+  public LineComparator(int column, String columnDelimiter) {
+<span class="fc" id="L37">    this(column, columnDelimiter, null, null);</span>
+<span class="fc" id="L38">  }</span>
+
+  public LineComparator(int column, String columnDelimiter, Character quoteChar) {
+<span class="fc" id="L41">    this(column, columnDelimiter, quoteChar, null);</span>
+<span class="fc" id="L42">  }</span>
+
+<span class="fc" id="L44">  public LineComparator(int column, String columnDelimiter, Character quoteChar, Comparator&lt;String&gt; columnComparator) {</span>
+<span class="fc" id="L45">    this.column = column;</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">    this.comp = columnComparator == null ? Ordering.&lt;String&gt;natural().nullsFirst() : columnComparator;</span>
+<span class="fc" id="L47">    tokenizer = new StrTokenizer();</span>
+<span class="fc" id="L48">    tokenizer.setEmptyTokenAsNull(true);</span>
+<span class="fc" id="L49">    tokenizer.setIgnoreEmptyTokens(false);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    if (quoteChar != null) {</span>
+<span class="fc" id="L51">      tokenizer.setQuoteChar(quoteChar);</span>
+    }
+<span class="fc" id="L53">    tokenizer.setDelimiterString(columnDelimiter);</span>
+<span class="fc" id="L54">  }</span>
+
+  public LineComparator(int column, String columnDelimiter, Comparator&lt;String&gt; columnComparator) {
+<span class="nc" id="L57">    this(column, columnDelimiter, null, null);</span>
+<span class="nc" id="L58">  }</span>
+
+  public int compare(String o1, String o2) {
+<span class="pc bpc" id="L61" title="2 of 4 branches missed.">    if (o1 == null || o2 == null) {</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">      if (o1 == null &amp;&amp; o2 == null) {</span>
+<span class="nc" id="L63">        return 0;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">      } else if (o1 == null) {</span>
+<span class="nc" id="L65">        return 1;</span>
+      } else {
+<span class="nc" id="L67">        return -1;</span>
+      }
+    } else {
+<span class="fc" id="L70">      tokenizer.reset(o1);</span>
+<span class="fc" id="L71">      String[] parts = tokenizer.getTokenArray();</span>
+<span class="fc" id="L72">      String s1 = null;</span>
+<span class="pc bpc" id="L73" title="2 of 4 branches missed.">      if (parts != null &amp;&amp; parts.length &gt; column) {</span>
+<span class="fc" id="L74">        s1 = parts[column];</span>
+      }
+<span class="fc" id="L76">      tokenizer.reset(o2);</span>
+<span class="fc" id="L77">      parts = tokenizer.getTokenArray();</span>
+<span class="fc" id="L78">      String s2 = null;</span>
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">      if (parts != null &amp;&amp; parts.length &gt; column) {</span>
+<span class="fc" id="L80">        s2 = parts[column];</span>
+      }
+
+<span class="fc bfc" id="L83" title="All 4 branches covered.">      if (s1 == null &amp;&amp; s2 == null) {</span>
+<span class="fc" id="L84">        return 0;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">      } else if (s1 == null) {</span>
+<span class="fc" id="L86">        return 1;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">      } else if (s2 == null)  {</span>
+<span class="fc" id="L88">        return -1;</span>
+      } else {
+<span class="fc" id="L90">        return comp.compare(s1, s2);</span>
+      }
+
+    }
+  }
+
+  public Comparator&lt;String&gt; getColumnComparator() {
+<span class="nc" id="L97">    return comp;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

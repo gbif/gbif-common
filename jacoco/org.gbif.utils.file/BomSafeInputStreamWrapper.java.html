@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BomSafeInputStreamWrapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file</a> &gt; <span class="el_source">BomSafeInputStreamWrapper.java</span></div><h1>BomSafeInputStreamWrapper.java</h1><pre class="source lang-java linenums">/***************************************************************************
+ * Copyright 2014 Global Biodiversity Information Facility Secretariat
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ***************************************************************************/
+
+package org.gbif.utils.file;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+/**
+ * A wrapper for an input stream that removes UTF8 BOM sequences at the start of the file.
+ * UTF8 BOMs can cause XML parser to fall over with a &quot;Content is not allowed in prolog&quot; Exception.
+ * See:
+ * &lt;ul&gt;
+ *  &lt;li&gt;http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4508058&lt;/li&gt;
+ *  &lt;li&gt;https://de.wikipedia.org/wiki/Byte_Order_Mark&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @deprecated use org.apache.commons.io.input.BOMInputStream instead
+ */
+@Deprecated
+public class BomSafeInputStreamWrapper extends InputStream {
+
+  private static final int BUFFER_SIZE = 4;
+  private final InputStream stream;
+<span class="fc" id="L38">  private final byte[] buffer = new byte[BUFFER_SIZE];</span>
+<span class="fc" id="L39">  private int pointer = 0;</span>
+
+<span class="fc" id="L41">  public BomSafeInputStreamWrapper(InputStream stream) {</span>
+<span class="fc" id="L42">    this.stream = stream;</span>
+<span class="fc" id="L43">    skipBom();</span>
+<span class="fc" id="L44">  }</span>
+
+  @Override
+  public int read() throws IOException {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    if (pointer &lt; BUFFER_SIZE) {</span>
+<span class="fc" id="L49">      pointer++;</span>
+<span class="fc" id="L50">      return buffer[pointer - 1];</span>
+    } else {
+<span class="fc" id="L52">      return stream.read();</span>
+    }
+  }
+
+  private void skipBom() {
+    try {
+<span class="fc" id="L58">      stream.read(buffer, 0, BUFFER_SIZE);</span>
+<span class="fc bfc" id="L59" title="All 4 branches covered.">      if (CharsetDetection.hasUTF16BEBom(buffer) || CharsetDetection.hasUTF16LEBom(buffer)) {</span>
+        // SQX Parser handles UTF16 BOMs fine
+<span class="fc" id="L61">        pointer = 2;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">      } else if (CharsetDetection.hasUTF8Bom(buffer)) {</span>
+<span class="fc" id="L63">        pointer = 3;</span>
+      }
+<span class="nc" id="L65">    } catch (IOException ignored) {</span>
+<span class="fc" id="L66">    }</span>
+<span class="fc" id="L67">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

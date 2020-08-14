@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.collection</a> &gt; <span class="el_source">MapUtils.java</span></div><h1>MapUtils.java</h1><pre class="source lang-java linenums">/***************************************************************************
+ * Copyright 2014 Global Biodiversity Information Facility Secretariat
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ***************************************************************************/
+
+package org.gbif.utils.collection;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+public class MapUtils {
+
+<span class="nc" id="L28">  private MapUtils() {</span>
+<span class="nc" id="L29">    throw new UnsupportedOperationException(&quot;Can't initialize class&quot;);</span>
+  }
+
+  /**
+   * This orders a Map by its values and returns a new {@link LinkedHashMap} which maintains that order.
+   *
+   * @param map to sort
+   * @param &lt;K&gt; type of the map key
+   * @param &lt;V&gt; type of the map value, this needs to implement {@link Comparable}
+   *
+   * @return a map ordered by the values of the input map
+   */
+  public static &lt;K, V extends Comparable&lt;? super V&gt;&gt; Map&lt;K, V&gt; sortByValue(Map&lt;K, V&gt; map) {
+<span class="fc" id="L42">    return sortByValueInternal(map, new Comparator&lt;Map.Entry&lt;K, V&gt;&gt;() {</span>
+      public int compare(Map.Entry&lt;K, V&gt; o1, Map.Entry&lt;K, V&gt; o2) {
+<span class="fc" id="L44">        return o1.getValue().compareTo(o2.getValue());</span>
+      }
+    });
+  }
+
+  /**
+   * Order a Map by its values using the given value comparator and return a new {@link LinkedHashMap} which maintains that order.
+   *
+   * @param map to sort
+   * @param &lt;K&gt; type of the map key
+   * @param &lt;V&gt; type of the map value
+   *
+   * @return a map ordered by the values of the input map
+   */
+  public static &lt;K, V&gt; Map&lt;K, V&gt; sortByValue(Map&lt;K, V&gt; map, final Comparator&lt;V&gt; comparator) {
+<span class="nc" id="L59">    return sortByValueInternal(map, new Comparator&lt;Map.Entry&lt;K, V&gt;&gt;() {</span>
+        public int compare(Map.Entry&lt;K, V&gt; o1, Map.Entry&lt;K, V&gt; o2) {
+<span class="nc" id="L61">          return comparator.compare(o1.getValue(), o2.getValue());</span>
+        }
+      });
+  }
+
+  private static &lt;K, V&gt; Map&lt;K, V&gt; sortByValueInternal(Map&lt;K, V&gt; map, final Comparator&lt;Map.Entry&lt;K, V&gt;&gt; comp) {
+<span class="fc" id="L67">    List&lt;Map.Entry&lt;K, V&gt;&gt; list = new LinkedList&lt;Map.Entry&lt;K, V&gt;&gt;(map.entrySet());</span>
+<span class="fc" id="L68">    Collections.sort(list, comp);</span>
+
+<span class="fc" id="L70">    Map&lt;K, V&gt; result = new LinkedHashMap&lt;K, V&gt;(list.size());</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    for (Map.Entry&lt;K, V&gt; entry : list) {</span>
+<span class="fc" id="L72">      result.put(entry.getKey(), entry.getValue());</span>
+<span class="fc" id="L73">    }</span>
+<span class="fc" id="L74">    return result;</span>
+  }
+
+  /**
+   * Returns a maps value or a given default if not present.
+   * For pre java8 code since j8 introduced Map.getOrDefault.
+   */
+  public static &lt;K, V&gt; V getOrDefault(Map&lt;K,V&gt; map, K key, V defaultValue) {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">    return map.containsKey(key) ? map.get(key) : defaultValue;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
