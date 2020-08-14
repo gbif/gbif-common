@@ -822,7 +822,12 @@ public class FileUtils {
       cmds.add("");
       ProcessBuilder pb = new ProcessBuilder(cmds);
       Map<String, String> env = pb.environment();
-      env.clear();
+      
+      //clear the environment, but keep specified temp working directory 
+      env.keySet().removeIf(key -> !(key.equals("TMPDIR")));
+      if (System.getProperty("java.io.tmpdir") == null) {
+        env.put("TMPDIR", System.getProperty("java.io.tmpdir"));
+      }
       // make sure we use the C locale for sorting
       env.put("LC_ALL", "C");
 
