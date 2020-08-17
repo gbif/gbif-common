@@ -825,7 +825,7 @@ public class FileUtils {
       
       //clear the environment, but keep specified temp working directory 
       env.keySet().removeIf(key -> !(key.equals("TMPDIR")));
-      if (System.getProperty("java.io.tmpdir") == null) {
+      if (System.getProperty("java.io.tmpdir") != null) {
         env.put("TMPDIR", System.getProperty("java.io.tmpdir"));
       }
       // make sure we use the C locale for sorting
