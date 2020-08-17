@@ -825,8 +825,8 @@ import org.slf4j.LoggerFactory;
       
       //clear the environment, but keep specified temp working directory 
 <span class="pc bpc" id="L827" title="1 of 2 branches missed.">      env.keySet().removeIf(key -&gt; !(key.equals(&quot;TMPDIR&quot;)));</span>
-<span class="pc bpc" id="L828" title="1 of 2 branches missed.">      if (System.getProperty(&quot;java.io.tmpdir&quot;) == null) {</span>
-<span class="nc" id="L829">        env.put(&quot;TMPDIR&quot;, System.getProperty(&quot;java.io.tmpdir&quot;));</span>
+<span class="pc bpc" id="L828" title="1 of 2 branches missed.">      if (System.getProperty(&quot;java.io.tmpdir&quot;) != null) {</span>
+<span class="fc" id="L829">        env.put(&quot;TMPDIR&quot;, System.getProperty(&quot;java.io.tmpdir&quot;));</span>
       }
       // make sure we use the C locale for sorting
 <span class="fc" id="L832">      env.put(&quot;LC_ALL&quot;, &quot;C&quot;);</span>

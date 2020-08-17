@@ -833,7 +833,7 @@
 <span class="sourceLineNo">825</span>      <a name="line.825"></a>
 <span class="sourceLineNo">826</span>      //clear the environment, but keep specified temp working directory <a name="line.826"></a>
 <span class="sourceLineNo">827</span>      env.keySet().removeIf(key -&gt; !(key.equals("TMPDIR")));<a name="line.827"></a>
-<span class="sourceLineNo">828</span>      if (System.getProperty("java.io.tmpdir") == null) {<a name="line.828"></a>
+<span class="sourceLineNo">828</span>      if (System.getProperty("java.io.tmpdir") != null) {<a name="line.828"></a>
 <span class="sourceLineNo">829</span>        env.put("TMPDIR", System.getProperty("java.io.tmpdir"));<a name="line.829"></a>
 <span class="sourceLineNo">830</span>      }<a name="line.830"></a>
 <span class="sourceLineNo">831</span>      // make sure we use the C locale for sorting<a name="line.831"></a>
