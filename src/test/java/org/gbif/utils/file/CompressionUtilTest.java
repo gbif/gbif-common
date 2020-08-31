@@ -34,9 +34,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-/**
- * @author markus
- */
 public class CompressionUtilTest {
 
   public static File createTempDirectory() throws IOException {
@@ -112,9 +109,27 @@ public class CompressionUtilTest {
     assureEqualContent(result, metaContent, dataContent);
 
     FileUtils.cleanDirectory(tmpDir);
+    testArchiveFile = classpathFile("compression/archive.tar");
+    result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
+    assertEquals(2, result.size());
+    assureEqualContent(result, metaContent, dataContent);
+
+    FileUtils.cleanDirectory(tmpDir);
     testArchiveFile = classpathFile("compression/cate.zip");
     result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
     assertEquals(3, result.size());
+  }
+
+  @Test
+  public void testUnableToDecompress() throws IOException {
+    File tmpDir = createTempDirectory();
+    File testArchiveFile = classpathFile("compression/test.txt.gz");
+    List<File> result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
+    assertEquals(0, result.size());
+
+    testArchiveFile = classpathFile("compression/empty-file");
+    result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
+    assertEquals(0, result.size());
   }
 
   @Test

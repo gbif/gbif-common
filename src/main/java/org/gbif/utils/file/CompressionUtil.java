@@ -23,6 +23,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -70,6 +71,7 @@ public class CompressionUtil {
   private static final Logger LOG = LoggerFactory.getLogger(CompressionUtil.class);
   private static final int BUFFER = 2048;
   private static final String APPLE_RESOURCE_FORK = "__MACOSX";
+  private static final byte[] TAR_MAGIC_BYTES = new byte[]{'u', 's', 't', 'a', 'r'};
 
   /**
    * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename
@@ -105,7 +107,7 @@ public class CompressionUtil {
   }
 
   /**
-   * Tries to decompress a file trying gzip or zip regardless of the filename or its suffix.
+   * Tries to decompress a file using TAR+gzip, TAR or Zip regardless of the filename or its suffix.
    *
    * @param directory      directory where archive's contents will be decompressed to
    * @param compressedFile compressed file
@@ -123,20 +125,36 @@ public class CompressionUtil {
     // Test before trying gzip format
     if (isGzipFormat(compressedFile)) {
       try {
-        files = ungzipFile(directory, compressedFile);
+        LOG.debug("Uncompressing {} with gzip compression to {}", compressedFile, directory);
+        files = untgzFile(directory, compressedFile);
       } catch (Exception e) {
-        LOG.debug("No gzip compression");
+        LOG.debug("Not gzip compression");
+      }
+    }
+
+    // Test before trying TAR format
+    if (isTarFormat(compressedFile)) {
+      try {
+        LOG.debug("Uncompressing {} with TAR compression to {}", compressedFile, directory);
+        files = untarFile(directory, compressedFile);
+      } catch (Exception e) {
+        LOG.debug("Not TAR compression");
       }
     }
 
     // Then try zip
     if (files == null) {
       try {
+        LOG.debug("Uncompressing {} with Zip compression to {}", compressedFile, directory);
         files = unzipFile(directory, compressedFile, keepSubdirectories);
       } catch (ZipException e) {
-        LOG.debug("No zip compression");
-        throw new UnsupportedCompressionType("Unknown compression type. Neither zip nor gzip", e);
+        LOG.debug("Not Zip compression");
+        throw new UnsupportedCompressionType("Unknown compression type. Neither gzip nor Zip", e);
       }
+    }
+
+    if (files.isEmpty()) {
+      LOG.warn("No files extracted from {}, tried TGZ, TAR and Zip compression.", compressedFile);
     }
 
     return files;
@@ -155,76 +173,110 @@ public class CompressionUtil {
   }
 
   /**
-   * Extracts a gzipped file. Subdirectories or hidden files (i.e. files starting with a dot) are being ignored.
+   * Check the file is a Tape ARchive (TAR).
+   * @param compressedFile compressed file
+   * @return               true if the file is a TAR
+   * @throws IOException   if a problem occurred reading compressed file
+   */
+  private static boolean isTarFormat(File compressedFile) throws IOException {
+    try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {
+      // TAR files contain "ustar\0" or "ustar " at byte 257.
+      // https://www.gnu.org/software/tar/manual/html_node/Standard.html
+      byte[] at257 = new byte[5];
+      file.seek(257);
+      file.read(at257, 0, 5);
+      return Arrays.equals(at257, TAR_MAGIC_BYTES);
+    } catch (Exception e) {
+      LOG.debug("Exc", e);
+    }
+    return false;
+  }
+
+  /**
+   * Extracts a gzipped TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.
    *
    * @param directory where the file should be extracted to
-   * @param zipFile   to extract
+   * @param tgzFile   to extract
    *
    * @return a list of all created files
    */
-  public static List<File> ungzipFile(File directory, File zipFile) throws IOException {
+  public static List<File> untgzFile(File directory, File tgzFile) throws IOException {
+    return untarStream(directory, new GZIPInputStream(new FileInputStream(tgzFile)));
+  }
+
+  /**
+   * Extracts a plain TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.
+   *
+   * @param directory where the file should be extracted to
+   * @param tarFile   to extract
+   *
+   * @return a list of all created files
+   */
+  public static List<File> untarFile(File directory, File tarFile) throws IOException {
+    return untarStream(directory, new FileInputStream(tarFile));
+  }
+
+  /**
+   * Extracts a TAR stream. Directory structure and hidden files (i.e. files starting with a dot) are ignored.
+   *
+   * @param directory where the file should be extracted to
+   * @param tarStream to extract
+   *
+   * @return a list of all created files
+   */
+  private static List<File> untarStream(File directory, InputStream tarStream) throws IOException {
     List<File> files = new ArrayList<File>();
-    TarArchiveInputStream in = new TarArchiveInputStream(new GZIPInputStream(new FileInputStream(zipFile)));
-    try {
-      TarArchiveEntry entry = in.getNextTarEntry();
-      while (entry != null) {
+    try (TarArchiveInputStream in = new TarArchiveInputStream(tarStream)) {
+      TarArchiveEntry entry;
+      while ((entry = in.getNextTarEntry()) != null) {
         if (entry.isDirectory()) {
           LOG.debug("TAR archive contains directories which are being ignored");
-          entry = in.getNextTarEntry();
           continue;
         }
         String fn = new File(entry.getName()).getName();
         if (fn.startsWith(".")) {
-          LOG.debug("TAR archive contains a hidden file which is being ignored");
-          entry = in.getNextTarEntry();
+          LOG.debug("TAR archive contains a hidden file {} which is being ignored", fn);
           continue;
         }
         File targetFile = new File(directory, fn);
         if (targetFile.exists()) {
-          LOG.warn("TAR archive contains duplicate filenames, only the first is being extracted");
-          entry = in.getNextTarEntry();
+          LOG.warn("TAR archive contains duplicate filename {}, only the first was extracted", fn);
           continue;
         }
         LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
-        FileOutputStream out = new FileOutputStream(targetFile);
-        try {
+        try (FileOutputStream out = new FileOutputStream(targetFile)) {
           IOUtils.copy(in, out);
-          out.close();
-        } finally {
-          IOUtils.closeQuietly(out);
         }
         files.add(targetFile);
       }
-    } finally {
-      in.close();
     }
     return files;
   }
 
   /**
    * Gunzip a file.  Use this method with isTarred false if the gzip contains a single file.  If it's a gzip
-   * of a tar archive pass true to isTarred (or call @ungzipFile(directory, zipFile) which is what this method
+   * of a TAR pass true to isTarred (or call @untgzFile(directory, tgzFile) which is what this method
    * just redirects to for isTarred).
    *
    * @param directory the output directory for the uncompressed file(s)
-   * @param zipFile   the gzip file
-   * @param isTarred  true if the gzip contains a tar archive
+   * @param gzipFile  the gzip file
+   * @param isTarred  true if the gzip contains a TAR
    *
    * @return a List of the uncompressed file name(s)
    *
    * @throws IOException if reading or writing fails
    */
-  public static List<File> ungzipFile(File directory, File zipFile, boolean isTarred) throws IOException {
-    if (isTarred) return ungzipFile(directory, zipFile);
+  public static List<File> ungzipFile(File directory, File gzipFile, boolean isTarred) throws IOException {
+    if (isTarred) return untgzFile(directory, gzipFile);
 
     List<File> files = new ArrayList<File>();
     GZIPInputStream in = null;
     BufferedOutputStream dest = null;
     try {
-      in = new GZIPInputStream(new FileInputStream(zipFile));
+      in = new GZIPInputStream(new FileInputStream(gzipFile));
 
       // assume that the gzip filename is the filename + .gz
-      String unzippedName = zipFile.getName().substring(0, zipFile.getName().lastIndexOf("."));
+      String unzippedName = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));
       File outputFile = new File(directory, unzippedName);
       LOG.debug("Extracting file: {} to: {}", unzippedName, outputFile.getAbsolutePath());
       FileOutputStream fos = new FileOutputStream(outputFile);
