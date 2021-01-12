@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +37,7 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,6 +57,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Collection of file utils.
+ * <br>
+ * This class has only been tested for use with a UTF-8 system encoding.
  */
 public class FileUtils {
 
@@ -71,6 +73,16 @@ public class FileUtils {
   private static Boolean gnuSortAvailable = null;
 
   private static final Object sortLock = new Object();
+
+  static {
+    /* Warn when the software is not run in a Unicode environment.  This library has not been
+     * tested to run in a non-Unicode environment, and may cause data corruption.
+     */
+    if (Charset.defaultCharset().equals(StandardCharsets.US_ASCII)) {
+      System.err.println("The default character set is US ASCII.  It is strongly recommended to " +
+        "run this software in a Unicode environment.");
+    }
+  }
 
   public static String classpath2Filepath(String path) {
     return new File(ClassLoader.getSystemResource(path).getFile()).getAbsolutePath();
@@ -504,13 +516,15 @@ public class FileUtils {
    * @param lineComparator To use when determining the order (reuse the one that was used to sort the individual
    *        files)
    */
-  public void mergedSortedFiles(List<File> sortFiles, FileWriter sortedFileWriter, Comparator<String> lineComparator)
+  public void mergedSortedFiles(List<File> sortFiles, OutputStreamWriter sortedFileWriter, Comparator<String> lineComparator)
     throws IOException {
     List<BufferedReader> partReaders = new LinkedList<BufferedReader>();
     try {
       List<String> partReaderLine = new LinkedList<String>();
       for (File f : sortFiles) {
-        partReaders.add(new BufferedReader(new FileReader(f)));
+        // Use UTF-8 sort order.
+        partReaders.add(new BufferedReader(
+          new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)));
       }
       boolean moreData = false;
       // load first line in
@@ -699,13 +713,16 @@ public class FileUtils {
     LOG.debug("Splitting File[" + input.getAbsolutePath() + ']');
     long timer = System.currentTimeMillis();
     List<File> splitFiles = new LinkedList<File>();
-    BufferedReader br = new BufferedReader(new FileReader(input));
+    // Use ISO-8859-1 as a binary-safe encoding.
+    BufferedReader br = new BufferedReader(
+        new InputStreamReader(new FileInputStream(input), StandardCharsets.ISO_8859_1));
     String line = br.readLine();
     int fileCount = 0;
     File splitFile = getChunkFile(input, fileCount);
     fileCount++;
     splitFiles.add(splitFile);
-    FileWriter fw = new FileWriter(splitFile);
+    OutputStreamWriter fw =
+      new OutputStreamWriter(new FileOutputStream(splitFile), StandardCharsets.ISO_8859_1);
     try {
       int lineCount = 0;
       while (line != null) {
@@ -715,7 +732,7 @@ public class FileUtils {
           splitFile = getChunkFile(input, fileCount);
           splitFiles.add(splitFile);
           // is ok to reuse, as last one is closed, and this will always get closed - see finally below
-          fw = new FileWriter(splitFile);
+          fw = new OutputStreamWriter(new FileOutputStream(splitFile), StandardCharsets.ISO_8859_1);
           fileCount++;
           lineCount = 0;
         }
