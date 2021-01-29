@@ -25,10 +25,6 @@ public class IterableUtils {
    * If used more than once with the same iterator this will not reset/restart the iteration!
    */
   public static <T> Iterable<T> iterable(final Iterator<T> it){
-    return new Iterable<T>(){
-      public Iterator<T> iterator(){
-        return it;
-      }
-    };
+    return () -> it;
   }
 }

@@ -19,18 +19,15 @@ package org.gbif.utils;
 import java.util.Collection;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-/**
- *
- */
 public class ObjectUtilsTest {
 
   @Test
-  public void testCoalesce() throws Exception {
+  public void testCoalesce() {
     assertNull(ObjectUtils.coalesce());
     assertNull(ObjectUtils.coalesce((Integer)null));
     assertNull(ObjectUtils.coalesce((Integer)null, (Integer)null));
@@ -41,7 +38,7 @@ public class ObjectUtilsTest {
   }
 
   @Test
-  public void testCoalesce1() throws Exception {
+  public void testCoalesce1() {
     assertNull(ObjectUtils.coalesce((Collection) null));
     assertNull(ObjectUtils.coalesce(Lists.newArrayList()));
     assertNull(ObjectUtils.coalesce(Lists.newArrayList(null, null)));
@@ -49,6 +46,5 @@ public class ObjectUtilsTest {
     assertEquals((Integer)13, ObjectUtils.coalesce(Lists.newArrayList(null, null, 13)));
     assertEquals((Integer)13, ObjectUtils.coalesce(Lists.newArrayList(null, null, 13, 14)));
     assertEquals((Integer)13, ObjectUtils.coalesce(Lists.newArrayList(13, null)));
-
   }
 }

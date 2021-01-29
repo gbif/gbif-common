@@ -27,18 +27,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.gbif.utils.file.tabular.TabularFileMetadataExtractor.computeLineDelimiterStats;
 import static org.gbif.utils.file.tabular.TabularFileMetadataExtractor.extractTabularFileMetadata;
 import static org.gbif.utils.file.tabular.TabularFileMetadataExtractor.getDelimiterWithHighestCount;
 import static org.gbif.utils.file.tabular.TabularFileMetadataExtractor.getQuoteCharWithHighestCount;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Unit tests related to {@link TabularFileMetadataExtractor}
@@ -182,8 +181,8 @@ public class TabularFileMetadataExtractorTest {
   @Test
   public void detectCsvAlwaysQuoted() throws IOException {
     TabularFileMetadata tabFileMetadata = extractTabularFileMetadata(FileUtils.getClasspathFile("csv/csv_always_quoted.csv").toPath());
-    Assert.assertEquals(',', tabFileMetadata.getDelimiter().charValue());
-    Assert.assertEquals('"', tabFileMetadata.getQuotedBy().charValue());
+    assertEquals(',', tabFileMetadata.getDelimiter().charValue());
+    assertEquals('"', tabFileMetadata.getQuotedBy().charValue());
   }
 
   @Test
@@ -218,17 +217,17 @@ public class TabularFileMetadataExtractorTest {
                                                     Charset expectedCharset) throws IOException {
     Path source = FileUtils.getClasspathFile(classPathFile).toPath();
     TabularFileMetadata tabFileMetadata = extractTabularFileMetadata(source);
-    Assert.assertEquals(expectedDelimiter.charValue(), tabFileMetadata.getDelimiter().charValue());
+    assertEquals(expectedDelimiter.charValue(), tabFileMetadata.getDelimiter().charValue());
 
     if(expectedQuoteChar == null) {
       assertNull(tabFileMetadata.getQuotedBy());
     }
     else{
-      assertNotNull("Expect a quote character -> " + source, tabFileMetadata.getQuotedBy());
-      Assert.assertEquals("Source file -> " + source, expectedQuoteChar.charValue(), tabFileMetadata.getQuotedBy().charValue());
+      assertNotNull(tabFileMetadata.getQuotedBy(), "Expect a quote character -> " + source);
+      assertEquals(expectedQuoteChar, tabFileMetadata.getQuotedBy(), "Source file -> " + source);
     }
 
-    Assert.assertEquals(expectedCharset, tabFileMetadata.getEncoding());
+    assertEquals(expectedCharset, tabFileMetadata.getEncoding());
   }
 
   @Test

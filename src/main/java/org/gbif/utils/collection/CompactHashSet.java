@@ -54,10 +54,12 @@ public class CompactHashSet<T> extends AbstractSet<T> {
       expectedModCount = modCount;
     }
 
+    @Override
     public boolean hasNext() {
       return index < objects.length;
     }
 
+    @Override
     public T next() {
       if (modCount != expectedModCount) {
         throw new ConcurrentModificationException();
@@ -78,6 +80,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
       }
     }
 
+    @Override
     public void remove() {
       if (modCount != expectedModCount) {
         throw new ConcurrentModificationException();

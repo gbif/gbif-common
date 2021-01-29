@@ -21,9 +21,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MapUtilsTest {
 

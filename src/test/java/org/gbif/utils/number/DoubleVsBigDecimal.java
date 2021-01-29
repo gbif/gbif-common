@@ -20,23 +20,22 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- *
  * Set of tests to illustrate the issue with double and how some problems can be solved with {@link BigDecimal}.
  * {@link BigDecimal} is specially useful to work with base 10 type of data (money, metric measures).
  *
  * Be aware that {@link BigDecimal} requires more memory to work with (it's an Object) and it's also slower on
  * computations (it's an immutable Object).
- *
  */
-@Ignore("Demonstration of Java API behavior")
+//@Disabled("Demonstration of Java API behavior")
 public class DoubleVsBigDecimal {
 
   /**
@@ -55,7 +54,7 @@ public class DoubleVsBigDecimal {
       currentValue = currentValue.add(zeroPointOne);
     }
     assertEquals(currentValue, new BigDecimal("1.0"));
-    assertTrue(currentValue.doubleValue() == 1d);
+    assertEquals(1d, currentValue.doubleValue());
   }
 
   /**
@@ -63,7 +62,7 @@ public class DoubleVsBigDecimal {
    */
   @Test
   public void testDoubleApproximation(){
-    assertTrue(999199.1231231235 == 999199.1231231236);
+    assertEquals(999199.1231231236, 999199.1231231235);
   }
 
   /**
@@ -90,17 +89,17 @@ public class DoubleVsBigDecimal {
     assertTrue(moneyFormatter.format(90.145).contains("90.14"));
   }
 
-  @Test
   /**
    * Example from https://en.wikipedia.org/wiki/Floating_point#Accuracy_problems
    * Simply demonstrates that (a + b) + c is not necessarily equal to a + (b + c) using double.
    */
+  @Test
   public void testAdditionAssociativity(){
     double a = 1234.567, b = 45.67834, c = 0.0004;
 
     double t1 = (a + b) + c; //1280.2457399999998
     double t2 = a + (b + c); //1280.24574
-    assertFalse(t1 == t2);
+    assertNotEquals(t2, t1, 0.0);
 
     // Try the same with BigDecimal
     BigDecimal a2 = new BigDecimal("1234.567"), b2 = new BigDecimal("45.67834"), c2 = new BigDecimal("0.0004");

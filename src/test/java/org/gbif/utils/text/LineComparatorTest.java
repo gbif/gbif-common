@@ -23,10 +23,11 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.google.common.collect.Ordering;
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LineComparatorTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class LineComparatorTest {
 
   @Test
   public void testLineComparatorCSV() {
@@ -95,6 +96,7 @@ public class LineComparatorTest extends TestCase {
   // see https://code.google.com/p/gbif-providertoolkit/source/browse/trunk/gbif-ipt/src/main/java/org/gbif/ipt/task/GenerateDwca.java#93
   private static final Comparator<String> IGNORE_CASE_COMPARATOR = Ordering.from(new Comparator<String>() {
 
+    @Override
     public int compare(String o1, String o2) {
       return o1.compareToIgnoreCase(o2);
     }
@@ -117,6 +119,5 @@ public class LineComparatorTest extends TestCase {
     int sign2 = (int) Math.signum(comp.compare(s2, s1));
 
     assertEquals(sign1 * -1, sign2);
-
   }
 }

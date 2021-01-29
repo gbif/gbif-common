@@ -18,10 +18,11 @@ package org.gbif.utils.number;
 
 import java.math.BigDecimal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  *
@@ -36,12 +37,12 @@ public class BigDecimalUtilsTest {
    */
   @Test
   public void testBigDecimalConstructor(){
-    assertFalse(new BigDecimal(23.1d).equals(new BigDecimal("23.1")));
+    assertNotEquals(new BigDecimal("23.1"), new BigDecimal(23.1d));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testBigDecimalConstructorNull(){
-    BigDecimalUtils.fromDouble(null, false);
+    assertThrows(NullPointerException.class, () -> BigDecimalUtils.fromDouble(null, false));
   }
 
   /**
@@ -49,7 +50,7 @@ public class BigDecimalUtilsTest {
    */
   @Test
   public void demonstrateBigDecimalStripTrailingZerosEquality() {
-    assertFalse(new BigDecimal("500").equals(new BigDecimal("500.0").stripTrailingZeros()));
+    assertNotEquals(new BigDecimal("500.0").stripTrailingZeros(), new BigDecimal("500"));
 
     // but, compareTo function will work as expected
     assertEquals(0, new BigDecimal("500").compareTo(new BigDecimal("500.0").stripTrailingZeros()));
@@ -81,6 +82,4 @@ public class BigDecimalUtilsTest {
     assertEquals(new BigDecimal("50000.01"), BigDecimalUtils.fromDouble(50000.01, true));
     assertEquals(new BigDecimal("50000.01"), BigDecimalUtils.fromDouble(50000.01, false));
   }
-
-
 }

@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.gbif.utils.file.CharsetDetection.detectEncoding;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author markus

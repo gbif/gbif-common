@@ -40,6 +40,7 @@ public class MapUtils {
    */
   public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
     return sortByValueInternal(map, new Comparator<Map.Entry<K, V>>() {
+      @Override
       public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
         return o1.getValue().compareTo(o2.getValue());
       }
@@ -57,6 +58,7 @@ public class MapUtils {
    */
   public static <K, V> Map<K, V> sortByValue(Map<K, V> map, final Comparator<V> comparator) {
     return sortByValueInternal(map, new Comparator<Map.Entry<K, V>>() {
+        @Override
         public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
           return comparator.compare(o1.getValue(), o2.getValue());
         }

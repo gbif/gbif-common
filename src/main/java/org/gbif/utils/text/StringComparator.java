@@ -23,6 +23,7 @@ import java.util.Comparator;
  */
 public class StringComparator implements Comparator<String> {
 
+  @Override
   public int compare(String arg0, String arg1) {
     if (arg0 == null && arg1 == null) {
       return 0;

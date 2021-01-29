@@ -21,11 +21,11 @@ import org.gbif.utils.file.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -109,7 +109,7 @@ public class CSVReaderFactoryTest {
     for (String fn : files) {
       File source = FileUtils.getClasspathFile(fn);
       CSVReader reader = CSVReaderFactory.build(source);
-      assertEquals("Check " + fn, "\t", reader.delimiter);
+      assertEquals("\t", reader.delimiter, "Check " + fn);
       assertNull(reader.quoteChar);
       assertEquals(1, reader.headerRows);
       reader.close();

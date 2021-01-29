@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,23 +28,23 @@ import java.util.List;
 
 import com.google.common.base.Splitter;
 import org.apache.commons.io.LineIterator;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author markus
  */
 public class FileUtilsTest {
 
-  private final String ENCODING = "UTF-8";
+  private final String ENCODING = StandardCharsets.UTF_8.displayName();
 
   public static void assertUnixSortOrder(File sorted) throws IOException {
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     LineIterator liter = new LineIterator(br);
     assertUnixSortOrder(liter);
   }
@@ -59,17 +60,17 @@ public class FileUtilsTest {
 
   @Test
   public void humanReadableByteCountTest() {
-    assertTrue(FileUtils.humanReadableByteCount(11, true).equals("11 B"));
-    assertTrue(FileUtils.humanReadableByteCount(1000, true).equals("1.0 kB"));
-    assertTrue(FileUtils.humanReadableByteCount(1000000, true).equals("1.0 MB"));
-    assertTrue(FileUtils.humanReadableByteCount(1000000000, true).equals("1.0 GB"));
-    assertTrue(FileUtils.humanReadableByteCount(1000000000000L, true).equals("1.0 TB"));
+    assertEquals("11 B", FileUtils.humanReadableByteCount(11, true));
+    assertEquals("1.0 kB", FileUtils.humanReadableByteCount(1000, true));
+    assertEquals("1.0 MB", FileUtils.humanReadableByteCount(1000000, true));
+    assertEquals("1.0 GB", FileUtils.humanReadableByteCount(1000000000, true));
+    assertEquals("1.0 TB", FileUtils.humanReadableByteCount(1000000000000L, true));
 
-    assertTrue(FileUtils.humanReadableByteCount(11, false).equals("11 B"));
-    assertTrue(FileUtils.humanReadableByteCount(1024, false).equals("1.0 KiB"));
-    assertTrue(FileUtils.humanReadableByteCount(1024*1024, false).equals("1.0 MiB"));
-    assertTrue(FileUtils.humanReadableByteCount(1024*1024*1024, false).equals("1.0 GiB"));
-    assertTrue(FileUtils.humanReadableByteCount(1024*1024*1024*1024L, false).equals("1.0 TiB"));
+    assertEquals("11 B", FileUtils.humanReadableByteCount(11, false));
+    assertEquals("1.0 KiB", FileUtils.humanReadableByteCount(1024, false));
+    assertEquals("1.0 MiB", FileUtils.humanReadableByteCount(1024 * 1024, false));
+    assertEquals("1.0 GiB", FileUtils.humanReadableByteCount(1024 * 1024 * 1024, false));
+    assertEquals("1.0 TiB", FileUtils.humanReadableByteCount(1024 * 1024 * 1024 * 1024L, false));
   }
 
   /**
@@ -108,7 +109,7 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, IDCOLUMN, "\t", null, "\n", 0);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -141,7 +142,7 @@ public class FileUtilsTest {
    * Java represents ð as a surrogate pair \ud800\udccd in UTF-16, and sorts based on parts of pairs. Therefore, it
    * gives the wrong order.
    */
-  @Ignore("Expected to fail")
+  @Disabled("Expected to fail")
   @Test
   public void testSortingUnicodeFile() throws IOException {
     FileUtils futils = new FileUtils();
@@ -158,8 +159,8 @@ public class FileUtilsTest {
     futils.sort(source, javaSorted, ENCODING, IDCOLUMN, "'", null, "\n", 0);
 
     // read file
-    BufferedReader gnuBr = new BufferedReader(new InputStreamReader(new FileInputStream(gnuSorted), "UTF-8"));
-    BufferedReader javaBr = new BufferedReader(new InputStreamReader(new FileInputStream(javaSorted), "UTF-8"));
+    BufferedReader gnuBr = new BufferedReader(new InputStreamReader(new FileInputStream(gnuSorted), StandardCharsets.UTF_8));
+    BufferedReader javaBr = new BufferedReader(new InputStreamReader(new FileInputStream(javaSorted), StandardCharsets.UTF_8));
 
     int line = 0;
     String gnuRow, javaRow;
@@ -233,7 +234,7 @@ public class FileUtilsTest {
     sorted.deleteOnExit();
     futils.sort(source, sorted, ENCODING, 0, ";", null, "\n", 0);
 
-    List<String> sortedStrings = FileUtils.streamToList(new FileInputStream(sorted), "UTF-8");
+    List<String> sortedStrings = FileUtils.streamToList(new FileInputStream(sorted), ENCODING);
     assertEquals("980-sp10;x" , sortedStrings.get(0));
     assertEquals("980-sp100;x", sortedStrings.get(1));
     assertEquals("980-sp101;x", sortedStrings.get(2));
@@ -243,7 +244,7 @@ public class FileUtilsTest {
     sorted.deleteOnExit();
     futils.sort(source2, sorted2, ENCODING, 1, ";", null, "\n", 0);
 
-    List<String> sortedStrings2 = FileUtils.streamToList(new FileInputStream(sorted2), "UTF-8");
+    List<String> sortedStrings2 = FileUtils.streamToList(new FileInputStream(sorted2), ENCODING);
     assertEquals("x;980-sp10" , sortedStrings2.get(0));
     assertEquals("x;980-sp100", sortedStrings2.get(1));
     assertEquals("x;980-sp101", sortedStrings2.get(2));
@@ -259,7 +260,7 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, IDCOLUMN, ",", '"', "\n", 1);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -288,7 +289,7 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, 3, ";", null, "\n", 1);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -331,7 +332,7 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, 19, ",", '"', "\n", 1);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 30950;
     while (true) {
       String row = br.readLine();
@@ -371,7 +372,7 @@ public class FileUtilsTest {
     assertTrue(sorted.exists());
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), "UTF-8"));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;

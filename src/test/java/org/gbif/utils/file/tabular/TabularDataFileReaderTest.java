@@ -25,9 +25,10 @@ import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link TabularDataFileReader}.
@@ -56,7 +57,6 @@ public class TabularDataFileReaderTest {
 
   /**
    * Ensure if we can escape a quote character with a backslash
-   * @throws IOException
    */
   @Test
   public void testEscapedQuotes() throws IOException, ParseException {
@@ -71,27 +71,26 @@ public class TabularDataFileReaderTest {
     }
   }
 
-  @Test(expected = ParseException.class)
-  public void testWrongEscapedQuotes1() throws IOException, ParseException {
+  @Test
+  public void testWrongEscapedQuotes1() throws IOException {
     File tsv = FileUtils.getClasspathFile("csv/csv_wrong_escaped_quotes_1.csv");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
       Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 1)) {
-      reader.read();
+      assertThrows(ParseException.class, reader::read);
     }
   }
 
-  @Test(expected = ParseException.class)
-  public void testWrongEscapedQuotes2() throws IOException, ParseException {
+  @Test
+  public void testWrongEscapedQuotes2() throws IOException {
     File tsv = FileUtils.getClasspathFile("csv/csv_wrong_escaped_quotes_2.csv");
     try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
       Files.newBufferedReader(tsv.toPath(), StandardCharsets.UTF_8), ',', "\n", '"', false, 1)) {
-      reader.read();
+      assertThrows(ParseException.class, reader::read);
     }
   }
 
   /**
    * Test a CSV with all cells quoted.
-   * @throws IOException
    */
   @Test
   public void testCsvAlwaysQuotes() throws IOException, ParseException {
@@ -114,7 +113,6 @@ public class TabularDataFileReaderTest {
 
   /**
    * Test a CSV file that includes a newline character (\n) inside a properly quoted cell.
-   * @throws IOException
    */
   @Test
   public void testCsvMultiline() throws IOException, ParseException {

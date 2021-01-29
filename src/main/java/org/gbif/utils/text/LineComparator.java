@@ -54,9 +54,10 @@ public class LineComparator implements Comparator<String> {
   }
 
   public LineComparator(int column, String columnDelimiter, Comparator<String> columnComparator) {
-    this(column, columnDelimiter, null, null);
+    this(column, columnDelimiter, null, columnComparator);
   }
 
+  @Override
   public int compare(String o1, String o2) {
     if (o1 == null || o2 == null) {
       if (o1 == null && o2 == null) {

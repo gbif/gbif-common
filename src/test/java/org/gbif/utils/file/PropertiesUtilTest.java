@@ -19,12 +19,13 @@ import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests related to {@link PropertiesUtil}
@@ -40,8 +41,8 @@ public class PropertiesUtilTest {
 
     Properties filteredProperties = PropertiesUtil.filterProperties(properties, "prefix.");
     assertEquals(1, filteredProperties.size());
-    assertTrue("Prefix is removed from the original key", filteredProperties.containsKey("key1"));
-    assertEquals("Value remains the same", properties.get("prefix.key1"), filteredProperties.getProperty("key1"));
+    assertTrue(filteredProperties.containsKey("key1"), "Prefix is removed from the original key");
+    assertEquals(properties.get("prefix.key1"), filteredProperties.getProperty("key1"), "Value remains the same");
   }
 
   @Test
@@ -55,9 +56,9 @@ public class PropertiesUtilTest {
     assertEquals(1, newProperties.size());
     assertEquals(2, properties.size());
 
-    assertTrue("Prefix is kept from the original key", newProperties.containsKey("prefix.key1"));
-    assertTrue("key1 is still in original Properties", properties.containsKey("prefix.key1"));
-    assertTrue("key2 is still in original Properties", properties.containsKey("key2"));
+    assertTrue(newProperties.containsKey("prefix.key1"), "Prefix is kept from the original key");
+    assertTrue(properties.containsKey("prefix.key1"), "key1 is still in original Properties");
+    assertTrue(properties.containsKey("key2"), "key2 is still in original Properties");
   }
 
   @Test
@@ -71,8 +72,8 @@ public class PropertiesUtilTest {
     assertEquals(1, newProperties.size());
     assertEquals(1, properties.size());
 
-    assertTrue("Prefix is kept from the original key", newProperties.containsKey("prefix.key1"));
-    assertTrue("Other element is still present in original Propeties", properties.containsKey("key2"));
+    assertTrue(newProperties.containsKey("prefix.key1"), "Prefix is kept from the original key");
+    assertTrue(properties.containsKey("key2"), "Other element is still present in original Propeties");
   }
 
   @Test
@@ -126,15 +127,15 @@ public class PropertiesUtilTest {
     assertTrue(PropertiesUtil.propertyAsBool(p, KEY, false));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testExceptionNoProperties(){
-    PropertiesUtil.removeProperties(null, "prefix");
+    assertThrows(NullPointerException.class, () -> PropertiesUtil.removeProperties(null, "prefix"));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testExceptionNoPrefix(){
     Properties properties = new Properties();
     properties.put("prefix.key1", "value1");
-    PropertiesUtil.removeProperties(properties, null);
+    assertThrows(IllegalStateException.class, () -> PropertiesUtil.removeProperties(properties, null));
   }
 }
