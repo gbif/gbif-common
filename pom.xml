@@ -17,6 +17,7 @@
 
   <properties>
     <jdkLevel>1.8</jdkLevel>
+    <main.basedir>${project.basedir}</main.basedir>
 
     <commons-compress.version>1.18</commons-compress.version>
     <commons-lang.version>3.6</commons-lang.version>
@@ -33,6 +34,7 @@
     <slf4j.version>1.7.30</slf4j.version>
 
     <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+    <spotless-maven-plugin.version>1.27.0</spotless-maven-plugin.version>
 
     <!-- Sonar -->
     <sonar.language>java</sonar.language>
@@ -120,6 +122,32 @@
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <argLine>${surefireArgLine}</argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>spotless-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <java>
+            <licenseHeader>
+              <file>${main.basedir}/gbif-license-header</file>
+            </licenseHeader>
+            <removeUnusedImports />
+            <importOrder>
+              <file>${main.basedir}/gbif.importorder</file>
+            </importOrder>
+          </java>
         </configuration>
       </plugin>
 

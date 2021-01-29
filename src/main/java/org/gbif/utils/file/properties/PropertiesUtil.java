@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Global Biodiversity Information Facility (GBIF)
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.gbif.utils.file.properties;
 
+import org.gbif.utils.file.FileUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -24,13 +26,13 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.Closer;
 import com.google.common.io.Resources;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.gbif.utils.file.FileUtils;
 
 /**
  * Utility class for handling properties files.
