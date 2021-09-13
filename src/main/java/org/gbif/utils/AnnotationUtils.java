@@ -20,7 +20,10 @@ import java.lang.reflect.Field;
 /**
  * Utility method to work with annotations.
  */
-public class AnnotationUtils {
+public final class AnnotationUtils {
+
+  private AnnotationUtils() {
+  }
 
   /**
    * Check if a field is annotated with @Deprecated in the provided class.

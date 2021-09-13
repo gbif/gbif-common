@@ -18,9 +18,9 @@ package org.gbif.utils.file.tabular;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.base.Preconditions;
 
 /**
  * Static utility methods related to {@link TabularDataFileReader} instances.
@@ -58,8 +58,8 @@ public class TabularFiles {
                                                                          String endOfLineSymbols, Character quoteChar, boolean headerLine,
                                                                          Integer lineToSkipBeforeHeader) throws IOException {
 
-    Preconditions.checkNotNull(reader, "A Reader must be provided");
-    Preconditions.checkNotNull(endOfLineSymbols, "A endOfLineSymbols must be provided");
+    Objects.requireNonNull(reader, "A Reader must be provided");
+    Objects.requireNonNull(endOfLineSymbols, "A endOfLineSymbols must be provided");
     return new JacksonCsvFileReader(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, lineToSkipBeforeHeader);
   }
 

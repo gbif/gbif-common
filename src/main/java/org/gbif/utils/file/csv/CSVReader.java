@@ -26,18 +26,14 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.text.StrTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
-/**
- *
- */
 public class CSVReader implements ClosableReportingIterator<String[]> {
 
   private static final Logger LOG = LoggerFactory.getLogger(CSVReader.class);
@@ -50,6 +46,7 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
   private String row;
   private int rows;
   private int readRows;
+  private final int emptyLinesCacheLimit;
   private final Map<Integer, String> emptyLines;
   private final BufferedReader br;
   private boolean rowError;
@@ -68,9 +65,9 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
 
   public CSVReader(InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows, int emptyLineCache)
           throws IOException {
+    this.emptyLinesCacheLimit = emptyLineCache;
     if (emptyLineCache > 0) {
-      Cache<Integer, String> cache = CacheBuilder.newBuilder().maximumSize(emptyLineCache).build();
-      this.emptyLines = cache.asMap();
+      this.emptyLines = new ConcurrentHashMap<>(emptyLineCache);
     } else {
       emptyLines = null;
     }
@@ -98,7 +95,7 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
       header = tokenizer.getTokenArray();
     }
     // skip initial header rows?
-    while (headerRows > 0) {
+    while (headerRows != null && headerRows > 0) {
       headerRows--;
       row = br.readLine();
     }
@@ -106,7 +103,6 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
 
   /**
    * Get the header, or null if none
-   * @return
    */
   public String[] getHeader() {
     return header;
@@ -168,7 +164,7 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
       // skip empty lines
       while (row != null && row.length() == 0) {
         // save line number of empty line
-        if (emptyLines != null) {
+        if (emptyLines != null && emptyLines.size() < emptyLinesCacheLimit) {
           emptyLines.put(rows + headerRows + 1, "");
         }
         row = br.readLine();

@@ -15,6 +15,7 @@
  */
 package org.gbif.utils.file.tabular;
 
+import org.gbif.utils.PreconditionUtils;
 import org.gbif.utils.file.CharsetDetection;
 import org.gbif.utils.file.UnknownCharsetException;
 
@@ -45,7 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 import static java.util.Collections.reverseOrder;
@@ -70,7 +70,7 @@ public class TabularFileMetadataExtractor {
   private static final Character[] POTENTIAL_QUOTES_CHAR = {'"', '\''};
 
   private static final Predicate<LineDelimiterStats> CONTAINS_FREQUENCY = lineStats -> lineStats.getFrequency() > 0;
-  private static final Comparator<Map.Entry<Character, Long>> BY_VALUE_LONG_DESC = Comparator.comparing(Map.Entry::getValue, reverseOrder());
+  private static final Comparator<Map.Entry<Character, Long>> BY_VALUE_LONG_DESC = Map.Entry.comparingByValue(reverseOrder());
   private static final BiFunction<Character, Character, Pattern> COMPILE_QUOTE_PATTERN_FCT = (delimiter, quoteChar)
           -> Pattern.compile("[" + delimiter + "][ ]*[" + quoteChar + "][ ]*[^" + delimiter + "]");
 
@@ -87,7 +87,7 @@ public class TabularFileMetadataExtractor {
    */
   public static TabularFileMetadata extractTabularFileMetadata(Path filePath) throws IOException, UnknownCharsetException {
     Objects.requireNonNull(filePath, "filePath shall be provided");
-    Preconditions.checkArgument(!Files.isDirectory(filePath), "filePath should point to a file, not a directory");
+    PreconditionUtils.checkArgument(!Files.isDirectory(filePath), "filePath should point to a file, not a directory");
 
     Charset encoding;
     try {
@@ -153,15 +153,15 @@ public class TabularFileMetadataExtractor {
   private static Optional<Character> getHighestCountOf(final List<String> sample, final Function<String,
           Optional<Character>> characterExtractor) {
 
+    //remove Optional wrapper and ignore Optional.empty
     return sample.stream()
-            .map(characterExtractor)
-            .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty
-            .collect(Collectors.groupingBy(Function.identity(), counting()))
-            .entrySet()
-            .stream()
-            .sorted(BY_VALUE_LONG_DESC)
-            .findFirst()
-            .map(Map.Entry::getKey);
+        .map(characterExtractor)
+        .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty
+        .collect(Collectors.groupingBy(Function.identity(), counting()))
+        .entrySet()
+        .stream()
+        .min(BY_VALUE_LONG_DESC)
+        .map(Map.Entry::getKey);
   }
 
   /**
@@ -182,7 +182,7 @@ public class TabularFileMetadataExtractor {
             computeDelimiterDistinctFrequency(linesStats)
                     .entrySet().stream()
                     // filter out delimiter that we never saw
-                    .filter(entry -> entry.getValue().size() > 1 || !entry.getValue().contains(Integer.valueOf(0)))
+                    .filter(entry -> entry.getValue().size() > 1 || !entry.getValue().contains(0))
                     .sorted(Comparator.comparing(e -> e.getValue().size()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                             (e1, e2) -> e2, LinkedHashMap::new));
@@ -194,7 +194,7 @@ public class TabularFileMetadataExtractor {
     // get the most used delimiter to check the "overall usage"
     Map<Character, Integer> delimiterFrequencySums = computeDelimiterFrequencySums(linesStats)
             .entrySet().stream()
-            .sorted( Comparator.comparing( (Map.Entry<Character, Integer> e) -> e.getValue()).reversed())
+            .sorted(Map.Entry.<Character, Integer>comparingByValue().reversed())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                     (e1, e2) -> e2, LinkedHashMap::new));
 
@@ -203,7 +203,7 @@ public class TabularFileMetadataExtractor {
     //get the highest frequency per line to check for "usage per line"
     Map<Character, Long> delimiterHighestFrequencyPerLine = computeDelimiterHighestFrequencyPerLine(sample)
             .entrySet().stream()
-            .sorted( Comparator.comparing( (Map.Entry<Character, Long> e) -> e.getValue()).reversed())
+            .sorted(Map.Entry.<Character, Long>comparingByValue().reversed())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                     (e1, e2) -> e2, LinkedHashMap::new));
     Set<Character> mostFrequentDelimiterPerLine = getAllEqualsToFirst(delimiterHighestFrequencyPerLine,
@@ -233,14 +233,8 @@ public class TabularFileMetadataExtractor {
 
     //as last resort if the most frequent delimiter overall and by line is the same
     resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);
-    if(resultCharacter.isPresent()) {
-      return resultCharacter;
-    }
 
-    // other idea
-    // give more weight to the first line (it is probably the header line where normally no quotes are used)
-    // give more weight to the first "column" (it is probably the "id" line where normally no quotes are used)
-    return Optional.empty();
+    return resultCharacter;
   }
 
   /**

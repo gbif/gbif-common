@@ -15,13 +15,9 @@
  */
 package org.gbif.utils;
 
-/**
- *
- */
-public class ObjectUtils {
+public final class ObjectUtils {
 
   private ObjectUtils() {
-
   }
 
   /**

@@ -15,6 +15,7 @@
  */
 package org.gbif.utils.file.properties;
 
+import org.gbif.utils.PreconditionUtils;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
@@ -24,12 +25,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.Closer;
 import com.google.common.io.Resources;
@@ -250,8 +251,9 @@ public class PropertiesUtil {
    * @return new Properties object with filtered and translated properties. Never null.
    */
   public static Properties filterProperties(final Properties properties, String prefix) {
-    Preconditions.checkNotNull(properties, "Can't filter a null Properties");
-    Preconditions.checkState(StringUtils.isNotBlank(prefix), "Can't filter using a blank prefix", properties);
+    Objects.requireNonNull(properties, "Can't filter a null Properties");
+    PreconditionUtils.checkState(StringUtils.isNotBlank(prefix),
+        "Can't filter using a blank prefix [" + properties + "]");
 
     Properties filtered = new Properties();
     for (String key : properties.stringPropertyNames()) {
@@ -293,8 +295,8 @@ public class PropertiesUtil {
    * @return
    */
   private static Properties propertiesByPrefix(final Properties original, String prefix, boolean remove) {
-    Preconditions.checkNotNull(original, "Can't filter a null Properties");
-    Preconditions.checkState(StringUtils.isNotBlank(prefix), "Can't filter using a blank prefix", original);
+    Objects.requireNonNull(original, "Can't filter a null Properties");
+    PreconditionUtils.checkState(StringUtils.isNotBlank(prefix), "Can't filter using a blank prefix [" + original + "]");
 
     Properties filtered = new Properties();
 

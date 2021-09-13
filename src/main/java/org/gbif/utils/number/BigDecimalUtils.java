@@ -16,8 +16,7 @@
 package org.gbif.utils.number;
 
 import java.math.BigDecimal;
-
-import com.google.common.base.Preconditions;
+import java.util.Objects;
 
 /**
  * Utility class to work with BigDecimal.
@@ -35,8 +34,7 @@ public class BigDecimalUtils {
    * @return instance of BigDecimal
    */
   public static BigDecimal fromDouble(Double value, boolean stripTrailingZeros){
-
-    Preconditions.checkNotNull(value);
+    Objects.requireNonNull(value);
 
     //safer to create a BigDecimal from String than Double
     BigDecimal bd = new BigDecimal(Double.toString(value));
