@@ -16,30 +16,28 @@
 package org.gbif.utils.file;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.gbif.utils.PreconditionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Closer;
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
-
 /**
- * Utils class dealing with classpath resources in addition to guavas {@link Resources}.
+ * Utils class dealing with classpath resources.
  */
-public class ResourcesUtil {
+public final class ResourcesUtil {
 
   private static final Logger LOG = LoggerFactory.getLogger(ResourcesUtil.class);
 
@@ -47,7 +45,6 @@ public class ResourcesUtil {
    * Static utils class.
    */
   private ResourcesUtil() {
-
   }
 
   /**
@@ -63,9 +60,9 @@ public class ResourcesUtil {
     String... classpathResources) throws IOException {
     for (String classpathResource : classpathResources) {
       String res = classpathPrefix + classpathResource;
-      URL url = null;
+      URL url;
       try {
-        url = Resources.getResource(res);
+        url = getResource(res);
         if (url == null) {
           throw new IllegalArgumentException("Classpath resource " + res + " not existing");
         }
@@ -77,19 +74,37 @@ public class ResourcesUtil {
         throw new IOException(e);
       }
 
-      Closer closer = Closer.create();
+      File f = new File(folder, classpathResource);
+      FileUtils.createParentDirs(f);
+
       try {
-        File f = new File(folder, classpathResource);
-        Files.createParentDirs(f);
-        OutputStream out = closer.register(new FileOutputStream(f));
-        Resources.copy(url, out);
-      } catch (Throwable e) {
-        // must catch Throwable for closer to work, see https://code.google.com/p/guava-libraries/wiki/ClosingResourcesExplained
-        throw closer.rethrow(e);
-      } finally {
-        closer.close();
+        Files.copy(Paths.get(url.toURI()), f.toPath());
+      } catch (URISyntaxException e) {
+        throw new IOException(e);
       }
     }
+  }
+
+  /**
+   * Returns a {@code URL} pointing to {@code resourceName} if the resource is found using the
+   * {@linkplain Thread#getContextClassLoader() context class loader}. In simple environments, the
+   * context class loader will find resources from the class path. In environments where different
+   * threads can have different class loaders, for example app servers, the context class loader
+   * will typically have been set to an appropriate loader for the current thread.
+   *
+   * <p>In the unusual case where the context class loader is null, the class loader that loaded
+   * this class will be used instead.
+   *
+   * <p>From Guava.
+   *
+   * @throws IllegalArgumentException if the resource is not found
+   */
+  public static URL getResource(String resourceName) {
+    ClassLoader loader =
+        ObjectUtils.firstNonNull(Thread.currentThread().getContextClassLoader(), ResourcesUtil.class.getClassLoader());
+    URL url = loader.getResource(resourceName);
+    PreconditionUtils.checkArgument(url != null, "resource " + resourceName + " not found.");
+    return url;
   }
 
     /**
@@ -131,7 +146,7 @@ public class ResourcesUtil {
             String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
             JarFile jar = new JarFile(URLDecoder.decode(jarPath, FileUtils.UTF8));
             Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
-            Set<String> result = new HashSet<String>(); //avoid duplicates in case it is a subdirectory
+            Set<String> result = new HashSet<>(); //avoid duplicates in case it is a subdirectory
             while(entries.hasMoreElements()) {
                 String name = entries.nextElement().getName();
                 if (name.startsWith(path)) { //filter according to the path

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Iterator;
@@ -31,8 +32,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.io.Closer;
-import com.google.common.io.Resources;
+import org.gbif.utils.file.ResourcesUtil;
 
 /**
  * Utility class for handling properties files.
@@ -61,18 +61,19 @@ public final class PropertiesUtil {
    */
   public static Properties loadProperties(String propertiesFile) throws IOException, IllegalArgumentException {
     Properties tempProperties = new Properties();
-    Closer closer = Closer.create();
-    try {
-      File file = new File(propertiesFile);
-      if (file.exists()) {// first tries to load the file as a external file
-        tempProperties.load(closer.register(new FileInputStream(file)));
-      } else { // tries to load the file as a resource
-        URL configFileURL = Resources.getResource(propertiesFile);
-        tempProperties.load(closer.register(Resources.asByteSource(configFileURL).openStream()));
+    File file = new File(propertiesFile);
+
+    if (file.exists()) { // first tries to load the file as a external file
+      try (InputStream is = new FileInputStream(file)) {
+        tempProperties.load(is);
       }
-    } finally {
-      closer.close();
+    } else { // tries to load the file as a resource
+      URL configFileURL = ResourcesUtil.getResource(propertiesFile);
+      try (InputStream is = configFileURL.openStream()) {
+        tempProperties.load(is);
+      }
     }
+
     return tempProperties;
   }
 
@@ -87,12 +88,8 @@ public final class PropertiesUtil {
     }
     Properties properties = new Properties();
 
-    Closer closer = Closer.create();
-    try {
-      FileReader reader = closer.register(new FileReader(pf));
+    try (FileReader reader = new FileReader(pf)) {
       properties.load(reader);
-    } finally {
-      closer.close();
     }
     return properties;
   }

@@ -38,12 +38,12 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -53,25 +53,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
-
 /**
  * Collection of file utils.
  * <br>
  * This class has only been tested for use with a UTF-8 system encoding.
  */
-public class FileUtils {
+public final class FileUtils {
 
-  public static final String UTF8 = StandardCharsets.UTF_8.name();
-
-  public static final Pattern TAB_DELIMITED = Pattern.compile("\t");
-
-
-  private static int linesPerMemorySort = 100000;
   private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
 
+  public static final String UTF8 = StandardCharsets.UTF_8.name();
+  public static final Pattern TAB_DELIMITED = Pattern.compile("\t");
+  private static int linesPerMemorySort = 100000;
   private static Boolean gnuSortAvailable = null;
-
   private static final Object sortLock = new Object();
 
   static {
@@ -309,7 +303,7 @@ public class FileUtils {
   }
 
   public static Writer startNewUtf8File(File file) throws IOException {
-    Files.touch(file);
+    touch(file);
     return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), UTF8));
   }
 
@@ -348,7 +342,7 @@ public class FileUtils {
   }
 
   public static LinkedList<String> streamToList(InputStream source, String encoding) throws IOException {
-    LinkedList<String> resultList = new LinkedList<String>();
+    LinkedList<String> resultList = new LinkedList<>();
     try {
       LineIterator lines = new LineIterator(new BufferedReader(new InputStreamReader(source, encoding)));
       while (lines.hasNext()) {
@@ -365,12 +359,12 @@ public class FileUtils {
    * Reads a utf8 encoded inut stream, splits
    */
   public static Map<String, String> streamToMap(InputStream source) throws IOException {
-    return streamToMap(source, new HashMap<String, String>());
+    return streamToMap(source, new HashMap<>());
   }
 
   public static Map<String, String> streamToMap(InputStream source, int key, int value, boolean trimToNull)
     throws IOException {
-    return streamToMap(source, new HashMap<String, String>(), key, value, trimToNull);
+    return streamToMap(source, new HashMap<>(), key, value, trimToNull);
   }
 
   /**
@@ -423,7 +417,7 @@ public class FileUtils {
   }
 
   public static Set<String> streamToSet(InputStream source) throws IOException {
-    return streamToSet(source, new CompactHashSet<String>());
+    return streamToSet(source, new CompactHashSet<>());
   }
 
   /**
@@ -496,7 +490,7 @@ public class FileUtils {
    */
   private static File getChunkFile(File original, int index) {
     return new File(original.getParentFile(),
-      FilenameUtils.getBaseName(original.getName()) + '_' + index + Files.getFileExtension(original.getName()));
+      FilenameUtils.getBaseName(original.getName()) + '_' + index + getFileExtension(original.getName()));
   }
 
   private static boolean ignore(String line) {
@@ -518,9 +512,9 @@ public class FileUtils {
    */
   public void mergedSortedFiles(List<File> sortFiles, OutputStreamWriter sortedFileWriter, Comparator<String> lineComparator)
     throws IOException {
-    List<BufferedReader> partReaders = new LinkedList<BufferedReader>();
+    List<BufferedReader> partReaders = new LinkedList<>();
     try {
-      List<String> partReaderLine = new LinkedList<String>();
+      List<String> partReaderLine = new LinkedList<>();
       for (File f : sortFiles) {
         // Use UTF-8 sort order.
         partReaders.add(new BufferedReader(
@@ -652,14 +646,14 @@ public class FileUtils {
     int ignoreHeaderLines) throws IOException {
     LOG.debug("Sorting File[" + input.getAbsolutePath() + ']');
     long start = System.currentTimeMillis();
-    List<File> sortFiles = new LinkedList<File>();
+    List<File> sortFiles = new LinkedList<>();
     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
-    List<String> headerLines = new LinkedList<String>();
+    List<String> headerLines = new LinkedList<>();
     try {
       String line = br.readLine();
       int fileCount = 0;
 
-      List<String> linesToSort = new LinkedList<String>();
+      List<String> linesToSort = new LinkedList<>();
       while (line != null) {
         if (ignoreHeaderLines > 0) {
           headerLines.add(line);
@@ -670,7 +664,7 @@ public class FileUtils {
           // if buffer is full, then sort and write to file
           if (linesToSort.size() == linesPerMemorySort) {
             sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));
-            linesToSort = new LinkedList<String>();
+            linesToSort = new LinkedList<>();
             fileCount++;
           }
         }
@@ -712,7 +706,7 @@ public class FileUtils {
   public List<File> split(File input, int linesPerOutput, String extension) throws IOException {
     LOG.debug("Splitting File[" + input.getAbsolutePath() + ']');
     long timer = System.currentTimeMillis();
-    List<File> splitFiles = new LinkedList<File>();
+    List<File> splitFiles = new LinkedList<>();
     // Use ISO-8859-1 as a binary-safe encoding.
     BufferedReader br = new BufferedReader(
         new InputStreamReader(new FileInputStream(input), StandardCharsets.ISO_8859_1));
@@ -833,7 +827,7 @@ public class FileUtils {
     // keep header rows
     boolean success = false;
     try {
-      LinkedList<String> cmds = new LinkedList<String>();
+      LinkedList<String> cmds = new LinkedList<>();
       cmds.add("/bin/sh");
       cmds.add("-c");
       cmds.add("");
@@ -906,22 +900,84 @@ public class FileUtils {
   private File sortAndWrite(File input, String encoding, Comparator<String> lineComparator, int fileCount,
     List<String> linesToSort) throws IOException {
     long start = System.currentTimeMillis();
-    Collections.sort(linesToSort, lineComparator);
+    linesToSort.sort(lineComparator);
     // When implementing a comparator, make it SUPER quick!!!
     LOG.debug(
       "Collections.sort took msec[" + (System.currentTimeMillis() - start) + "] to sort records[" + linesToSort.size()
         + ']');
     File sortFile = getChunkFile(input, fileCount);
-    Writer fw = new OutputStreamWriter(new FileOutputStream(sortFile), encoding);
-    try {
+    try (Writer fw = new OutputStreamWriter(new FileOutputStream(sortFile), encoding)) {
       for (String s : linesToSort) {
         fw.write(s);
         fw.write("\n");
       }
-    } finally {
-      fw.close();
     }
     return sortFile;
   }
 
+  /**
+   * Creates an empty file or updates the last updated timestamp on the same as the unix command of
+   * the same name.
+   *
+   * <p>From Guava.
+   *
+   * @param file the file to create or update
+   * @throws IOException if an I/O error occurs
+   */
+  public static void touch(File file) throws IOException {
+    Objects.requireNonNull(file);
+    if (!file.createNewFile() && !file.setLastModified(System.currentTimeMillis())) {
+      throw new IOException("Unable to update modification time of " + file);
+    }
+  }
+
+  /**
+   * Returns the <a href="http://en.wikipedia.org/wiki/Filename_extension">file extension</a> for
+   * the given file name, or the empty string if the file has no extension. The result does not
+   * include the '{@code .}'.
+   *
+   * <p><b>Note:</b> This method simply returns everything after the last '{@code .}' in the file's
+   * name as determined by {@link File#getName}. It does not account for any filesystem-specific
+   * behavior that the {@link File} API does not already account for. For example, on NTFS it will
+   * report {@code "txt"} as the extension for the filename {@code "foo.exe:.txt"} even though NTFS
+   * will drop the {@code ":.txt"} part of the name when the file is actually created on the
+   * filesystem due to NTFS's <a href="https://goo.gl/vTpJi4">Alternate Data Streams</a>.
+   *
+   * <p>From Guava.
+   */
+  public static String getFileExtension(String fullName) {
+    Objects.requireNonNull(fullName);
+    String fileName = new File(fullName).getName();
+    int dotIndex = fileName.lastIndexOf('.');
+    return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
+  }
+
+  /**
+   * Creates any necessary but nonexistent parent directories of the specified file. Note that if
+   * this operation fails it may have succeeded in creating some (but not all) of the necessary
+   * parent directories.
+   *
+   * <p>From Guava.
+   *
+   * @throws IOException if an I/O error occurs, or if any necessary but nonexistent parent
+   *     directories of the specified file could not be created.
+   */
+  public static void createParentDirs(File file) throws IOException {
+    Objects.requireNonNull(file);
+    File parent = file.getCanonicalFile().getParentFile();
+    if (parent == null) {
+      /*
+       * The given directory is a filesystem root. All zero of its ancestors exist. This doesn't
+       * mean that the root itself exists -- consider x:\ on a Windows machine without such a drive
+       * -- or even that the caller can create it, but this method makes no such guarantees even for
+       * non-root files.
+       */
+      return;
+    }
+    //noinspection ResultOfMethodCallIgnored
+    parent.mkdirs();
+    if (!parent.isDirectory()) {
+      throw new IOException("Unable to create parent directories of " + file);
+    }
+  }
 }
