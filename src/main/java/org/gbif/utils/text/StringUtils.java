@@ -35,11 +35,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-
 /**
- * Utils class adding specific string methods to existing guava {@link Strings} and
+ * Utils class adding specific string methods to existing guava Strings and
  * commons {@link org.apache.commons.lang3.StringUtils}.
  */
 public final class StringUtils {
@@ -427,7 +424,10 @@ public final class StringUtils {
    * @return
    */
   public static String joinIfNotNull(String delimiter, Object... values) {
-    return Joiner.on(delimiter).skipNulls().join(values);
+    return Arrays.stream(values)
+        .filter(Objects::nonNull)
+        .map(Object::toString)
+        .collect(Collectors.joining(delimiter));
   }
 
   /**
@@ -451,15 +451,9 @@ public final class StringUtils {
 
   /**
    * Returns an empty string or the trimmed lower case version of any input, but never NULL.
-   *
-   * @param x
-   * @return
    */
-  public static String emptyLowerCase(String x) {
-    if (Strings.isNullOrEmpty(x)) {
-      return "";
-    }
-    return x.trim().toLowerCase();
+  public static String emptyLowerCase(String str) {
+    return org.apache.commons.lang3.StringUtils.trimToEmpty(str).toLowerCase();
   }
 
   /**

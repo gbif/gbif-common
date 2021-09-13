@@ -36,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -44,8 +45,6 @@ import java.util.List;
 import org.apache.commons.io.LineIterator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import com.google.common.base.Splitter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -92,8 +91,7 @@ public class FileUtilsTest {
   /**
    * tests deleting directory recursively.
    */
-    public
-    void testDeleteRecursive() throws IOException {
+    public void testDeleteRecursive() throws IOException {
     File topFile = File.createTempFile("top", ".tmp");
     File middleFile = File.createTempFile("middle", ".tmp", topFile.getParentFile());
     File downFile = File.createTempFile("down", ".tmp", middleFile.getParentFile());
@@ -320,7 +318,8 @@ public class FileUtilsTest {
           row);
       } else if (line == 2) {
         // row 2 and 3 have the same ids - only test if the id is correct (actual order of those 2 records can differ)
-        Iterator<String> columns = Splitter.on(";").split(row).iterator();
+        Iterator<String> columns = Arrays.stream(row.split(";", -1)).iterator();
+
         columns.next();
         columns.next();
         columns.next();

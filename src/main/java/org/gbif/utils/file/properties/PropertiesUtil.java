@@ -31,7 +31,6 @@ import java.util.Properties;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.base.Strings;
 import com.google.common.io.Closer;
 import com.google.common.io.Resources;
 
@@ -39,7 +38,7 @@ import com.google.common.io.Resources;
  * Utility class for handling properties files.
  * TODO this class should probably be in a "properties" package at the same level as "file"
  */
-public class PropertiesUtil {
+public final class PropertiesUtil {
 
   /**
    * When we encode strings, we always specify UTF8 encoding
@@ -81,9 +80,7 @@ public class PropertiesUtil {
    * Reads a property file from an absolute filepath.
    */
   public static Properties readFromFile(String filepath) throws IOException, IllegalArgumentException {
-    if (Strings.isNullOrEmpty(filepath)) {
-      throw new IllegalArgumentException("No properties file given");
-    }
+    PreconditionUtils.checkArgument(StringUtils.isNotBlank(filepath), "No properties file given");
     File pf = new File(filepath);
     if (!pf.exists()) {
       throw new IllegalArgumentException("Cannot find properties file " + filepath);
@@ -192,7 +189,6 @@ public class PropertiesUtil {
       }
     }
   }
-
 
   /**
    * Reads and casts the named property as a boolean.

@@ -15,6 +15,7 @@
  */
 package org.gbif.utils.file.csv;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.utils.file.ClosableReportingIterator;
 
 import java.io.BufferedReader;
@@ -31,8 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.text.StrTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 
 public class CSVReader implements ClosableReportingIterator<String[]> {
 
@@ -180,7 +179,7 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
       StringBuilder msg = new StringBuilder();
       msg.append("Exception caught: ");
       msg.append(e.getMessage());
-      if (!Strings.isNullOrEmpty(row)) {
+      if (StringUtils.isNotBlank(row)) {
         msg.append("\n");
         msg.append("Row: ");
         msg.append(row);

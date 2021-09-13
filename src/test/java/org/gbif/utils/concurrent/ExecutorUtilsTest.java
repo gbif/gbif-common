@@ -21,17 +21,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
-import com.google.common.base.Throwables;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- *
- */
 public class ExecutorUtilsTest {
 
   @Test
-  public void stopEmptyExec() throws Exception {
+  public void stopEmptyExec() {
     ExecutorService exec = Executors.newFixedThreadPool(2, new NamedThreadFactory("tata"));
 
     ExecutorUtils.stop(exec, 1, TimeUnit.SECONDS);
@@ -63,7 +58,7 @@ public class ExecutorUtilsTest {
         try {
           Thread.sleep(10);
         } catch (InterruptedException e) {
-          Throwables.propagate(e);
+          throw new RuntimeException(e);
         }
       }
     }
