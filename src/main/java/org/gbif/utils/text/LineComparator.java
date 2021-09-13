@@ -19,8 +19,6 @@ import java.util.Comparator;
 
 import org.apache.commons.lang3.text.StrTokenizer;
 
-import com.google.common.collect.Ordering;
-
 /**
  * A comparator for delimited lines that compares the content of a given column number for all rows.
  * This allows to sort for example tab delimited files by any column and not only the first one.
@@ -43,7 +41,7 @@ public class LineComparator implements Comparator<String> {
 
   public LineComparator(int column, String columnDelimiter, Character quoteChar, Comparator<String> columnComparator) {
     this.column = column;
-    this.comp = columnComparator == null ? Ordering.<String>natural().nullsFirst() : columnComparator;
+    this.comp = columnComparator == null ? Comparator.nullsFirst(Comparator.naturalOrder()) : columnComparator;
     tokenizer = new StrTokenizer();
     tokenizer.setEmptyTokenAsNull(true);
     tokenizer.setIgnoreEmptyTokens(false);

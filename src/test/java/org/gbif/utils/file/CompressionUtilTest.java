@@ -20,12 +20,12 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.sun.management.UnixOperatingSystemMXBean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -336,7 +336,7 @@ public class CompressionUtilTest {
     }
 
     // From all the other tests.
-    List<String> files = ImmutableList.of(
+    List<String> files = Arrays.asList(
       "compression/archive/meta.xml",
       "compression/archive/quote_in_quote.csv",
       "compression/archive.tgz",

@@ -15,11 +15,11 @@
  */
 package org.gbif.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.Lists;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -30,7 +30,7 @@ public class ObjectUtilsTest {
   public void testCoalesce() {
     assertNull(ObjectUtils.coalesce());
     assertNull(ObjectUtils.coalesce((Integer)null));
-    assertNull(ObjectUtils.coalesce((Integer)null, (Integer)null));
+    assertNull(ObjectUtils.coalesce(null, (Integer)null));
 
     assertEquals((Integer)13, ObjectUtils.coalesce(null, 13));
     assertEquals((Integer)13, ObjectUtils.coalesce(null, 13, 14));
@@ -40,11 +40,17 @@ public class ObjectUtilsTest {
   @Test
   public void testCoalesce1() {
     assertNull(ObjectUtils.coalesce((Collection) null));
-    assertNull(ObjectUtils.coalesce(Lists.newArrayList()));
-    assertNull(ObjectUtils.coalesce(Lists.newArrayList(null, null)));
+    assertNull(ObjectUtils.coalesce(new ArrayList<>()));
+    assertNull(ObjectUtils.coalesce(newArrayList(null, null)));
 
-    assertEquals((Integer)13, ObjectUtils.coalesce(Lists.newArrayList(null, null, 13)));
-    assertEquals((Integer)13, ObjectUtils.coalesce(Lists.newArrayList(null, null, 13, 14)));
-    assertEquals((Integer)13, ObjectUtils.coalesce(Lists.newArrayList(13, null)));
+    assertEquals((Integer)13, ObjectUtils.coalesce(newArrayList(null, null, 13)));
+    assertEquals((Integer)13, ObjectUtils.coalesce(newArrayList(null, null, 13, 14)));
+    assertEquals((Integer)13, ObjectUtils.coalesce(newArrayList(13, null)));
+  }
+
+  public ArrayList<Integer> newArrayList(Integer... elements) {
+    ArrayList<Integer> list = new ArrayList<>(elements.length);
+    Collections.addAll(list, elements);
+    return list;
   }
 }

@@ -19,16 +19,13 @@ import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 
 /**
  * @author markus
@@ -53,7 +50,7 @@ public class ComparatorPerformance {
    */
 
   @Test
-  public void testFileSorting() throws IOException, InstantiationException, IllegalAccessException {
+  public void testFileSorting() throws IOException {
     // 10MB text file, big file used in results above was concatenated from this one
     File source = FileUtils.getClasspathFile("sorting/irmng.tail");
     File sorted = File.createTempFile("gbif-common-file-sort2", "sorted.txt");
@@ -64,40 +61,39 @@ public class ComparatorPerformance {
     long start = System.currentTimeMillis();
     futils.sort(source, sorted, ENCODING, 0, "\t", null, "\n", 0);
     long end = System.currentTimeMillis();
-    System.out.println(String.format("Sorting with unix sort took %s ms", (end - start)));
+    System.out.printf("Sorting with unix sort took %s ms%n", (end - start));
 
     // sort with comparator to test
     List<Comparator<String>> comparators = availableComparators();
 
-    for (Integer linesInMen : Arrays.asList(100000)) {
-      futils.setLinesPerMemorySort(linesInMen);
+    for (Integer linesInMen : Collections.singletonList(100000)) {
+      FileUtils.setLinesPerMemorySort(linesInMen);
       for (Comparator<String> comp : comparators) {
 
         start = System.currentTimeMillis();
         futils.sortInJava(source, sorted, ENCODING, comp, 0);
         end = System.currentTimeMillis();
 
-        System.out.println(
-          String.format("Sorting with %s and %s lines in memory took %s ms", comp.getClass().getName(), linesInMen, (end - start)));
+        System.out.printf("Sorting with %s and %s lines in memory took %s ms%n", comp.getClass().getName(), linesInMen, (end - start));
       }
     }
   }
 
   private List<Comparator<String>> availableComparators() {
-    List<Comparator<String>> comparators = Lists.newArrayList();
+    List<Comparator<String>> comparators = new ArrayList<>();
     comparators.add(new StringComparator());
-    comparators.add(Ordering.<String>natural().nullsFirst());
+    comparators.add(Comparator.nullsFirst(Comparator.naturalOrder()));
     return comparators;
   }
 
   @Test
-  public void testVariousComparators() throws IOException, InstantiationException, IllegalAccessException {
+  public void testVariousComparators() throws IOException {
     // sort with comparator to test
     List<Comparator<String>> comparators = availableComparators();
     for (Comparator<String> comp : comparators) {
       LinkedList<String> source = FileUtils.streamToList(FileUtils.classpathStream("sorting/irmng.tail"));
       long start = System.currentTimeMillis();
-      Collections.sort(source, comp);
+      source.sort(comp);
       long end = System.currentTimeMillis();
       System.out.println("Sorting with " + comp.getClass().getName() + " took " + (end - start) + " ms");
     }

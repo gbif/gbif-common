@@ -18,10 +18,11 @@ package org.gbif.utils.file;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.Sets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -62,10 +63,16 @@ public class ResourcesUtilTest {
 
   @Test
   public void testList() throws Exception {
-    assertEquals(Sets.newHashSet("test.txt", "test2"), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1")));
-    assertEquals(Sets.newHashSet("test.txt"), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1/test2")));
-    assertEquals(Sets.newHashSet("utf16be.xml", "utf16le.xml", "utf8.xml", "utf8bom.xml"), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "sax")));
-    assertEquals(Sets.newHashSet(), Sets.newHashSet(ResourcesUtil.list(ResourcesUtil.class, "abba")));
+    assertEquals(newHashSet("test.txt", "test2"), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1")));
+    assertEquals(newHashSet("test.txt"), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1/test2")));
+    assertEquals(newHashSet("utf16be.xml", "utf16le.xml", "utf8.xml", "utf8bom.xml"), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "sax")));
+    assertEquals(newHashSet(), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "abba")));
+  }
+
+  private Set<String> newHashSet(String... elements) {
+    HashSet<String> set = new HashSet<>(elements.length);
+    Collections.addAll(set, elements);
+    return set;
   }
 
   private void assertTestFile(File tf) throws FileNotFoundException {

@@ -15,15 +15,11 @@
  */
 package org.gbif.utils.text;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.Ordering;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,7 +28,7 @@ public class LineComparatorTest {
   @Test
   public void testLineComparatorCSV() {
     LineComparator comp = new LineComparator(3, ",", '"');
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
     String l1 = "121,432423,9099053,\"Frieda karla L.,Ahrens\"";
     String l2 = "adshjhg,fsdfsd,fdsfdsfsd,Forunkel forunculus,Janssen";
     String l3 = ",,,,zzz";
@@ -42,7 +38,7 @@ public class LineComparatorTest {
     lines.add(l3);
     lines.add(l4);
 
-    Collections.sort(lines, comp);
+    lines.sort(comp);
 
     assertEquals(l2, lines.get(0));
     assertEquals(l1, lines.get(1));
@@ -53,7 +49,7 @@ public class LineComparatorTest {
   @Test
   public void testLineComparatorPipe() {
     LineComparator comp = new LineComparator(3, "|");
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
     String l1 = "121|432423|9099053|Frieda karla L.|Ahrens";
     String l2 = "adshjhg|fsdfsd|fdsfdsfsd|Forunkel forunculus|Janssen";
     String l3 = "||||zzz";
@@ -63,7 +59,7 @@ public class LineComparatorTest {
     lines.add(l3);
     lines.add(l4);
 
-    Collections.sort(lines, comp);
+    lines.sort(comp);
 
     assertEquals(l2, lines.get(0));
     assertEquals(l1, lines.get(1));
@@ -74,7 +70,7 @@ public class LineComparatorTest {
   @Test
   public void testLineComparatorTab() {
     LineComparator comp = new LineComparator(3, "\t");
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
     String l1 = "121\t432423\t9099053\tFrieda karla L.\tAhrens";
     String l2 = "adshjhg\tfsdfsd\tfdsfdsfsd\tForunkel forunculus\tJanssen";
     String l3 = "\t\t\t\tzzz";
@@ -84,7 +80,7 @@ public class LineComparatorTest {
     lines.add(l3);
     lines.add(l4);
 
-    Collections.sort(lines, comp);
+    lines.sort(comp);
 
     assertEquals(l2, lines.get(0));
     assertEquals(l1, lines.get(1));
@@ -92,22 +88,16 @@ public class LineComparatorTest {
     assertEquals(l3, lines.get(3));
   }
 
-  // Direct copy from From IPT codebase
+  // Direct copy from IPT codebase
   // see https://code.google.com/p/gbif-providertoolkit/source/browse/trunk/gbif-ipt/src/main/java/org/gbif/ipt/task/GenerateDwca.java#93
-  private static final Comparator<String> IGNORE_CASE_COMPARATOR = Ordering.from(new Comparator<String>() {
-
-    @Override
-    public int compare(String o1, String o2) {
-      return o1.compareToIgnoreCase(o2);
-    }
-  }).nullsFirst();
+  private static final Comparator<String> IGNORE_CASE_COMPARATOR = Comparator.nullsFirst(String::compareToIgnoreCase);
 
   /**
    * Test for respecting equals and compareTo to ensure comparator respects java contracts.
    * http://dev.gbif.org/issues/browse/POR-2730
    */
   @Test
-  public void testEqualsCompareToContract() throws IOException {
+  public void testEqualsCompareToContract() {
 
     LineComparator comp = new LineComparator(0, ",", null, IGNORE_CASE_COMPARATOR);
 

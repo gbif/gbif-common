@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 import static java.util.Collections.reverseOrder;
 import static java.util.stream.Collectors.counting;
@@ -245,7 +244,9 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   private static Optional<Character> intersectSingle(Set<Character> set1, Set<Character> set2) {
-    Sets.SetView<Character> intersection = Sets.intersection(set1, set2);
+    Set<Character> intersection = new HashSet<>(set1);
+    intersection.retainAll(set2);
+
     return intersection.size() == 1 ? intersection.stream().findFirst() : Optional.empty();
   }
 
@@ -289,7 +290,7 @@ public class TabularFileMetadataExtractor {
    */
   private static List<LineDelimiterStats> lineToLineDelimiterStats(String line) {
     return Arrays.stream(POTENTIAL_DELIMITER_CHAR)
-            .map( delimiter -> new LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))
+            .map(delimiter -> new LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))
             .collect(Collectors.toList());
   }
 
