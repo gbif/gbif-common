@@ -15,6 +15,8 @@
  */
 package org.gbif.utils.file;
 
+import org.gbif.utils.PreconditionUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -30,7 +32,6 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.gbif.utils.PreconditionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

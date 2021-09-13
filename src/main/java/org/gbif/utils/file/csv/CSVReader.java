@@ -15,7 +15,6 @@
  */
 package org.gbif.utils.file.csv;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.utils.file.ClosableReportingIterator;
 
 import java.io.BufferedReader;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

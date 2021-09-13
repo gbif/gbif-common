@@ -17,6 +17,7 @@ package org.gbif.utils.file.properties;
 
 import org.gbif.utils.PreconditionUtils;
 import org.gbif.utils.file.FileUtils;
+import org.gbif.utils.file.ResourcesUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,8 +32,6 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import org.gbif.utils.file.ResourcesUtil;
 
 /**
  * Utility class for handling properties files.
