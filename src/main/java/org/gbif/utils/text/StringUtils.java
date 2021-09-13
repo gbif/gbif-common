@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
@@ -42,8 +42,9 @@ import com.google.common.base.Strings;
  * Utils class adding specific string methods to existing guava {@link Strings} and
  * commons {@link org.apache.commons.lang3.StringUtils}.
  */
-public class StringUtils {
-  private static Pattern MARKER = Pattern.compile("\\p{M}");
+public final class StringUtils {
+
+  private static final Pattern MARKER = Pattern.compile("\\p{M}");
   public static final int LINNEAN_YEAR = 1751;
   private static final String CONS = "BCDFGHJKLMNPQRSTVWXYZ";
   private static final Pattern OCT = Pattern.compile("^[0-7]+$");
@@ -69,7 +70,6 @@ public class StringUtils {
     x = Normalizer.normalize(x, Normalizer.Form.NFD);
     return MARKER.matcher(x).replaceAll("");
   }
-
 
   /**
    * Apply a function then join the result using a space if not null.
@@ -408,8 +408,8 @@ public class StringUtils {
         , Pattern.CASE_INSENSITIVE);
     if (text != null && UTF8_TEST.matcher(text).find()) {
       // typical utf8 combinations found. Try to decode from latin1 to utf8
-      byte[] bytes = text.getBytes(Charsets.ISO_8859_1);
-      final CharsetDecoder utf8Decoder = Charsets.UTF_8.newDecoder();
+      byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+      final CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
       ByteBuffer buffer = ByteBuffer.wrap(bytes);
       try {
         return utf8Decoder.decode(buffer).toString();

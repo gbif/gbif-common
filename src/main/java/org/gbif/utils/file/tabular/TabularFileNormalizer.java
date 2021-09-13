@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,7 +34,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.base.CharMatcher;
 
 import static org.gbif.utils.file.tabular.JacksonUtils.buildCsvSchema;
 
@@ -45,13 +45,13 @@ public class TabularFileNormalizer {
 
   // A character is considered to be an ISO control character if its code is in
   // the range '\u0000' through '\u001F' or in the range '\u007F' through '\u009F'.
-  private static CharMatcher CONTROL_CHAR_MATCHER = CharMatcher.JAVA_ISO_CONTROL;
+  private static final String CONTROL_CHAR_REGEX = "\\p{Cntrl}";
 
-  public static String NORMALIZED_END_OF_LINE = "\n";
+  public static final String NORMALIZED_END_OF_LINE = "\n";
 
   /**
    * Normalizes the provided tabular "file" (provided as {@link Reader} to let the caller deal with charset).
-   * Normalization includes: striping of Control Characters (see {@link #CONTROL_CHAR_MATCHER}),
+   * Normalization includes: striping of Control Characters (see {@link #CONTROL_CHAR_REGEX}),
    * usage of \n as end-line-character, ensuring there is an end-of-line character on the last line and
    * removing empty (completely empty) lines.
    * The normalized content will have unnecessary quotes removed.
@@ -88,11 +88,11 @@ public class TabularFileNormalizer {
                  .with(readerSchema)
                  .readValues(sourceReader);
          SequenceWriter csvWriter = mapper.writerFor(List.class).with(writerSchema).writeValues(writer)) {
-      Optional<List<String>> line;
+      List<String> line;
       while (it.hasNext()) {
         line = normalizeLine(it.next());
-        if (line.isPresent()) {
-          csvWriter.write(line.get());
+        if (!line.isEmpty()) {
+          csvWriter.write(line);
           numberOfLine++;
         }
       }
@@ -110,17 +110,16 @@ public class TabularFileNormalizer {
    *
    * @param line
    *
-   * @return normalized line as String or {@code Optional.empty()} is the line was empty
+   * @return normalized line or an empty list if source is null or empty
    */
-  private static Optional<List<String>> normalizeLine(List<String> line) {
+  private static List<String> normalizeLine(List<String> line) {
     if (line == null || line.isEmpty()) {
-      return Optional.empty();
+      return new ArrayList<>();
     }
 
-    return Optional.of(
-            line.stream()
-                    .map(s -> s == null ? "" : s)
-                    .map(CONTROL_CHAR_MATCHER::removeFrom)
-                    .collect(Collectors.toList()));
+    return line.stream()
+        .map(s -> s == null ? "" : s)
+        .map(str -> str.replaceAll(CONTROL_CHAR_REGEX, ""))
+        .collect(Collectors.toList());
   }
 }

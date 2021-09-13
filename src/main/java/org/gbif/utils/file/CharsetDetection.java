@@ -22,11 +22,10 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Charsets;
 
 import static org.gbif.utils.file.FileUtils.readByteBuffer;
 
@@ -74,7 +73,7 @@ public class CharsetDetection {
     COMMON_NON_ASCII_CHARS = cbuf.array();
   }
 
-  private static final Charset LATIN1 = Charsets.ISO_8859_1;
+  private static final Charset LATIN1 = StandardCharsets.ISO_8859_1;
   private static final Charset WINDOWS1252;
   private static final Charset MACROMAN;
 
@@ -316,13 +315,13 @@ public class CharsetDetection {
     // if the file has a Byte Order Marker, we can assume the file is in UTF-xx
     // otherwise, the file would not be human readable
     if (hasUTF8Bom(buffer)) {
-      return Charsets.UTF_8;
+      return StandardCharsets.UTF_8;
     }
     if (hasUTF16LEBom(buffer)) {
-      return Charsets.UTF_16LE;
+      return StandardCharsets.UTF_16LE;
     }
     if (hasUTF16BEBom(buffer)) {
-      return Charsets.UTF_16BE;
+      return StandardCharsets.UTF_16BE;
     }
 
     // if it's not UTF-8 or a BOM present check for UTF16 zeros
@@ -411,7 +410,7 @@ public class CharsetDetection {
     // if no invalid UTF-8 were encountered, we can assume the encoding is UTF-8,
     // otherwise the file would not be human readable
     if (validU8Char) {
-      return Charsets.UTF_8;
+      return StandardCharsets.UTF_8;
     }
 
     // finally it must be some 8bit encoding we try to detect statistically
@@ -445,7 +444,7 @@ public class CharsetDetection {
     // a UTF16 encoding with many latin characters would have either lots of even or uneven bytes as zero - but not both
     int min = buffer.length / 10;
     if ((zerosBE > min || zerosLE > min) && Math.abs(zerosBE - zerosLE) > min) {
-      Charset charset = zerosBE > zerosLE ? Charsets.UTF_16BE : Charsets.UTF_16LE;
+      Charset charset = zerosBE > zerosLE ? StandardCharsets.UTF_16BE : StandardCharsets.UTF_16LE;
 
       // now try to decode the whole lot just to make sure
       try {
@@ -455,7 +454,7 @@ public class CharsetDetection {
         return charset;
       } catch (CharacterCodingException e) {
         // finally try with the plain UTF16 encoding
-        charset = Charsets.UTF_16;
+        charset = StandardCharsets.UTF_16;
         try {
           CharsetDecoder decoder = charset.newDecoder();
           decoder.decode(ByteBuffer.wrap(buffer));
@@ -470,7 +469,7 @@ public class CharsetDetection {
   }
 
   private long testLatin1() {
-    Charset charset = Charsets.ISO_8859_1;
+    Charset charset = StandardCharsets.ISO_8859_1;
     CharsetDecoder decoder = charset.newDecoder();
 
     long suspicious = 0;

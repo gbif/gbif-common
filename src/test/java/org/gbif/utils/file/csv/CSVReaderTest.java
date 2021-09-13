@@ -22,21 +22,17 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
-
-import com.google.common.base.Charsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- *
- */
 public class CSVReaderTest {
 
-  private static final String UTF8 = Charsets.UTF_8.name();
+  private static final String UTF8 = StandardCharsets.UTF_8.name();
 
   @Test
   public void testCsvAlwaysQuotes() throws IOException {
@@ -59,7 +55,7 @@ public class CSVReaderTest {
                     + "15,\"not \"\"real\"\"\"\n"
                     + "16,\"no, this is \"\"real\"\"\"\n";
 
-    InputStream stream = new ByteArrayInputStream(rows.getBytes(Charsets.UTF_8));
+    InputStream stream = new ByteArrayInputStream(rows.getBytes(StandardCharsets.UTF_8));
     CSVReader reader = new CSVReader(stream, UTF8, ",", '"', 0);
 
     String[] rec = reader.next();
