@@ -23,8 +23,7 @@
     <commons-lang.version>3.6</commons-lang.version>
     <commons-io.version>2.5</commons-io.version>
 
-    <!-- Guava will be shaded -->
-    <guava.version>23.0</guava.version>
+    <jsr305.version>3.0.2</jsr305.version>
 
     <!--Jackson libraries will be shaded-->
     <jackson.version>2.11.3</jackson.version>
@@ -92,7 +91,6 @@
               <include>com.fasterxml.jackson.core:jackson-databind</include>
               <include>com.fasterxml.jackson.core:jackson-annotations</include>
               <include>com.fasterxml.jackson.dataformat:jackson-dataformat-csv</include>
-              <include>com.google.guava:guava</include>
             </includes>
           </artifactSet>
           <relocations>
@@ -208,9 +206,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>${jsr305.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
