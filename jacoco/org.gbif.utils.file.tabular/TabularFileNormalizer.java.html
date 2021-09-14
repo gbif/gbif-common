@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TabularFileNormalizer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.tabular</a> &gt; <span class="el_source">TabularFileNormalizer.java</span></div><h1>TabularFileNormalizer.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2017 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TabularFileNormalizer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.tabular</a> &gt; <span class="el_source">TabularFileNormalizer.java</span></div><h1>TabularFileNormalizer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.file.tabular;
 
 import java.io.IOException;
@@ -23,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,7 +34,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.base.CharMatcher;
 
 import static org.gbif.utils.file.tabular.JacksonUtils.buildCsvSchema;
 
@@ -42,17 +41,17 @@ import static org.gbif.utils.file.tabular.JacksonUtils.buildCsvSchema;
  * Utility class to rewrite a tabular file (e.g. CSV) into a normalized format.
  * The regular use case is to allow external tools to work as expected (e.g. unix split, unix sort).
  */
-<span class="nc" id="L45">public class TabularFileNormalizer {</span>
+<span class="nc" id="L44">public class TabularFileNormalizer {</span>
 
   // A character is considered to be an ISO control character if its code is in
   // the range '\u0000' through '\u001F' or in the range '\u007F' through '\u009F'.
-<span class="fc" id="L49">  private static CharMatcher CONTROL_CHAR_MATCHER = CharMatcher.JAVA_ISO_CONTROL;</span>
+  private static final String CONTROL_CHAR_REGEX = &quot;\\p{Cntrl}&quot;;
 
-<span class="fc" id="L51">  public static String NORMALIZED_END_OF_LINE = &quot;\n&quot;;</span>
+  public static final String NORMALIZED_END_OF_LINE = &quot;\n&quot;;
 
   /**
    * Normalizes the provided tabular &quot;file&quot; (provided as {@link Reader} to let the caller deal with charset).
-   * Normalization includes: striping of Control Characters (see {@link #CONTROL_CHAR_MATCHER}),
+   * Normalization includes: striping of Control Characters (see {@link #CONTROL_CHAR_REGEX}),
    * usage of \n as end-line-character, ensuring there is an end-of-line character on the last line and
    * removing empty (completely empty) lines.
    * The normalized content will have unnecessary quotes removed.
@@ -70,40 +69,40 @@ import static org.gbif.utils.file.tabular.JacksonUtils.buildCsvSchema;
    */
   public static int normalizeFile(Path source, Path destination, Charset sourceCharset,
                                   char delimiterChar, String endOfLineSymbols, Character quoteChar) throws IOException {
-<span class="fc" id="L73">    Objects.requireNonNull(source, &quot;source path shall be provided&quot;);</span>
-<span class="fc" id="L74">    Objects.requireNonNull(destination, &quot;normalizedWriter shall be provided&quot;);</span>
+<span class="fc" id="L72">    Objects.requireNonNull(source, &quot;source path shall be provided&quot;);</span>
+<span class="fc" id="L73">    Objects.requireNonNull(destination, &quot;normalizedWriter shall be provided&quot;);</span>
 
-<span class="fc" id="L76">    int numberOfLine = 0;</span>
-<span class="fc" id="L77">    CsvMapper mapper = new CsvMapper();</span>
-<span class="fc" id="L78">    mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);</span>
+<span class="fc" id="L75">    int numberOfLine = 0;</span>
+<span class="fc" id="L76">    CsvMapper mapper = new CsvMapper();</span>
+<span class="fc" id="L77">    mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);</span>
 
-<span class="fc" id="L80">    mapper.configure(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING, true);</span>
+<span class="fc" id="L79">    mapper.configure(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING, true);</span>
 
-<span class="fc" id="L82">    CsvSchema readerSchema = buildCsvSchema(delimiterChar, endOfLineSymbols, quoteChar);</span>
-<span class="fc" id="L83">    CsvSchema writerSchema = buildCsvSchema(delimiterChar, NORMALIZED_END_OF_LINE, quoteChar);</span>
+<span class="fc" id="L81">    CsvSchema readerSchema = buildCsvSchema(delimiterChar, endOfLineSymbols, quoteChar);</span>
+<span class="fc" id="L82">    CsvSchema writerSchema = buildCsvSchema(delimiterChar, NORMALIZED_END_OF_LINE, quoteChar);</span>
 
-<span class="fc" id="L85">    Charset charset = Optional.ofNullable(sourceCharset).orElse(StandardCharsets.UTF_8);</span>
-<span class="fc" id="L86">    try (Reader sourceReader = Files.newBufferedReader(source, charset);</span>
-<span class="fc" id="L87">         Writer writer = Files.newBufferedWriter(destination, charset);</span>
-<span class="fc" id="L88">         MappingIterator&lt;List&lt;String&gt;&gt; it = mapper.readerFor(List.class)</span>
-<span class="fc" id="L89">                 .with(readerSchema)</span>
-<span class="fc" id="L90">                 .readValues(sourceReader);</span>
-<span class="fc" id="L91">         SequenceWriter csvWriter = mapper.writerFor(List.class).with(writerSchema).writeValues(writer)) {</span>
-      Optional&lt;List&lt;String&gt;&gt; line;
-<span class="fc bfc" id="L93" title="All 2 branches covered.">      while (it.hasNext()) {</span>
-<span class="fc" id="L94">        line = normalizeLine(it.next());</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (line.isPresent()) {</span>
-<span class="fc" id="L96">          csvWriter.write(line.get());</span>
-<span class="fc" id="L97">          numberOfLine++;</span>
+<span class="fc" id="L84">    Charset charset = Optional.ofNullable(sourceCharset).orElse(StandardCharsets.UTF_8);</span>
+<span class="fc" id="L85">    try (Reader sourceReader = Files.newBufferedReader(source, charset);</span>
+<span class="fc" id="L86">         Writer writer = Files.newBufferedWriter(destination, charset);</span>
+<span class="fc" id="L87">         MappingIterator&lt;List&lt;String&gt;&gt; it = mapper.readerFor(List.class)</span>
+<span class="fc" id="L88">                 .with(readerSchema)</span>
+<span class="fc" id="L89">                 .readValues(sourceReader);</span>
+<span class="fc" id="L90">         SequenceWriter csvWriter = mapper.writerFor(List.class).with(writerSchema).writeValues(writer)) {</span>
+      List&lt;String&gt; line;
+<span class="fc bfc" id="L92" title="All 2 branches covered.">      while (it.hasNext()) {</span>
+<span class="fc" id="L93">        line = normalizeLine(it.next());</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (!line.isEmpty()) {</span>
+<span class="fc" id="L95">          csvWriter.write(line);</span>
+<span class="fc" id="L96">          numberOfLine++;</span>
         }
       }
     }
-<span class="nc" id="L101">    catch (IOException ioEx) {</span>
+<span class="nc" id="L100">    catch (IOException ioEx) {</span>
       //avoid keeping incomplete file
-<span class="nc" id="L103">      Files.deleteIfExists(destination);</span>
-<span class="nc" id="L104">      throw ioEx;</span>
-<span class="fc" id="L105">    }</span>
-<span class="fc" id="L106">    return numberOfLine;</span>
+<span class="nc" id="L102">      Files.deleteIfExists(destination);</span>
+<span class="nc" id="L103">      throw ioEx;</span>
+<span class="fc" id="L104">    }</span>
+<span class="fc" id="L105">    return numberOfLine;</span>
   }
 
   /**
@@ -111,18 +110,17 @@ import static org.gbif.utils.file.tabular.JacksonUtils.buildCsvSchema;
    *
    * @param line
    *
-   * @return normalized line as String or {@code Optional.empty()} is the line was empty
+   * @return normalized line or an empty list if source is null or empty
    */
-  private static Optional&lt;List&lt;String&gt;&gt; normalizeLine(List&lt;String&gt; line) {
-<span class="pc bpc" id="L117" title="2 of 4 branches missed.">    if (line == null || line.isEmpty()) {</span>
-<span class="nc" id="L118">      return Optional.empty();</span>
+  private static List&lt;String&gt; normalizeLine(List&lt;String&gt; line) {
+<span class="pc bpc" id="L116" title="2 of 4 branches missed.">    if (line == null || line.isEmpty()) {</span>
+<span class="nc" id="L117">      return new ArrayList&lt;&gt;();</span>
     }
 
-<span class="fc" id="L121">    return Optional.of(</span>
-<span class="fc" id="L122">            line.stream()</span>
-<span class="pc bpc" id="L123" title="1 of 2 branches missed.">                    .map(s -&gt; s == null ? &quot;&quot; : s)</span>
-<span class="fc" id="L124">                    .map(CONTROL_CHAR_MATCHER::removeFrom)</span>
-<span class="fc" id="L125">                    .collect(Collectors.toList()));</span>
+<span class="fc" id="L120">    return line.stream()</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        .map(s -&gt; s == null ? &quot;&quot; : s)</span>
+<span class="fc" id="L122">        .map(str -&gt; str.replaceAll(CONTROL_CHAR_REGEX, &quot;&quot;))</span>
+<span class="fc" id="L123">        .collect(Collectors.toList());</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

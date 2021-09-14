@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NamedThreadFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.concurrent</a> &gt; <span class="el_source">NamedThreadFactory.java</span></div><h1>NamedThreadFactory.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2016 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NamedThreadFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.concurrent</a> &gt; <span class="el_source">NamedThreadFactory.java</span></div><h1>NamedThreadFactory.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.concurrent;
 
 import java.util.concurrent.Executors;
@@ -29,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NamedThreadFactory implements ThreadFactory {
   private final ThreadGroup group;
-<span class="fc" id="L32">  private final AtomicInteger threadNumber = new AtomicInteger(1);</span>
+<span class="fc" id="L31">  private final AtomicInteger threadNumber = new AtomicInteger(1);</span>
   private final String namePrefix;
   private final int priority;
   private final boolean daemon;
@@ -40,20 +39,21 @@ public class NamedThreadFactory implements ThreadFactory {
    * @param poolName the name prefix of the thread pool which will be appended -number for the individual thread
    */
   public NamedThreadFactory(String poolName) {
-<span class="fc" id="L43">    this(poolName, Thread.NORM_PRIORITY, false);</span>
-<span class="fc" id="L44">  }</span>
+<span class="fc" id="L42">    this(poolName, Thread.NORM_PRIORITY, false);</span>
+<span class="fc" id="L43">  }</span>
 
   /**
    * Creates a new named thread factory using explicit priority and daemon settings.
    */
-<span class="fc" id="L49">  public NamedThreadFactory(String poolName, int priority, boolean daemon) {</span>
-<span class="fc" id="L50">    SecurityManager s = System.getSecurityManager();</span>
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">    group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();</span>
-<span class="fc" id="L52">    namePrefix = poolName + &quot;-&quot;;</span>
-<span class="fc" id="L53">    this.priority = priority;</span>
-<span class="fc" id="L54">    this.daemon = daemon;</span>
-<span class="fc" id="L55">  }</span>
+<span class="fc" id="L48">  public NamedThreadFactory(String poolName, int priority, boolean daemon) {</span>
+<span class="fc" id="L49">    SecurityManager s = System.getSecurityManager();</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">    group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();</span>
+<span class="fc" id="L51">    namePrefix = poolName + &quot;-&quot;;</span>
+<span class="fc" id="L52">    this.priority = priority;</span>
+<span class="fc" id="L53">    this.daemon = daemon;</span>
+<span class="fc" id="L54">  }</span>
 
+  @Override
   public Thread newThread(Runnable r) {
 <span class="fc" id="L58">    Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);</span>
 <span class="fc" id="L59">    t.setPriority(priority);</span>
@@ -61,4 +61,4 @@ public class NamedThreadFactory implements ThreadFactory {
 <span class="fc" id="L61">    return t;</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

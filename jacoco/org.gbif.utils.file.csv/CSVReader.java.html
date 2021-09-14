@@ -1,18 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CSVReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.csv</a> &gt; <span class="el_source">CSVReader.java</span></div><h1>CSVReader.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2010-2015 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CSVReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.csv</a> &gt; <span class="el_source">CSVReader.java</span></div><h1>CSVReader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.file.csv;
 
 import org.gbif.utils.file.ClosableReportingIterator;
@@ -26,20 +26,16 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class CSVReader implements ClosableReportingIterator&lt;String[]&gt; {
 
-<span class="fc" id="L42">  private static final Logger LOG = LoggerFactory.getLogger(CSVReader.class);</span>
+<span class="fc" id="L38">  private static final Logger LOG = LoggerFactory.getLogger(CSVReader.class);</span>
   public final int headerRows;
   public final String encoding;
   public final String delimiter;
@@ -49,6 +45,7 @@ public class CSVReader implements ClosableReportingIterator&lt;String[]&gt; {
   private String row;
   private int rows;
   private int readRows;
+  private final int emptyLinesCacheLimit;
   private final Map&lt;Integer, String&gt; emptyLines;
   private final BufferedReader br;
   private boolean rowError;
@@ -57,88 +54,87 @@ public class CSVReader implements ClosableReportingIterator&lt;String[]&gt; {
 
   public CSVReader(File source, String encoding, String delimiter, Character quotes, Integer headerRows)
           throws IOException {
-<span class="fc" id="L60">    this(new FileInputStream(source), encoding, delimiter, quotes, headerRows);</span>
-<span class="fc" id="L61">  }</span>
+<span class="fc" id="L57">    this(new FileInputStream(source), encoding, delimiter, quotes, headerRows);</span>
+<span class="fc" id="L58">  }</span>
 
   public CSVReader(InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows)
           throws IOException {
-<span class="fc" id="L65">    this(stream, encoding, delimiter, quotes, headerRows, 1000);</span>
-<span class="fc" id="L66">  }</span>
+<span class="fc" id="L62">    this(stream, encoding, delimiter, quotes, headerRows, 1000);</span>
+<span class="fc" id="L63">  }</span>
 
   public CSVReader(InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows, int emptyLineCache)
-<span class="fc" id="L69">          throws IOException {</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    if (emptyLineCache &gt; 0) {</span>
-<span class="fc" id="L71">      Cache&lt;Integer, String&gt; cache = CacheBuilder.newBuilder().maximumSize(emptyLineCache).build();</span>
-<span class="fc" id="L72">      this.emptyLines = cache.asMap();</span>
-<span class="fc" id="L73">    } else {</span>
-<span class="nc" id="L74">      emptyLines = null;</span>
-    }
-<span class="fc" id="L76">    this.rows = 0;</span>
-<span class="fc" id="L77">    this.readRows = 0;</span>
-<span class="fc" id="L78">    this.delimiter = delimiter;</span>
-<span class="fc" id="L79">    this.encoding = encoding;</span>
-<span class="fc" id="L80">    this.quoteChar = quotes;</span>
-<span class="pc bpc" id="L81" title="2 of 4 branches missed.">    this.headerRows = headerRows == null || headerRows &lt; 0 ? 0 : headerRows;</span>
-<span class="fc" id="L82">    tokenizer = new StrTokenizer();</span>
-<span class="fc" id="L83">    tokenizer.setDelimiterString(delimiter);</span>
-<span class="fc bfc" id="L84" title="All 2 branches covered.">    if (quotes != null) {</span>
-<span class="fc" id="L85">      tokenizer.setQuoteChar(quotes);</span>
-    }
-<span class="fc" id="L87">    tokenizer.setIgnoreEmptyTokens(false);</span>
-<span class="fc" id="L88">    tokenizer.reset();</span>
-<span class="fc" id="L89">    InputStreamReader reader = new InputStreamReader(stream, encoding);</span>
-<span class="fc" id="L90">    br = new BufferedReader(reader);</span>
-<span class="fc" id="L91">    row = br.readLine();</span>
-    // parse header row
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">    if (row == null) {</span>
-<span class="nc" id="L94">      header = null;</span>
+<span class="fc" id="L66">          throws IOException {</span>
+<span class="fc" id="L67">    this.emptyLinesCacheLimit = emptyLineCache;</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    if (emptyLineCache &gt; 0) {</span>
+<span class="fc" id="L69">      this.emptyLines = new ConcurrentHashMap&lt;&gt;(emptyLineCache);</span>
     } else {
-<span class="fc" id="L96">      tokenizer.reset(row);</span>
-<span class="fc" id="L97">      header = tokenizer.getTokenArray();</span>
+<span class="nc" id="L71">      emptyLines = null;</span>
+    }
+<span class="fc" id="L73">    this.rows = 0;</span>
+<span class="fc" id="L74">    this.readRows = 0;</span>
+<span class="fc" id="L75">    this.delimiter = delimiter;</span>
+<span class="fc" id="L76">    this.encoding = encoding;</span>
+<span class="fc" id="L77">    this.quoteChar = quotes;</span>
+<span class="pc bpc" id="L78" title="2 of 4 branches missed.">    this.headerRows = headerRows == null || headerRows &lt; 0 ? 0 : headerRows;</span>
+<span class="fc" id="L79">    tokenizer = new StrTokenizer();</span>
+<span class="fc" id="L80">    tokenizer.setDelimiterString(delimiter);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    if (quotes != null) {</span>
+<span class="fc" id="L82">      tokenizer.setQuoteChar(quotes);</span>
+    }
+<span class="fc" id="L84">    tokenizer.setIgnoreEmptyTokens(false);</span>
+<span class="fc" id="L85">    tokenizer.reset();</span>
+<span class="fc" id="L86">    InputStreamReader reader = new InputStreamReader(stream, encoding);</span>
+<span class="fc" id="L87">    br = new BufferedReader(reader);</span>
+<span class="fc" id="L88">    row = br.readLine();</span>
+    // parse header row
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">    if (row == null) {</span>
+<span class="nc" id="L91">      header = null;</span>
+    } else {
+<span class="fc" id="L93">      tokenizer.reset(row);</span>
+<span class="fc" id="L94">      header = tokenizer.getTokenArray();</span>
     }
     // skip initial header rows?
-<span class="fc bfc" id="L100" title="All 2 branches covered.">    while (headerRows &gt; 0) {</span>
-<span class="fc" id="L101">      headerRows--;</span>
-<span class="fc" id="L102">      row = br.readLine();</span>
+<span class="pc bpc" id="L97" title="1 of 4 branches missed.">    while (headerRows != null &amp;&amp; headerRows &gt; 0) {</span>
+<span class="fc" id="L98">      headerRows--;</span>
+<span class="fc" id="L99">      row = br.readLine();</span>
     }
-<span class="fc" id="L104">  }</span>
+<span class="fc" id="L101">  }</span>
 
   /**
    * Get the header, or null if none
-   * @return
    */
   public String[] getHeader() {
-<span class="nc" id="L111">    return header;</span>
+<span class="nc" id="L107">    return header;</span>
   }
 
   @Override
   public void close() {
     try {
-<span class="fc" id="L117">      br.close();</span>
-<span class="nc" id="L118">    } catch (IOException e) {</span>
-<span class="nc" id="L119">      LOG.debug(&quot;Exception caught&quot;, e);</span>
-<span class="fc" id="L120">    }</span>
-<span class="fc" id="L121">  }</span>
+<span class="fc" id="L113">      br.close();</span>
+<span class="nc" id="L114">    } catch (IOException e) {</span>
+<span class="nc" id="L115">      LOG.debug(&quot;Exception caught&quot;, e);</span>
+<span class="fc" id="L116">    }</span>
+<span class="fc" id="L117">  }</span>
 
   /**
    * @return the current line number of the String[] iterator
    */
   public int currLineNumber() {
-<span class="nc" id="L127">    return rows;</span>
+<span class="nc" id="L123">    return rows;</span>
   }
 
   /**
    * @return a set of the line numbers of the firsts empty rows found in the file
    */
   public Set&lt;Integer&gt; getEmptyLines() {
-<span class="pc bpc" id="L134" title="1 of 2 branches missed.">    return emptyLines == null ? new HashSet&lt;&gt;() : emptyLines.keySet();</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">    return emptyLines == null ? new HashSet&lt;&gt;() : emptyLines.keySet();</span>
   }
 
   /**
    * @return the number of rows of data that were correctly read from the file
    */
   public int getReadRows() {
-<span class="nc" id="L141">    return readRows;</span>
+<span class="nc" id="L137">    return readRows;</span>
   }
 
   /*
@@ -147,7 +143,7 @@ public class CSVReader implements ClosableReportingIterator&lt;String[]&gt; {
    */
   @Override
   public boolean hasNext() {
-<span class="fc bfc" id="L150" title="All 2 branches covered.">    return row != null;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">    return row != null;</span>
   }
 
   /*
@@ -156,73 +152,73 @@ public class CSVReader implements ClosableReportingIterator&lt;String[]&gt; {
    */
   @Override
   public String[] next() {
-<span class="fc bfc" id="L159" title="All 2 branches covered.">    if (row == null) {</span>
-<span class="fc" id="L160">      return null;</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">    if (row == null) {</span>
+<span class="fc" id="L156">      return null;</span>
     }
-<span class="fc" id="L162">    tokenizer.reset(row);</span>
-<span class="fc" id="L163">    resetReportingIterator();</span>
+<span class="fc" id="L158">    tokenizer.reset(row);</span>
+<span class="fc" id="L159">    resetReportingIterator();</span>
     try {
-<span class="fc" id="L165">      row = br.readLine();</span>
-<span class="fc" id="L166">      rows++;</span>
+<span class="fc" id="L161">      row = br.readLine();</span>
+<span class="fc" id="L162">      rows++;</span>
       // skip empty lines
-<span class="fc bfc" id="L168" title="All 4 branches covered.">      while (row != null &amp;&amp; row.length() == 0) {</span>
+<span class="fc bfc" id="L164" title="All 4 branches covered.">      while (row != null &amp;&amp; row.length() == 0) {</span>
         // save line number of empty line
-<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if (emptyLines != null) {</span>
-<span class="fc" id="L171">          emptyLines.put(rows + headerRows + 1, &quot;&quot;);</span>
+<span class="pc bpc" id="L166" title="2 of 4 branches missed.">        if (emptyLines != null &amp;&amp; emptyLines.size() &lt; emptyLinesCacheLimit) {</span>
+<span class="fc" id="L167">          emptyLines.put(rows + headerRows + 1, &quot;&quot;);</span>
         }
-<span class="fc" id="L173">        row = br.readLine();</span>
-<span class="fc" id="L174">        rows++;</span>
+<span class="fc" id="L169">        row = br.readLine();</span>
+<span class="fc" id="L170">        rows++;</span>
       }
-<span class="fc" id="L176">      readRows++;</span>
-<span class="nc" id="L177">    } catch (IOException e) {</span>
-<span class="nc" id="L178">      LOG.debug(&quot;Exception caught&quot;, e);</span>
-<span class="nc" id="L179">      rowError = true;</span>
-<span class="nc" id="L180">      exception = e;</span>
+<span class="fc" id="L172">      readRows++;</span>
+<span class="nc" id="L173">    } catch (IOException e) {</span>
+<span class="nc" id="L174">      LOG.debug(&quot;Exception caught&quot;, e);</span>
+<span class="nc" id="L175">      rowError = true;</span>
+<span class="nc" id="L176">      exception = e;</span>
 
       // construct error message showing exception and problem row
-<span class="nc" id="L183">      StringBuilder msg = new StringBuilder();</span>
-<span class="nc" id="L184">      msg.append(&quot;Exception caught: &quot;);</span>
-<span class="nc" id="L185">      msg.append(e.getMessage());</span>
-<span class="nc bnc" id="L186" title="All 2 branches missed.">      if (!Strings.isNullOrEmpty(row)) {</span>
-<span class="nc" id="L187">        msg.append(&quot;\n&quot;);</span>
-<span class="nc" id="L188">        msg.append(&quot;Row: &quot;);</span>
-<span class="nc" id="L189">        msg.append(row);</span>
+<span class="nc" id="L179">      StringBuilder msg = new StringBuilder();</span>
+<span class="nc" id="L180">      msg.append(&quot;Exception caught: &quot;);</span>
+<span class="nc" id="L181">      msg.append(e.getMessage());</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">      if (StringUtils.isNotBlank(row)) {</span>
+<span class="nc" id="L183">        msg.append(&quot;\n&quot;);</span>
+<span class="nc" id="L184">        msg.append(&quot;Row: &quot;);</span>
+<span class="nc" id="L185">        msg.append(row);</span>
       }
-<span class="nc" id="L191">      errorMessage = msg.toString();</span>
+<span class="nc" id="L187">      errorMessage = msg.toString();</span>
 
       // ensure iteration terminates
-<span class="nc" id="L194">      row = null;</span>
-<span class="fc" id="L195">    }</span>
-<span class="fc" id="L196">    return tokenizer.getTokenArray();</span>
+<span class="nc" id="L190">      row = null;</span>
+<span class="fc" id="L191">    }</span>
+<span class="fc" id="L192">    return tokenizer.getTokenArray();</span>
   }
 
   /**
    * Reset all reporting parameters.
    */
   private void resetReportingIterator() {
-<span class="fc" id="L203">    rowError = false;</span>
-<span class="fc" id="L204">    exception = null;</span>
-<span class="fc" id="L205">    errorMessage = null;</span>
-<span class="fc" id="L206">  }</span>
+<span class="fc" id="L199">    rowError = false;</span>
+<span class="fc" id="L200">    exception = null;</span>
+<span class="fc" id="L201">    errorMessage = null;</span>
+<span class="fc" id="L202">  }</span>
 
   @Override
   public void remove() {
-<span class="nc" id="L210">    throw new UnsupportedOperationException(&quot;Remove not supported&quot;);</span>
+<span class="nc" id="L206">    throw new UnsupportedOperationException(&quot;Remove not supported&quot;);</span>
   }
 
   @Override
   public boolean hasRowError() {
-<span class="nc" id="L215">    return rowError;</span>
+<span class="nc" id="L211">    return rowError;</span>
   }
 
   @Override
   public String getErrorMessage() {
-<span class="nc" id="L220">    return errorMessage;</span>
+<span class="nc" id="L216">    return errorMessage;</span>
   }
 
   @Override
   public Exception getException() {
-<span class="nc" id="L225">    return exception;</span>
+<span class="nc" id="L221">    return exception;</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

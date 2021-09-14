@@ -1,24 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BigDecimalUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.number</a> &gt; <span class="el_source">BigDecimalUtils.java</span></div><h1>BigDecimalUtils.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2016 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BigDecimalUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.number</a> &gt; <span class="el_source">BigDecimalUtils.java</span></div><h1>BigDecimalUtils.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.number;
 
 import java.math.BigDecimal;
-
-import com.google.common.base.Preconditions;
+import java.util.Objects;
 
 /**
  * Utility class to work with BigDecimal.
@@ -36,20 +34,19 @@ public class BigDecimalUtils {
    * @return instance of BigDecimal
    */
   public static BigDecimal fromDouble(Double value, boolean stripTrailingZeros){
-
-<span class="fc" id="L40">    Preconditions.checkNotNull(value);</span>
+<span class="fc" id="L37">    Objects.requireNonNull(value);</span>
 
     //safer to create a BigDecimal from String than Double
-<span class="fc" id="L43">    BigDecimal bd = new BigDecimal(Double.toString(value));</span>
-<span class="fc bfc" id="L44" title="All 2 branches covered.">    if(stripTrailingZeros){</span>
+<span class="fc" id="L40">    BigDecimal bd = new BigDecimal(Double.toString(value));</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">    if(stripTrailingZeros){</span>
       //we do not use stripTrailingZeros() simply because it plays with the scale and returns a BigDecimal
       //that is numerically equals. see test in BigDecimalUtilsTest
-<span class="fc bfc" id="L47" title="All 2 branches covered.">      if(bd.remainder(BigDecimal.ONE).movePointRight(bd.scale()).intValue() == 0 ){</span>
-<span class="fc" id="L48">        bd = new BigDecimal(value.intValue());</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">      if(bd.remainder(BigDecimal.ONE).movePointRight(bd.scale()).intValue() == 0 ){</span>
+<span class="fc" id="L45">        bd = new BigDecimal(value.intValue());</span>
       }
     }
-<span class="fc" id="L51">    return bd;</span>
+<span class="fc" id="L48">    return bd;</span>
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

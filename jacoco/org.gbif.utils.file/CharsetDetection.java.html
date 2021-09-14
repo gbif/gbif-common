@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CharsetDetection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file</a> &gt; <span class="el_source">CharsetDetection.java</span></div><h1>CharsetDetection.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2014 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CharsetDetection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file</a> &gt; <span class="el_source">CharsetDetection.java</span></div><h1>CharsetDetection.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.file;
 
 import java.io.File;
@@ -23,8 +22,8 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 
-import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,7 @@ import static org.gbif.utils.file.FileUtils.readByteBuffer;
  */
 public class CharsetDetection {
 
-<span class="fc" id="L58">  private static final Logger LOG = LoggerFactory.getLogger(CharsetDetection.class);</span>
+<span class="fc" id="L57">  private static final Logger LOG = LoggerFactory.getLogger(CharsetDetection.class);</span>
   // encodings to test and very unlikely chars in that encoding
   private static final byte LF = 0x0a;
   private static final byte CR = 0x0d;
@@ -65,36 +64,36 @@ public class CharsetDetection {
   private static final char[] COMMON_NON_ASCII_CHARS;
 
   static {
-<span class="fc" id="L68">    String commonChars = &quot;äåáàæœčéèêëïñøöüßšž°±&quot;;</span>
-<span class="fc" id="L69">    CharBuffer cbuf = CharBuffer.allocate(commonChars.length() * 2);</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">    for (char c : commonChars.toCharArray()) {</span>
-<span class="fc" id="L71">      cbuf.append(c);</span>
-<span class="fc" id="L72">      cbuf.append(Character.toUpperCase(c));</span>
+<span class="fc" id="L67">    String commonChars = &quot;äåáàæœčéèêëïñøöüßšž°±&quot;;</span>
+<span class="fc" id="L68">    CharBuffer cbuf = CharBuffer.allocate(commonChars.length() * 2);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    for (char c : commonChars.toCharArray()) {</span>
+<span class="fc" id="L70">      cbuf.append(c);</span>
+<span class="fc" id="L71">      cbuf.append(Character.toUpperCase(c));</span>
     }
-<span class="fc" id="L74">    COMMON_NON_ASCII_CHARS = cbuf.array();</span>
+<span class="fc" id="L73">    COMMON_NON_ASCII_CHARS = cbuf.array();</span>
   }
 
-<span class="fc" id="L77">  private static final Charset LATIN1 = Charsets.ISO_8859_1;</span>
+<span class="fc" id="L76">  private static final Charset LATIN1 = StandardCharsets.ISO_8859_1;</span>
   private static final Charset WINDOWS1252;
   private static final Charset MACROMAN;
 
   static {
-<span class="fc" id="L82">    Charset cs = null;</span>
+<span class="fc" id="L81">    Charset cs = null;</span>
     try {
-<span class="fc" id="L84">      cs = Charset.forName(&quot;Cp1252&quot;);</span>
-<span class="nc" id="L85">    } catch (Exception e) {</span>
-<span class="nc" id="L86">      LOG.warn(&quot;Windows 1252 encoding not supported on this Virtual Machine&quot;);</span>
-<span class="fc" id="L87">    }</span>
-<span class="fc" id="L88">    WINDOWS1252 = cs;</span>
+<span class="fc" id="L83">      cs = Charset.forName(&quot;Cp1252&quot;);</span>
+<span class="nc" id="L84">    } catch (Exception e) {</span>
+<span class="nc" id="L85">      LOG.warn(&quot;Windows 1252 encoding not supported on this Virtual Machine&quot;);</span>
+<span class="fc" id="L86">    }</span>
+<span class="fc" id="L87">    WINDOWS1252 = cs;</span>
 
-<span class="fc" id="L90">    cs = null;</span>
+<span class="fc" id="L89">    cs = null;</span>
     try {
-<span class="fc" id="L92">      cs = Charset.forName(&quot;MacRoman&quot;);</span>
-<span class="nc" id="L93">    } catch (Exception e) {</span>
-<span class="nc" id="L94">      LOG.warn(&quot;MacRoman encoding not supported on this Virtual Machine&quot;);</span>
-<span class="fc" id="L95">    }</span>
-<span class="fc" id="L96">    MACROMAN = cs;</span>
-<span class="fc" id="L97">  }</span>
+<span class="fc" id="L91">      cs = Charset.forName(&quot;MacRoman&quot;);</span>
+<span class="nc" id="L92">    } catch (Exception e) {</span>
+<span class="nc" id="L93">      LOG.warn(&quot;MacRoman encoding not supported on this Virtual Machine&quot;);</span>
+<span class="fc" id="L94">    }</span>
+<span class="fc" id="L95">    MACROMAN = cs;</span>
+<span class="fc" id="L96">  }</span>
 
   private final byte[] buffer;
 
@@ -103,18 +102,18 @@ public class CharsetDetection {
    *
    * @param buffer the byte buffer of which we want to know the encoding.
    */
-<span class="fc" id="L106">  private CharsetDetection(byte[] buffer) {</span>
-<span class="fc" id="L107">    this.buffer = buffer;</span>
-<span class="fc" id="L108">  }</span>
+<span class="fc" id="L105">  private CharsetDetection(byte[] buffer) {</span>
+<span class="fc" id="L106">    this.buffer = buffer;</span>
+<span class="fc" id="L107">  }</span>
 
   public static Charset detectEncoding(File file) throws IOException {
-<span class="fc" id="L111">    byte[] data = readByteBuffer(file).array();</span>
+<span class="fc" id="L110">    byte[] data = readByteBuffer(file).array();</span>
 
-<span class="fc" id="L113">    CharsetDetection detector = new CharsetDetection(data);</span>
-<span class="fc" id="L114">    Charset charset = detector.detectEncoding();</span>
+<span class="fc" id="L112">    CharsetDetection detector = new CharsetDetection(data);</span>
+<span class="fc" id="L113">    Charset charset = detector.detectEncoding();</span>
 
-<span class="fc" id="L116">    LOG.debug(&quot;Detected character encoding &quot; + charset.displayName());</span>
-<span class="fc" id="L117">    return charset;</span>
+<span class="fc" id="L115">    LOG.debug(&quot;Detected character encoding &quot; + charset.displayName());</span>
+<span class="fc" id="L116">    return charset;</span>
   }
 
   /**
@@ -122,13 +121,13 @@ public class CharsetDetection {
    *                     characters, which could be unusual in English text.
    */
   public static Charset detectEncoding(File file, int bufferLength) throws IOException {
-<span class="fc" id="L125">    byte[] data = readByteBuffer(file, bufferLength).array();</span>
+<span class="fc" id="L124">    byte[] data = readByteBuffer(file, bufferLength).array();</span>
 
-<span class="fc" id="L127">    CharsetDetection detector = new CharsetDetection(data);</span>
-<span class="fc" id="L128">    Charset charset = detector.detectEncoding();</span>
+<span class="fc" id="L126">    CharsetDetection detector = new CharsetDetection(data);</span>
+<span class="fc" id="L127">    Charset charset = detector.detectEncoding();</span>
 
-<span class="fc" id="L130">    LOG.debug(&quot;Detected character encoding &quot; + charset.displayName());</span>
-<span class="fc" id="L131">    return charset;</span>
+<span class="fc" id="L129">    LOG.debug(&quot;Detected character encoding &quot; + charset.displayName());</span>
+<span class="fc" id="L130">    return charset;</span>
   }
 
   /**
@@ -137,7 +136,7 @@ public class CharsetDetection {
    * @return the default &lt;code&gt;Charset&lt;/code&gt;.
    */
   public static Charset getDefaultSystemCharset() {
-<span class="nc" id="L140">    return Charset.forName(System.getProperty(&quot;file.encoding&quot;));</span>
+<span class="nc" id="L139">    return Charset.forName(System.getProperty(&quot;file.encoding&quot;));</span>
   }
 
   /**
@@ -149,7 +148,7 @@ public class CharsetDetection {
    * @return true if the buffer has a BOM for UTF-16 Big Endian.
    */
   protected static boolean hasUTF16BEBom(byte[] bom) {
-<span class="pc bpc" id="L152" title="1 of 4 branches missed.">    return bom[0] == -2 &amp;&amp; bom[1] == -1;</span>
+<span class="pc bpc" id="L151" title="1 of 4 branches missed.">    return bom[0] == -2 &amp;&amp; bom[1] == -1;</span>
   }
 
   /**
@@ -161,7 +160,7 @@ public class CharsetDetection {
    * @return true if the buffer has a BOM for UTF-16 Low Endian.
    */
   protected static boolean hasUTF16LEBom(byte[] bom) {
-<span class="pc bpc" id="L164" title="1 of 4 branches missed.">    return bom[0] == -1 &amp;&amp; bom[1] == -2;</span>
+<span class="pc bpc" id="L163" title="1 of 4 branches missed.">    return bom[0] == -1 &amp;&amp; bom[1] == -2;</span>
   }
 
   /**
@@ -172,16 +171,16 @@ public class CharsetDetection {
    * @return true if the buffer has a BOM for UTF8.
    */
   protected static boolean hasUTF8Bom(byte[] bom) {
-<span class="pc bpc" id="L175" title="2 of 6 branches missed.">    return bom[0] == -17 &amp;&amp; bom[1] == -69 &amp;&amp; bom[2] == -65;</span>
+<span class="pc bpc" id="L174" title="2 of 6 branches missed.">    return bom[0] == -17 &amp;&amp; bom[1] == -69 &amp;&amp; bom[2] == -65;</span>
   }
 
   private static boolean isCommonChar(char c) {
-<span class="fc bfc" id="L179" title="All 2 branches covered.">    for (char cc : COMMON_NON_ASCII_CHARS) {</span>
-<span class="fc bfc" id="L180" title="All 2 branches covered.">      if (c == cc) {</span>
-<span class="fc" id="L181">        return true;</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">    for (char cc : COMMON_NON_ASCII_CHARS) {</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">      if (c == cc) {</span>
+<span class="fc" id="L180">        return true;</span>
       }
     }
-<span class="fc" id="L184">    return false;</span>
+<span class="fc" id="L183">    return false;</span>
   }
 
   /**
@@ -192,7 +191,7 @@ public class CharsetDetection {
    * @return true if it's a continuation char.
    */
   private static boolean isContinuationChar(byte b) {
-<span class="pc bpc" id="L195" title="1 of 4 branches missed.">    return -128 &lt;= b &amp;&amp; b &lt;= -65;</span>
+<span class="pc bpc" id="L194" title="1 of 4 branches missed.">    return -128 &lt;= b &amp;&amp; b &lt;= -65;</span>
   }
 
   /**
@@ -203,7 +202,7 @@ public class CharsetDetection {
    * @return true if it's the first byte of a five-bytes sequence.
    */
   private static boolean isFiveBytesSequence(byte b) {
-<span class="pc bpc" id="L206" title="3 of 4 branches missed.">    return -8 &lt;= b &amp;&amp; b &lt;= -5;</span>
+<span class="pc bpc" id="L205" title="3 of 4 branches missed.">    return -8 &lt;= b &amp;&amp; b &lt;= -5;</span>
   }
 
   /**
@@ -214,7 +213,7 @@ public class CharsetDetection {
    * @return true if it's the first byte of a four-bytes sequence.
    */
   private static boolean isFourBytesSequence(byte b) {
-<span class="pc bpc" id="L217" title="3 of 4 branches missed.">    return -16 &lt;= b &amp;&amp; b &lt;= -9;</span>
+<span class="pc bpc" id="L216" title="3 of 4 branches missed.">    return -16 &lt;= b &amp;&amp; b &lt;= -9;</span>
   }
 
   /**
@@ -225,7 +224,7 @@ public class CharsetDetection {
    * @return true if it's the first byte of a six-bytes sequence.
    */
   private static boolean isSixBytesSequence(byte b) {
-<span class="pc bpc" id="L228" title="3 of 4 branches missed.">    return -4 &lt;= b &amp;&amp; b &lt;= -3;</span>
+<span class="pc bpc" id="L227" title="3 of 4 branches missed.">    return -4 &lt;= b &amp;&amp; b &lt;= -3;</span>
   }
 
   /**
@@ -236,7 +235,7 @@ public class CharsetDetection {
    * @return true if it's the first byte of a three-bytes sequence.
    */
   private static boolean isThreeBytesSequence(byte b) {
-<span class="pc bpc" id="L239" title="1 of 4 branches missed.">    return -32 &lt;= b &amp;&amp; b &lt;= -17;</span>
+<span class="pc bpc" id="L238" title="1 of 4 branches missed.">    return -32 &lt;= b &amp;&amp; b &lt;= -17;</span>
   }
 
   /**
@@ -247,36 +246,36 @@ public class CharsetDetection {
    * @return true if it's the first byte of a two-bytes sequence.
    */
   private static boolean isTwoBytesSequence(byte b) {
-<span class="fc bfc" id="L250" title="All 4 branches covered.">    return -64 &lt;= b &amp;&amp; b &lt;= -33;</span>
+<span class="fc bfc" id="L249" title="All 4 branches covered.">    return -64 &lt;= b &amp;&amp; b &lt;= -33;</span>
   }
 
   private Charset detectCharacterEncoding8bit() {
 
     // the number of &quot;bad&quot; chars for the best guess. A better guess will have
-<span class="fc" id="L256">    long leastSuspicousChars = testLatin1();</span>
+<span class="fc" id="L255">    long leastSuspicousChars = testLatin1();</span>
     long suspicousChars;
 
     // the best guess so far
-<span class="fc" id="L260">    Charset bestEncoding = LATIN1;</span>
+<span class="fc" id="L259">    Charset bestEncoding = LATIN1;</span>
 
-<span class="pc bpc" id="L262" title="1 of 2 branches missed.">    if (WINDOWS1252 != null) {</span>
-<span class="fc" id="L263">      suspicousChars = testWindows1252();</span>
-<span class="fc bfc" id="L264" title="All 2 branches covered.">      if (suspicousChars &lt; leastSuspicousChars) {</span>
-<span class="fc" id="L265">        leastSuspicousChars = suspicousChars;</span>
-<span class="fc" id="L266">        bestEncoding = WINDOWS1252;</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">    if (WINDOWS1252 != null) {</span>
+<span class="fc" id="L262">      suspicousChars = testWindows1252();</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">      if (suspicousChars &lt; leastSuspicousChars) {</span>
+<span class="fc" id="L264">        leastSuspicousChars = suspicousChars;</span>
+<span class="fc" id="L265">        bestEncoding = WINDOWS1252;</span>
       }
     }
 
-<span class="pc bpc" id="L270" title="1 of 2 branches missed.">    if (MACROMAN != null) {</span>
-<span class="fc" id="L271">      suspicousChars = testMacRoman();</span>
-<span class="fc bfc" id="L272" title="All 2 branches covered.">      if (suspicousChars &lt; leastSuspicousChars) {</span>
-<span class="fc" id="L273">        leastSuspicousChars = suspicousChars;</span>
-<span class="fc" id="L274">        bestEncoding = MACROMAN;</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">    if (MACROMAN != null) {</span>
+<span class="fc" id="L270">      suspicousChars = testMacRoman();</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">      if (suspicousChars &lt; leastSuspicousChars) {</span>
+<span class="fc" id="L272">        leastSuspicousChars = suspicousChars;</span>
+<span class="fc" id="L273">        bestEncoding = MACROMAN;</span>
       }
     }
 
-<span class="fc" id="L278">    LOG.debug(&quot;8bit Encoding guessed: {} with {} rare characters&quot;, bestEncoding, leastSuspicousChars);</span>
-<span class="fc" id="L279">    return bestEncoding;</span>
+<span class="fc" id="L277">    LOG.debug(&quot;8bit Encoding guessed: {} with {} rare characters&quot;, bestEncoding, leastSuspicousChars);</span>
+<span class="fc" id="L278">    return bestEncoding;</span>
   }
 
   /**
@@ -315,255 +314,255 @@ public class CharsetDetection {
   public Charset detectEncoding() {
     // if the file has a Byte Order Marker, we can assume the file is in UTF-xx
     // otherwise, the file would not be human readable
-<span class="fc bfc" id="L318" title="All 2 branches covered.">    if (hasUTF8Bom(buffer)) {</span>
-<span class="fc" id="L319">      return Charsets.UTF_8;</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">    if (hasUTF8Bom(buffer)) {</span>
+<span class="fc" id="L318">      return StandardCharsets.UTF_8;</span>
     }
-<span class="fc bfc" id="L321" title="All 2 branches covered.">    if (hasUTF16LEBom(buffer)) {</span>
-<span class="fc" id="L322">      return Charsets.UTF_16LE;</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">    if (hasUTF16LEBom(buffer)) {</span>
+<span class="fc" id="L321">      return StandardCharsets.UTF_16LE;</span>
     }
-<span class="fc bfc" id="L324" title="All 2 branches covered.">    if (hasUTF16BEBom(buffer)) {</span>
-<span class="fc" id="L325">      return Charsets.UTF_16BE;</span>
+<span class="fc bfc" id="L323" title="All 2 branches covered.">    if (hasUTF16BEBom(buffer)) {</span>
+<span class="fc" id="L324">      return StandardCharsets.UTF_16BE;</span>
     }
 
     // if it's not UTF-8 or a BOM present check for UTF16 zeros
-<span class="fc" id="L329">    Charset cs = detectUtf16();</span>
-<span class="fc bfc" id="L330" title="All 2 branches covered.">    if (cs != null) {</span>
-<span class="fc" id="L331">      return cs;</span>
+<span class="fc" id="L328">    Charset cs = detectUtf16();</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">    if (cs != null) {</span>
+<span class="fc" id="L330">      return cs;</span>
     }
 
     // if the file is in UTF-8, high order bytes must have a certain value, in order to be valid
     // if it's not the case, we can assume the encoding is some 8 bit one
-<span class="fc" id="L336">    boolean validU8Char = true;</span>
+<span class="fc" id="L335">    boolean validU8Char = true;</span>
 
     // TODO the buffer is not read up to the end, but up to length - 6
 
-<span class="fc" id="L340">    int length = buffer.length;</span>
-<span class="fc" id="L341">    int i = 0;</span>
-<span class="fc bfc" id="L342" title="All 2 branches covered.">    while (i &lt; length - 6) {</span>
-<span class="fc" id="L343">      byte b0 = buffer[i];</span>
-<span class="fc" id="L344">      byte b1 = buffer[i + 1];</span>
-<span class="fc" id="L345">      byte b2 = buffer[i + 2];</span>
-<span class="fc" id="L346">      byte b3 = buffer[i + 3];</span>
-<span class="fc" id="L347">      byte b4 = buffer[i + 4];</span>
-<span class="fc" id="L348">      byte b5 = buffer[i + 5];</span>
-<span class="fc bfc" id="L349" title="All 2 branches covered.">      if (b0 &lt; 0) {</span>
+<span class="fc" id="L339">    int length = buffer.length;</span>
+<span class="fc" id="L340">    int i = 0;</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">    while (i &lt; length - 6) {</span>
+<span class="fc" id="L342">      byte b0 = buffer[i];</span>
+<span class="fc" id="L343">      byte b1 = buffer[i + 1];</span>
+<span class="fc" id="L344">      byte b2 = buffer[i + 2];</span>
+<span class="fc" id="L345">      byte b3 = buffer[i + 3];</span>
+<span class="fc" id="L346">      byte b4 = buffer[i + 4];</span>
+<span class="fc" id="L347">      byte b5 = buffer[i + 5];</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">      if (b0 &lt; 0) {</span>
         // a high order bit was encountered, thus the encoding is not US-ASCII
         // a two-byte sequence was encountered
-<span class="fc bfc" id="L352" title="All 2 branches covered.">        if (isTwoBytesSequence(b0)) {</span>
+<span class="fc bfc" id="L351" title="All 2 branches covered.">        if (isTwoBytesSequence(b0)) {</span>
           // there must be one continuation byte of the form 10xxxxxx,
           // otherwise the following character is is not a valid UTF-8 construct
-<span class="fc bfc" id="L355" title="All 2 branches covered.">          if (isContinuationChar(b1)) {</span>
-<span class="fc" id="L356">            i++;</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">          if (isContinuationChar(b1)) {</span>
+<span class="fc" id="L355">            i++;</span>
           } else {
-<span class="fc" id="L358">            validU8Char = false;</span>
+<span class="fc" id="L357">            validU8Char = false;</span>
           }
         }
         // a three-byte sequence was encountered
-<span class="fc bfc" id="L362" title="All 2 branches covered.">        else if (isThreeBytesSequence(b0)) {</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">        else if (isThreeBytesSequence(b0)) {</span>
           // there must be two continuation bytes of the form 10xxxxxx,
           // otherwise the following character is is not a valid UTF-8 construct
-<span class="pc bpc" id="L365" title="1 of 4 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2)) {</span>
-<span class="fc" id="L366">            i += 2;</span>
+<span class="pc bpc" id="L364" title="1 of 4 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2)) {</span>
+<span class="fc" id="L365">            i += 2;</span>
           } else {
-<span class="fc" id="L368">            validU8Char = false;</span>
+<span class="fc" id="L367">            validU8Char = false;</span>
           }
         }
         // a four-byte sequence was encountered
-<span class="pc bpc" id="L372" title="1 of 2 branches missed.">        else if (isFourBytesSequence(b0)) {</span>
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">        else if (isFourBytesSequence(b0)) {</span>
           // there must be three continuation bytes of the form 10xxxxxx,
           // otherwise the following character is is not a valid UTF-8 construct
-<span class="nc bnc" id="L375" title="All 6 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3)) {</span>
-<span class="nc" id="L376">            i += 3;</span>
+<span class="nc bnc" id="L374" title="All 6 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3)) {</span>
+<span class="nc" id="L375">            i += 3;</span>
           } else {
-<span class="nc" id="L378">            validU8Char = false;</span>
+<span class="nc" id="L377">            validU8Char = false;</span>
           }
         }
         // a five-byte sequence was encountered
-<span class="pc bpc" id="L382" title="1 of 2 branches missed.">        else if (isFiveBytesSequence(b0)) {</span>
+<span class="pc bpc" id="L381" title="1 of 2 branches missed.">        else if (isFiveBytesSequence(b0)) {</span>
           // there must be four continuation bytes of the form 10xxxxxx,
           // otherwise the following character is is not a valid UTF-8 construct
-<span class="nc bnc" id="L385" title="All 8 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3) &amp;&amp; isContinuationChar(b4)) {</span>
-<span class="nc" id="L386">            i += 4;</span>
+<span class="nc bnc" id="L384" title="All 8 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3) &amp;&amp; isContinuationChar(b4)) {</span>
+<span class="nc" id="L385">            i += 4;</span>
           } else {
-<span class="nc" id="L388">            validU8Char = false;</span>
+<span class="nc" id="L387">            validU8Char = false;</span>
           }
         }
         // a six-byte sequence was encountered
-<span class="pc bpc" id="L392" title="1 of 2 branches missed.">        else if (isSixBytesSequence(b0)) {</span>
+<span class="pc bpc" id="L391" title="1 of 2 branches missed.">        else if (isSixBytesSequence(b0)) {</span>
           // there must be five continuation bytes of the form 10xxxxxx,
           // otherwise the following character is is not a valid UTF-8 construct
-<span class="nc bnc" id="L395" title="All 8 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3) &amp;&amp; isContinuationChar(b4)</span>
-<span class="nc bnc" id="L396" title="All 2 branches missed.">              &amp;&amp; isContinuationChar(b5)) {</span>
-<span class="nc" id="L397">            i += 5;</span>
+<span class="nc bnc" id="L394" title="All 8 branches missed.">          if (isContinuationChar(b1) &amp;&amp; isContinuationChar(b2) &amp;&amp; isContinuationChar(b3) &amp;&amp; isContinuationChar(b4)</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">              &amp;&amp; isContinuationChar(b5)) {</span>
+<span class="nc" id="L396">            i += 5;</span>
           } else {
-<span class="nc" id="L399">            validU8Char = false;</span>
+<span class="nc" id="L398">            validU8Char = false;</span>
           }
         } else {
-<span class="fc" id="L402">          validU8Char = false;</span>
+<span class="fc" id="L401">          validU8Char = false;</span>
         }
       }
-<span class="fc bfc" id="L405" title="All 2 branches covered.">      if (!validU8Char) {</span>
-<span class="fc" id="L406">        break;</span>
+<span class="fc bfc" id="L404" title="All 2 branches covered.">      if (!validU8Char) {</span>
+<span class="fc" id="L405">        break;</span>
       }
-<span class="fc" id="L408">      i++;</span>
-<span class="fc" id="L409">    }</span>
+<span class="fc" id="L407">      i++;</span>
+<span class="fc" id="L408">    }</span>
 
     // if no invalid UTF-8 were encountered, we can assume the encoding is UTF-8,
     // otherwise the file would not be human readable
-<span class="fc bfc" id="L413" title="All 2 branches covered.">    if (validU8Char) {</span>
-<span class="fc" id="L414">      return Charsets.UTF_8;</span>
+<span class="fc bfc" id="L412" title="All 2 branches covered.">    if (validU8Char) {</span>
+<span class="fc" id="L413">      return StandardCharsets.UTF_8;</span>
     }
 
     // finally it must be some 8bit encoding we try to detect statistically
-<span class="fc" id="L418">    return detectCharacterEncoding8bit();</span>
+<span class="fc" id="L417">    return detectCharacterEncoding8bit();</span>
   }
 
   private Charset detectUtf16() {
 
     // first try to see if we got a little or big endian, i.e. lots of zeros as the first byte or second byte if we deal
     // with latin characters at least
-<span class="fc" id="L425">    int zerosLE = 0;</span>
-<span class="fc" id="L426">    int zerosBE = 0;</span>
-<span class="fc" id="L427">    boolean even = true;</span>
+<span class="fc" id="L424">    int zerosLE = 0;</span>
+<span class="fc" id="L425">    int zerosBE = 0;</span>
+<span class="fc" id="L426">    boolean even = true;</span>
 
-<span class="fc" id="L429">    int length = buffer.length;</span>
-<span class="fc" id="L430">    int i = 0;</span>
-<span class="fc bfc" id="L431" title="All 2 branches covered.">    while (i &lt; length) {</span>
-<span class="fc" id="L432">      byte b = buffer[i];</span>
-<span class="fc" id="L433">      i++;</span>
-<span class="fc bfc" id="L434" title="All 2 branches covered.">      even = !even;</span>
-<span class="fc bfc" id="L435" title="All 2 branches covered.">      if (b == 0x00) {</span>
+<span class="fc" id="L428">    int length = buffer.length;</span>
+<span class="fc" id="L429">    int i = 0;</span>
+<span class="fc bfc" id="L430" title="All 2 branches covered.">    while (i &lt; length) {</span>
+<span class="fc" id="L431">      byte b = buffer[i];</span>
+<span class="fc" id="L432">      i++;</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">      even = !even;</span>
+<span class="fc bfc" id="L434" title="All 2 branches covered.">      if (b == 0x00) {</span>
         // zero occur a lot in utf16 with latin characters
-<span class="fc bfc" id="L437" title="All 2 branches covered.">        if (even) {</span>
-<span class="fc" id="L438">          zerosLE++;</span>
+<span class="fc bfc" id="L436" title="All 2 branches covered.">        if (even) {</span>
+<span class="fc" id="L437">          zerosLE++;</span>
         } else {
-<span class="fc" id="L440">          zerosBE++;</span>
+<span class="fc" id="L439">          zerosBE++;</span>
         }
       }
-<span class="fc" id="L443">    }</span>
+<span class="fc" id="L442">    }</span>
 
     // a UTF16 encoding with many latin characters would have either lots of even or uneven bytes as zero - but not both
-<span class="fc" id="L446">    int min = buffer.length / 10;</span>
-<span class="fc bfc" id="L447" title="All 6 branches covered.">    if ((zerosBE &gt; min || zerosLE &gt; min) &amp;&amp; Math.abs(zerosBE - zerosLE) &gt; min) {</span>
-<span class="fc bfc" id="L448" title="All 2 branches covered.">      Charset charset = zerosBE &gt; zerosLE ? Charsets.UTF_16BE : Charsets.UTF_16LE;</span>
+<span class="fc" id="L445">    int min = buffer.length / 10;</span>
+<span class="fc bfc" id="L446" title="All 6 branches covered.">    if ((zerosBE &gt; min || zerosLE &gt; min) &amp;&amp; Math.abs(zerosBE - zerosLE) &gt; min) {</span>
+<span class="fc bfc" id="L447" title="All 2 branches covered.">      Charset charset = zerosBE &gt; zerosLE ? StandardCharsets.UTF_16BE : StandardCharsets.UTF_16LE;</span>
 
       // now try to decode the whole lot just to make sure
       try {
-<span class="fc" id="L452">        CharsetDecoder decoder = charset.newDecoder();</span>
-<span class="fc" id="L453">        decoder.decode(ByteBuffer.wrap(buffer));</span>
+<span class="fc" id="L451">        CharsetDecoder decoder = charset.newDecoder();</span>
+<span class="fc" id="L452">        decoder.decode(ByteBuffer.wrap(buffer));</span>
         // that worked without a problem - think we got it!
-<span class="fc" id="L455">        return charset;</span>
-<span class="nc" id="L456">      } catch (CharacterCodingException e) {</span>
+<span class="fc" id="L454">        return charset;</span>
+<span class="nc" id="L455">      } catch (CharacterCodingException e) {</span>
         // finally try with the plain UTF16 encoding
-<span class="nc" id="L458">        charset = Charsets.UTF_16;</span>
+<span class="nc" id="L457">        charset = StandardCharsets.UTF_16;</span>
         try {
-<span class="nc" id="L460">          CharsetDecoder decoder = charset.newDecoder();</span>
-<span class="nc" id="L461">          decoder.decode(ByteBuffer.wrap(buffer));</span>
+<span class="nc" id="L459">          CharsetDecoder decoder = charset.newDecoder();</span>
+<span class="nc" id="L460">          decoder.decode(ByteBuffer.wrap(buffer));</span>
           // that worked without a problem - think we got it!
-<span class="nc" id="L463">          return charset;</span>
-<span class="nc" id="L464">        } catch (CharacterCodingException e2) {</span>
+<span class="nc" id="L462">          return charset;</span>
+<span class="nc" id="L463">        } catch (CharacterCodingException e2) {</span>
         }
       }
     }
 
-<span class="fc" id="L469">    return null;</span>
+<span class="fc" id="L468">    return null;</span>
   }
 
   private long testLatin1() {
-<span class="fc" id="L473">    Charset charset = Charsets.ISO_8859_1;</span>
-<span class="fc" id="L474">    CharsetDecoder decoder = charset.newDecoder();</span>
+<span class="fc" id="L472">    Charset charset = StandardCharsets.ISO_8859_1;</span>
+<span class="fc" id="L473">    CharsetDecoder decoder = charset.newDecoder();</span>
 
-<span class="fc" id="L476">    long suspicious = 0;</span>
+<span class="fc" id="L475">    long suspicious = 0;</span>
     // count the following
 
     // first try to decode the whole lot and count common non ascii chars
     try {
-<span class="fc" id="L481">      CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));</span>
-<span class="fc bfc" id="L482" title="All 2 branches covered.">      while (cbuf.hasRemaining()) {</span>
-<span class="fc" id="L483">        char c = cbuf.get();</span>
-<span class="fc bfc" id="L484" title="All 2 branches covered.">        if (isCommonChar(c)) {</span>
-<span class="fc" id="L485">          suspicious--;</span>
+<span class="fc" id="L480">      CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));</span>
+<span class="fc bfc" id="L481" title="All 2 branches covered.">      while (cbuf.hasRemaining()) {</span>
+<span class="fc" id="L482">        char c = cbuf.get();</span>
+<span class="fc bfc" id="L483" title="All 2 branches covered.">        if (isCommonChar(c)) {</span>
+<span class="fc" id="L484">          suspicious--;</span>
         }
-<span class="fc" id="L487">      }</span>
+<span class="fc" id="L486">      }</span>
 
       // if that worked without a problem try to count suspicious characters which are rarely used in our texts
-<span class="fc" id="L490">      int length = buffer.length;</span>
-<span class="fc" id="L491">      int i = 0;</span>
-<span class="fc bfc" id="L492" title="All 2 branches covered.">      while (i &lt; length) {</span>
-<span class="fc" id="L493">        byte b = buffer[i];</span>
-<span class="fc" id="L494">        i++;</span>
+<span class="fc" id="L489">      int length = buffer.length;</span>
+<span class="fc" id="L490">      int i = 0;</span>
+<span class="fc bfc" id="L491" title="All 2 branches covered.">      while (i &lt; length) {</span>
+<span class="fc" id="L492">        byte b = buffer[i];</span>
+<span class="fc" id="L493">        i++;</span>
         // range 7f-9f undefined, see http://de.wikipedia.org/wiki/ISO_8859-1
-<span class="pc bpc" id="L496" title="1 of 4 branches missed.">        if (b &gt;= (byte) 0x80 &amp;&amp; b &lt;= (byte) 0x9f) {</span>
-<span class="fc" id="L497">          suspicious += UNDEFINED_PENALTY;</span>
+<span class="pc bpc" id="L495" title="1 of 4 branches missed.">        if (b &gt;= (byte) 0x80 &amp;&amp; b &lt;= (byte) 0x9f) {</span>
+<span class="fc" id="L496">          suspicious += UNDEFINED_PENALTY;</span>
         }
-<span class="fc" id="L499">      }</span>
-<span class="nc" id="L500">    } catch (CharacterCodingException e) {</span>
-<span class="nc" id="L501">      suspicious = Long.MAX_VALUE;</span>
-<span class="fc" id="L502">    }</span>
+<span class="fc" id="L498">      }</span>
+<span class="nc" id="L499">    } catch (CharacterCodingException e) {</span>
+<span class="nc" id="L500">      suspicious = Long.MAX_VALUE;</span>
+<span class="fc" id="L501">    }</span>
 
-<span class="fc" id="L504">    return suspicious;</span>
+<span class="fc" id="L503">    return suspicious;</span>
   }
 
   private long testMacRoman() {
-<span class="fc" id="L508">    CharsetDecoder decoder = MACROMAN.newDecoder();</span>
+<span class="fc" id="L507">    CharsetDecoder decoder = MACROMAN.newDecoder();</span>
 
-<span class="fc" id="L510">    long suspicious = 0;</span>
+<span class="fc" id="L509">    long suspicious = 0;</span>
 
     // first try to decode the whole lot
     try {
-<span class="fc" id="L514">      CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));</span>
-<span class="fc bfc" id="L515" title="All 2 branches covered.">      while (cbuf.hasRemaining()) {</span>
-<span class="fc" id="L516">        char c = cbuf.get();</span>
-<span class="fc bfc" id="L517" title="All 2 branches covered.">        if (isCommonChar(c)) {</span>
-<span class="fc" id="L518">          suspicious--;</span>
+<span class="fc" id="L513">      CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));</span>
+<span class="fc bfc" id="L514" title="All 2 branches covered.">      while (cbuf.hasRemaining()) {</span>
+<span class="fc" id="L515">        char c = cbuf.get();</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">        if (isCommonChar(c)) {</span>
+<span class="fc" id="L517">          suspicious--;</span>
         }
-<span class="fc" id="L520">      }</span>
+<span class="fc" id="L519">      }</span>
       // if that worked without a problem try to count suspicious characters which are rarely used in our texts
-<span class="fc" id="L522">      int length = buffer.length;</span>
-<span class="fc" id="L523">      int i = 0;</span>
-<span class="fc bfc" id="L524" title="All 2 branches covered.">      while (i &lt; length) {</span>
-<span class="fc" id="L525">        byte b = buffer[i];</span>
-<span class="fc" id="L526">        i++;</span>
+<span class="fc" id="L521">      int length = buffer.length;</span>
+<span class="fc" id="L522">      int i = 0;</span>
+<span class="fc bfc" id="L523" title="All 2 branches covered.">      while (i &lt; length) {</span>
+<span class="fc" id="L524">        byte b = buffer[i];</span>
+<span class="fc" id="L525">        i++;</span>
         // all ranges defined I am afraid
-<span class="fc" id="L528">      }</span>
-<span class="nc" id="L529">    } catch (CharacterCodingException e) {</span>
-<span class="nc" id="L530">      suspicious = Long.MAX_VALUE;</span>
-<span class="fc" id="L531">    }</span>
+<span class="fc" id="L527">      }</span>
+<span class="nc" id="L528">    } catch (CharacterCodingException e) {</span>
+<span class="nc" id="L529">      suspicious = Long.MAX_VALUE;</span>
+<span class="fc" id="L530">    }</span>
 
-<span class="fc" id="L533">    return suspicious;</span>
+<span class="fc" id="L532">    return suspicious;</span>
   }
 
   private long testWindows1252() {
-<span class="fc" id="L537">    CharsetDecoder decoder = WINDOWS1252.newDecoder();</span>
-<span class="fc" id="L538">    long suspicious = 0;</span>
+<span class="fc" id="L536">    CharsetDecoder decoder = WINDOWS1252.newDecoder();</span>
+<span class="fc" id="L537">    long suspicious = 0;</span>
 
     // first try to decode the whole lot
     try {
-<span class="fc" id="L542">      CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));</span>
-<span class="fc bfc" id="L543" title="All 2 branches covered.">      while (cbuf.hasRemaining()) {</span>
-<span class="fc" id="L544">        char c = cbuf.get();</span>
-<span class="fc bfc" id="L545" title="All 2 branches covered.">        if (isCommonChar(c)) {</span>
-<span class="fc" id="L546">          suspicious--;</span>
+<span class="fc" id="L541">      CharBuffer cbuf = decoder.decode(ByteBuffer.wrap(buffer));</span>
+<span class="fc bfc" id="L542" title="All 2 branches covered.">      while (cbuf.hasRemaining()) {</span>
+<span class="fc" id="L543">        char c = cbuf.get();</span>
+<span class="fc bfc" id="L544" title="All 2 branches covered.">        if (isCommonChar(c)) {</span>
+<span class="fc" id="L545">          suspicious--;</span>
         }
-<span class="fc" id="L548">      }</span>
+<span class="fc" id="L547">      }</span>
       // if that worked without a problem try to count suspicous characters which are rarely used in our texts
       // see http://de.wikipedia.org/wiki/ISO_8859-1
-<span class="fc" id="L551">      int length = buffer.length;</span>
-<span class="fc" id="L552">      int i = 0;</span>
-<span class="fc bfc" id="L553" title="All 2 branches covered.">      while (i &lt; length) {</span>
-<span class="fc" id="L554">        byte b = buffer[i];</span>
-<span class="fc" id="L555">        i++;</span>
+<span class="fc" id="L550">      int length = buffer.length;</span>
+<span class="fc" id="L551">      int i = 0;</span>
+<span class="fc bfc" id="L552" title="All 2 branches covered.">      while (i &lt; length) {</span>
+<span class="fc" id="L553">        byte b = buffer[i];</span>
+<span class="fc" id="L554">        i++;</span>
         // 5 undefined chars
-<span class="pc bpc" id="L557" title="5 of 10 branches missed.">        if (b == (byte) 0x81 || b == (byte) 0x8d || b == (byte) 0x8f || b == (byte) 0x90 || b == (byte) 0x9d) {</span>
-<span class="nc" id="L558">          suspicious += UNDEFINED_PENALTY;</span>
+<span class="pc bpc" id="L556" title="5 of 10 branches missed.">        if (b == (byte) 0x81 || b == (byte) 0x8d || b == (byte) 0x8f || b == (byte) 0x90 || b == (byte) 0x9d) {</span>
+<span class="nc" id="L557">          suspicious += UNDEFINED_PENALTY;</span>
         }
-<span class="fc" id="L560">      }</span>
-<span class="nc" id="L561">    } catch (CharacterCodingException e) {</span>
-<span class="nc" id="L562">      suspicious = Long.MAX_VALUE;</span>
-<span class="fc" id="L563">    }</span>
+<span class="fc" id="L559">      }</span>
+<span class="nc" id="L560">    } catch (CharacterCodingException e) {</span>
+<span class="nc" id="L561">      suspicious = Long.MAX_VALUE;</span>
+<span class="fc" id="L562">    }</span>
 
-<span class="fc" id="L565">    return suspicious;</span>
+<span class="fc" id="L564">    return suspicious;</span>
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

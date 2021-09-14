@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompressionUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file</a> &gt; <span class="el_source">CompressionUtil.java</span></div><h1>CompressionUtil.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2014 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompressionUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file</a> &gt; <span class="el_source">CompressionUtil.java</span></div><h1>CompressionUtil.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.file;
 
 import java.io.BufferedInputStream;
@@ -49,29 +48,29 @@ import org.slf4j.LoggerFactory;
 
 public class CompressionUtil {
 
-<span class="nc" id="L52">  private CompressionUtil() {</span>
-<span class="nc" id="L53">    throw new UnsupportedOperationException(&quot;Can't initialize class&quot;);</span>
+<span class="nc" id="L51">  private CompressionUtil() {</span>
+<span class="nc" id="L52">    throw new UnsupportedOperationException(&quot;Can't initialize class&quot;);</span>
   }
 
   public static class UnsupportedCompressionType extends RuntimeException {
 
-<span class="nc" id="L58">    public UnsupportedCompressionType() {</span>
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L57">    public UnsupportedCompressionType() {</span>
+<span class="nc" id="L58">    }</span>
 
     public UnsupportedCompressionType(String message) {
-<span class="nc" id="L62">      super(message);</span>
-<span class="nc" id="L63">    }</span>
+<span class="nc" id="L61">      super(message);</span>
+<span class="nc" id="L62">    }</span>
 
     public UnsupportedCompressionType(String message, Throwable cause) {
-<span class="nc" id="L66">      super(message, cause);</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc" id="L65">      super(message, cause);</span>
+<span class="nc" id="L66">    }</span>
 
   }
 
-<span class="fc" id="L71">  private static final Logger LOG = LoggerFactory.getLogger(CompressionUtil.class);</span>
+<span class="fc" id="L70">  private static final Logger LOG = LoggerFactory.getLogger(CompressionUtil.class);</span>
   private static final int BUFFER = 2048;
   private static final String APPLE_RESOURCE_FORK = &quot;__MACOSX&quot;;
-<span class="fc" id="L74">  private static final byte[] TAR_MAGIC_BYTES = new byte[]{'u', 's', 't', 'a', 'r'};</span>
+<span class="fc" id="L73">  private static final byte[] TAR_MAGIC_BYTES = new byte[]{'u', 's', 't', 'a', 'r'};</span>
 
   /**
    * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename
@@ -81,19 +80,19 @@ public class CompressionUtil {
    */
   public static File decompressFile(File compressedFile) throws IOException, UnsupportedCompressionType {
     // create empty tmp dir
-<span class="nc" id="L84">    File dir = File.createTempFile(&quot;gbif-&quot;, null);</span>
-<span class="nc bnc" id="L85" title="All 4 branches missed.">    if (dir.exists() &amp;&amp; !dir.delete()) {</span>
-<span class="nc" id="L86">      throw new IOException(&quot;Couldn't delete temporary directory&quot;);</span>
+<span class="nc" id="L83">    File dir = File.createTempFile(&quot;gbif-&quot;, null);</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">    if (dir.exists() &amp;&amp; !dir.delete()) {</span>
+<span class="nc" id="L85">      throw new IOException(&quot;Couldn't delete temporary directory&quot;);</span>
     }
 
-<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (!dir.mkdirs()) {</span>
-<span class="nc" id="L90">      throw new IOException(&quot;Couldn't create temporary directory for decompression&quot;);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">    if (!dir.mkdirs()) {</span>
+<span class="nc" id="L89">      throw new IOException(&quot;Couldn't create temporary directory for decompression&quot;);</span>
     }
 
     // decompress
-<span class="nc" id="L94">    decompressFile(dir, compressedFile);</span>
+<span class="nc" id="L93">    decompressFile(dir, compressedFile);</span>
 
-<span class="nc" id="L96">    return dir;</span>
+<span class="nc" id="L95">    return dir;</span>
   }
 
   /**
@@ -103,7 +102,7 @@ public class CompressionUtil {
    */
   public static List&lt;File&gt; decompressFile(File directory, File compressedFile)
     throws IOException, UnsupportedCompressionType {
-<span class="fc" id="L106">    return decompressFile(directory, compressedFile, false);</span>
+<span class="fc" id="L105">    return decompressFile(directory, compressedFile, false);</span>
   }
 
   /**
@@ -120,44 +119,44 @@ public class CompressionUtil {
    */
   public static List&lt;File&gt; decompressFile(File directory, File compressedFile, boolean keepSubdirectories)
     throws IOException, UnsupportedCompressionType {
-<span class="fc" id="L123">    List&lt;File&gt; files = null;</span>
+<span class="fc" id="L122">    List&lt;File&gt; files = null;</span>
 
     // Test before trying gzip format
-<span class="fc bfc" id="L126" title="All 2 branches covered.">    if (isGzipFormat(compressedFile)) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">    if (isGzipFormat(compressedFile)) {</span>
       try {
-<span class="fc" id="L128">        LOG.debug(&quot;Uncompressing {} with gzip compression to {}&quot;, compressedFile, directory);</span>
-<span class="fc" id="L129">        files = untgzFile(directory, compressedFile);</span>
-<span class="nc" id="L130">      } catch (Exception e) {</span>
-<span class="nc" id="L131">        LOG.debug(&quot;Not gzip compression&quot;);</span>
-<span class="fc" id="L132">      }</span>
+<span class="fc" id="L127">        LOG.debug(&quot;Uncompressing {} with gzip compression to {}&quot;, compressedFile, directory);</span>
+<span class="fc" id="L128">        files = untgzFile(directory, compressedFile);</span>
+<span class="nc" id="L129">      } catch (Exception e) {</span>
+<span class="nc" id="L130">        LOG.debug(&quot;Not gzip compression&quot;);</span>
+<span class="fc" id="L131">      }</span>
     }
 
     // Test before trying TAR format
-<span class="fc bfc" id="L136" title="All 2 branches covered.">    if (isTarFormat(compressedFile)) {</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">    if (isTarFormat(compressedFile)) {</span>
       try {
-<span class="fc" id="L138">        LOG.debug(&quot;Uncompressing {} with TAR compression to {}&quot;, compressedFile, directory);</span>
-<span class="fc" id="L139">        files = untarFile(directory, compressedFile);</span>
-<span class="nc" id="L140">      } catch (Exception e) {</span>
-<span class="nc" id="L141">        LOG.debug(&quot;Not TAR compression&quot;);</span>
-<span class="fc" id="L142">      }</span>
+<span class="fc" id="L137">        LOG.debug(&quot;Uncompressing {} with TAR compression to {}&quot;, compressedFile, directory);</span>
+<span class="fc" id="L138">        files = untarFile(directory, compressedFile);</span>
+<span class="nc" id="L139">      } catch (Exception e) {</span>
+<span class="nc" id="L140">        LOG.debug(&quot;Not TAR compression&quot;);</span>
+<span class="fc" id="L141">      }</span>
     }
 
     // Then try zip
-<span class="fc bfc" id="L146" title="All 2 branches covered.">    if (files == null) {</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">    if (files == null) {</span>
       try {
-<span class="fc" id="L148">        LOG.debug(&quot;Uncompressing {} with Zip compression to {}&quot;, compressedFile, directory);</span>
-<span class="fc" id="L149">        files = unzipFile(directory, compressedFile, keepSubdirectories);</span>
-<span class="nc" id="L150">      } catch (ZipException e) {</span>
-<span class="nc" id="L151">        LOG.debug(&quot;Not Zip compression&quot;);</span>
-<span class="nc" id="L152">        throw new UnsupportedCompressionType(&quot;Unknown compression type. Neither gzip nor Zip&quot;, e);</span>
-<span class="fc" id="L153">      }</span>
+<span class="fc" id="L147">        LOG.debug(&quot;Uncompressing {} with Zip compression to {}&quot;, compressedFile, directory);</span>
+<span class="fc" id="L148">        files = unzipFile(directory, compressedFile, keepSubdirectories);</span>
+<span class="nc" id="L149">      } catch (ZipException e) {</span>
+<span class="nc" id="L150">        LOG.debug(&quot;Not Zip compression&quot;);</span>
+<span class="nc" id="L151">        throw new UnsupportedCompressionType(&quot;Unknown compression type. Neither gzip nor Zip&quot;, e);</span>
+<span class="fc" id="L152">      }</span>
     }
 
-<span class="fc bfc" id="L156" title="All 2 branches covered.">    if (files.isEmpty()) {</span>
-<span class="fc" id="L157">      LOG.warn(&quot;No files extracted from {}, tried TGZ, TAR and Zip compression.&quot;, compressedFile);</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">    if (files.isEmpty()) {</span>
+<span class="fc" id="L156">      LOG.warn(&quot;No files extracted from {}, tried TGZ, TAR and Zip compression.&quot;, compressedFile);</span>
     }
 
-<span class="fc" id="L160">    return files;</span>
+<span class="fc" id="L159">    return files;</span>
   }
 
   /**
@@ -167,8 +166,8 @@ public class CompressionUtil {
    * @throws IOException   if a problem occurred reading compressed file
    */
   private static boolean isGzipFormat(File compressedFile) throws IOException {
-<span class="fc" id="L170">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, &quot;r&quot;)) {</span>
-<span class="fc bfc" id="L171" title="All 2 branches covered.">      return GZIPInputStream.GZIP_MAGIC == (file.read() &amp; 0xff | ((file.read() &lt;&lt; 8) &amp; 0xff00));</span>
+<span class="fc" id="L169">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, &quot;r&quot;)) {</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">      return GZIPInputStream.GZIP_MAGIC == (file.read() &amp; 0xff | ((file.read() &lt;&lt; 8) &amp; 0xff00));</span>
     }
   }
 
@@ -179,17 +178,17 @@ public class CompressionUtil {
    * @throws IOException   if a problem occurred reading compressed file
    */
   private static boolean isTarFormat(File compressedFile) throws IOException {
-<span class="fc" id="L182">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, &quot;r&quot;)) {</span>
+<span class="fc" id="L181">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, &quot;r&quot;)) {</span>
       // TAR files contain &quot;ustar\0&quot; or &quot;ustar &quot; at byte 257.
       // https://www.gnu.org/software/tar/manual/html_node/Standard.html
-<span class="fc" id="L185">      byte[] at257 = new byte[5];</span>
-<span class="fc" id="L186">      file.seek(257);</span>
-<span class="fc" id="L187">      file.read(at257, 0, 5);</span>
-<span class="fc" id="L188">      return Arrays.equals(at257, TAR_MAGIC_BYTES);</span>
-<span class="nc" id="L189">    } catch (Exception e) {</span>
-<span class="nc" id="L190">      LOG.debug(&quot;Exc&quot;, e);</span>
+<span class="fc" id="L184">      byte[] at257 = new byte[5];</span>
+<span class="fc" id="L185">      file.seek(257);</span>
+<span class="fc" id="L186">      file.read(at257, 0, 5);</span>
+<span class="fc" id="L187">      return Arrays.equals(at257, TAR_MAGIC_BYTES);</span>
+<span class="nc" id="L188">    } catch (Exception e) {</span>
+<span class="nc" id="L189">      LOG.debug(&quot;Exc&quot;, e);</span>
     }
-<span class="nc" id="L192">    return false;</span>
+<span class="nc" id="L191">    return false;</span>
   }
 
   /**
@@ -201,7 +200,7 @@ public class CompressionUtil {
    * @return a list of all created files
    */
   public static List&lt;File&gt; untgzFile(File directory, File tgzFile) throws IOException {
-<span class="fc" id="L204">    return untarStream(directory, new GZIPInputStream(new FileInputStream(tgzFile)));</span>
+<span class="fc" id="L203">    return untarStream(directory, new GZIPInputStream(new FileInputStream(tgzFile)));</span>
   }
 
   /**
@@ -213,7 +212,7 @@ public class CompressionUtil {
    * @return a list of all created files
    */
   public static List&lt;File&gt; untarFile(File directory, File tarFile) throws IOException {
-<span class="fc" id="L216">    return untarStream(directory, new FileInputStream(tarFile));</span>
+<span class="fc" id="L215">    return untarStream(directory, new FileInputStream(tarFile));</span>
   }
 
   /**
@@ -225,32 +224,32 @@ public class CompressionUtil {
    * @return a list of all created files
    */
   private static List&lt;File&gt; untarStream(File directory, InputStream tarStream) throws IOException {
-<span class="fc" id="L228">    List&lt;File&gt; files = new ArrayList&lt;File&gt;();</span>
-<span class="fc" id="L229">    try (TarArchiveInputStream in = new TarArchiveInputStream(tarStream)) {</span>
+<span class="fc" id="L227">    List&lt;File&gt; files = new ArrayList&lt;File&gt;();</span>
+<span class="fc" id="L228">    try (TarArchiveInputStream in = new TarArchiveInputStream(tarStream)) {</span>
       TarArchiveEntry entry;
-<span class="fc bfc" id="L231" title="All 2 branches covered.">      while ((entry = in.getNextTarEntry()) != null) {</span>
-<span class="fc bfc" id="L232" title="All 2 branches covered.">        if (entry.isDirectory()) {</span>
-<span class="fc" id="L233">          LOG.debug(&quot;TAR archive contains directories which are being ignored&quot;);</span>
-<span class="fc" id="L234">          continue;</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">      while ((entry = in.getNextTarEntry()) != null) {</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        if (entry.isDirectory()) {</span>
+<span class="fc" id="L232">          LOG.debug(&quot;TAR archive contains directories which are being ignored&quot;);</span>
+<span class="fc" id="L233">          continue;</span>
         }
-<span class="fc" id="L236">        String fn = new File(entry.getName()).getName();</span>
-<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        if (fn.startsWith(&quot;.&quot;)) {</span>
-<span class="nc" id="L238">          LOG.debug(&quot;TAR archive contains a hidden file {} which is being ignored&quot;, fn);</span>
-<span class="nc" id="L239">          continue;</span>
+<span class="fc" id="L235">        String fn = new File(entry.getName()).getName();</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">        if (fn.startsWith(&quot;.&quot;)) {</span>
+<span class="nc" id="L237">          LOG.debug(&quot;TAR archive contains a hidden file {} which is being ignored&quot;, fn);</span>
+<span class="nc" id="L238">          continue;</span>
         }
-<span class="fc" id="L241">        File targetFile = new File(directory, fn);</span>
-<span class="pc bpc" id="L242" title="1 of 2 branches missed.">        if (targetFile.exists()) {</span>
-<span class="nc" id="L243">          LOG.warn(&quot;TAR archive contains duplicate filename {}, only the first was extracted&quot;, fn);</span>
-<span class="nc" id="L244">          continue;</span>
+<span class="fc" id="L240">        File targetFile = new File(directory, fn);</span>
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        if (targetFile.exists()) {</span>
+<span class="nc" id="L242">          LOG.warn(&quot;TAR archive contains duplicate filename {}, only the first was extracted&quot;, fn);</span>
+<span class="nc" id="L243">          continue;</span>
         }
-<span class="fc" id="L246">        LOG.debug(&quot;Extracting file: {} to: {}&quot;, entry.getName(), targetFile.getAbsolutePath());</span>
-<span class="fc" id="L247">        try (FileOutputStream out = new FileOutputStream(targetFile)) {</span>
-<span class="fc" id="L248">          IOUtils.copy(in, out);</span>
+<span class="fc" id="L245">        LOG.debug(&quot;Extracting file: {} to: {}&quot;, entry.getName(), targetFile.getAbsolutePath());</span>
+<span class="fc" id="L246">        try (FileOutputStream out = new FileOutputStream(targetFile)) {</span>
+<span class="fc" id="L247">          IOUtils.copy(in, out);</span>
         }
-<span class="fc" id="L250">        files.add(targetFile);</span>
-<span class="fc" id="L251">      }</span>
+<span class="fc" id="L249">        files.add(targetFile);</span>
+<span class="fc" id="L250">      }</span>
     }
-<span class="fc" id="L253">    return files;</span>
+<span class="fc" id="L252">    return files;</span>
   }
 
   /**
@@ -267,36 +266,36 @@ public class CompressionUtil {
    * @throws IOException if reading or writing fails
    */
   public static List&lt;File&gt; ungzipFile(File directory, File gzipFile, boolean isTarred) throws IOException {
-<span class="fc bfc" id="L270" title="All 2 branches covered.">    if (isTarred) return untgzFile(directory, gzipFile);</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">    if (isTarred) return untgzFile(directory, gzipFile);</span>
 
-<span class="fc" id="L272">    List&lt;File&gt; files = new ArrayList&lt;File&gt;();</span>
-<span class="fc" id="L273">    GZIPInputStream in = null;</span>
-<span class="fc" id="L274">    BufferedOutputStream dest = null;</span>
+<span class="fc" id="L271">    List&lt;File&gt; files = new ArrayList&lt;File&gt;();</span>
+<span class="fc" id="L272">    GZIPInputStream in = null;</span>
+<span class="fc" id="L273">    BufferedOutputStream dest = null;</span>
     try {
-<span class="fc" id="L276">      in = new GZIPInputStream(new FileInputStream(gzipFile));</span>
+<span class="fc" id="L275">      in = new GZIPInputStream(new FileInputStream(gzipFile));</span>
 
       // assume that the gzip filename is the filename + .gz
-<span class="fc" id="L279">      String unzippedName = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf(&quot;.&quot;));</span>
-<span class="fc" id="L280">      File outputFile = new File(directory, unzippedName);</span>
-<span class="fc" id="L281">      LOG.debug(&quot;Extracting file: {} to: {}&quot;, unzippedName, outputFile.getAbsolutePath());</span>
-<span class="fc" id="L282">      FileOutputStream fos = new FileOutputStream(outputFile);</span>
+<span class="fc" id="L278">      String unzippedName = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf(&quot;.&quot;));</span>
+<span class="fc" id="L279">      File outputFile = new File(directory, unzippedName);</span>
+<span class="fc" id="L280">      LOG.debug(&quot;Extracting file: {} to: {}&quot;, unzippedName, outputFile.getAbsolutePath());</span>
+<span class="fc" id="L281">      FileOutputStream fos = new FileOutputStream(outputFile);</span>
 
-<span class="fc" id="L284">      dest = new BufferedOutputStream(fos, BUFFER);</span>
+<span class="fc" id="L283">      dest = new BufferedOutputStream(fos, BUFFER);</span>
       int count;
-<span class="fc" id="L286">      byte[] data = new byte[BUFFER];</span>
-<span class="fc bfc" id="L287" title="All 2 branches covered.">      while ((count = in.read(data, 0, BUFFER)) != -1) {</span>
-<span class="fc" id="L288">        dest.write(data, 0, count);</span>
+<span class="fc" id="L285">      byte[] data = new byte[BUFFER];</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">      while ((count = in.read(data, 0, BUFFER)) != -1) {</span>
+<span class="fc" id="L287">        dest.write(data, 0, count);</span>
       }
-<span class="fc" id="L290">      files.add(outputFile);</span>
+<span class="fc" id="L289">      files.add(outputFile);</span>
     } finally {
-<span class="pc bpc" id="L292" title="1 of 2 branches missed.">      if (in != null) in.close();</span>
-<span class="pc bpc" id="L293" title="1 of 2 branches missed.">      if (dest != null) {</span>
-<span class="fc" id="L294">        dest.flush();</span>
-<span class="fc" id="L295">        dest.close();</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">      if (in != null) in.close();</span>
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">      if (dest != null) {</span>
+<span class="fc" id="L293">        dest.flush();</span>
+<span class="fc" id="L294">        dest.close();</span>
       }
     }
 
-<span class="fc" id="L299">    return files;</span>
+<span class="fc" id="L298">    return files;</span>
   }
 
   /**
@@ -305,7 +304,7 @@ public class CompressionUtil {
    * @see org.gbif.utils.file.CompressionUtil#unzipFile(java.io.File, java.io.File, boolean)
    */
   public static List&lt;File&gt; unzipFile(File directory, File zipFile) throws IOException {
-<span class="fc" id="L308">     return unzipFile(directory, zipFile, false);</span>
+<span class="fc" id="L307">     return unzipFile(directory, zipFile, false);</span>
   }
 
   /**
@@ -316,8 +315,8 @@ public class CompressionUtil {
    * @param zipFile the zipped file
    */
   public static void zipDir(File dir, File zipFile) throws IOException {
-<span class="nc" id="L319">    zipDir(dir, zipFile, false);</span>
-<span class="nc" id="L320">  }</span>
+<span class="nc" id="L318">    zipDir(dir, zipFile, false);</span>
+<span class="nc" id="L319">  }</span>
 
   /**
    * Zip a directory with all files. Files in Subdirectories will be included if the inclSubdirs is true.
@@ -327,15 +326,15 @@ public class CompressionUtil {
    * @param inclSubdirs if true includes all subdirectories recursively
    */
   public static void zipDir(File dir, File zipFile, boolean inclSubdirs) throws IOException {
-<span class="fc" id="L330">    Collection&lt;File&gt; files = org.apache.commons.io.FileUtils.listFiles(dir, null, inclSubdirs);</span>
-<span class="fc" id="L331">    zipFiles(files, dir, zipFile);</span>
-<span class="fc" id="L332">  }</span>
+<span class="fc" id="L329">    Collection&lt;File&gt; files = org.apache.commons.io.FileUtils.listFiles(dir, null, inclSubdirs);</span>
+<span class="fc" id="L330">    zipFiles(files, dir, zipFile);</span>
+<span class="fc" id="L331">  }</span>
 
   public static void zipFile(File file, File zipFile) throws IOException {
-<span class="nc" id="L335">    Set&lt;File&gt; files = new HashSet&lt;File&gt;();</span>
-<span class="nc" id="L336">    files.add(file);</span>
-<span class="nc" id="L337">    zipFiles(files, file.getParentFile(), zipFile);</span>
-<span class="nc" id="L338">  }</span>
+<span class="nc" id="L334">    Set&lt;File&gt; files = new HashSet&lt;File&gt;();</span>
+<span class="nc" id="L335">    files.add(file);</span>
+<span class="nc" id="L336">    zipFiles(files, file.getParentFile(), zipFile);</span>
+<span class="nc" id="L337">  }</span>
 
   /**
    * Creates a zip archive from a given collection of files.
@@ -349,37 +348,37 @@ public class CompressionUtil {
    * @throws IOException
    */
   public static void zipFiles(Collection&lt;File&gt; files, File rootContext, File zipFile) throws IOException {
-<span class="pc bpc" id="L352" title="1 of 2 branches missed.">    if (files.isEmpty()) {</span>
-<span class="nc" id="L353">      LOG.info(&quot;no files to zip.&quot;);</span>
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">    if (files.isEmpty()) {</span>
+<span class="nc" id="L352">      LOG.info(&quot;no files to zip.&quot;);</span>
     } else {
       try {
-<span class="fc" id="L356">        BufferedInputStream origin = null;</span>
-<span class="fc" id="L357">        FileOutputStream dest = new FileOutputStream(zipFile);</span>
-<span class="fc" id="L358">        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));</span>
+<span class="fc" id="L355">        BufferedInputStream origin = null;</span>
+<span class="fc" id="L356">        FileOutputStream dest = new FileOutputStream(zipFile);</span>
+<span class="fc" id="L357">        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));</span>
         // out.setMethod(ZipOutputStream.DEFLATED);
-<span class="fc" id="L360">        byte[] data = new byte[BUFFER];</span>
-<span class="fc bfc" id="L361" title="All 2 branches covered.">        for (File f : files) {</span>
-<span class="fc" id="L362">          LOG.debug(&quot;Adding file {} to archive&quot;, f);</span>
-<span class="fc" id="L363">          FileInputStream fi = new FileInputStream(f);</span>
-<span class="fc" id="L364">          origin = new BufferedInputStream(fi, BUFFER);</span>
+<span class="fc" id="L359">        byte[] data = new byte[BUFFER];</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">        for (File f : files) {</span>
+<span class="fc" id="L361">          LOG.debug(&quot;Adding file {} to archive&quot;, f);</span>
+<span class="fc" id="L362">          FileInputStream fi = new FileInputStream(f);</span>
+<span class="fc" id="L363">          origin = new BufferedInputStream(fi, BUFFER);</span>
 
-<span class="fc" id="L366">          String zipPath = StringUtils.removeStart(f.getAbsolutePath(), rootContext.getAbsolutePath() + File.separator);</span>
-<span class="fc" id="L367">          ZipEntry entry = new ZipEntry(zipPath);</span>
-<span class="fc" id="L368">          out.putNextEntry(entry);</span>
+<span class="fc" id="L365">          String zipPath = StringUtils.removeStart(f.getAbsolutePath(), rootContext.getAbsolutePath() + File.separator);</span>
+<span class="fc" id="L366">          ZipEntry entry = new ZipEntry(zipPath);</span>
+<span class="fc" id="L367">          out.putNextEntry(entry);</span>
           int count;
-<span class="fc bfc" id="L370" title="All 2 branches covered.">          while ((count = origin.read(data, 0, BUFFER)) != -1) {</span>
-<span class="fc" id="L371">            out.write(data, 0, count);</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">          while ((count = origin.read(data, 0, BUFFER)) != -1) {</span>
+<span class="fc" id="L370">            out.write(data, 0, count);</span>
           }
-<span class="fc" id="L373">          origin.close();</span>
-<span class="fc" id="L374">        }</span>
-<span class="fc" id="L375">        out.finish();</span>
-<span class="fc" id="L376">        out.close();</span>
-<span class="nc" id="L377">      } catch (IOException e) {</span>
-<span class="nc" id="L378">        LOG.error(&quot;IOException while zipping files: {}&quot;, files);</span>
-<span class="nc" id="L379">        throw e;</span>
-<span class="fc" id="L380">      }</span>
+<span class="fc" id="L372">          origin.close();</span>
+<span class="fc" id="L373">        }</span>
+<span class="fc" id="L374">        out.finish();</span>
+<span class="fc" id="L375">        out.close();</span>
+<span class="nc" id="L376">      } catch (IOException e) {</span>
+<span class="nc" id="L377">        LOG.error(&quot;IOException while zipping files: {}&quot;, files);</span>
+<span class="nc" id="L378">        throw e;</span>
+<span class="fc" id="L379">      }</span>
     }
-<span class="fc" id="L382">  }</span>
+<span class="fc" id="L381">  }</span>
 
   /**
    * Extracts a zipped file into a target directory. If the file is wrapped in a root directory, this is removed by
@@ -396,52 +395,52 @@ public class CompressionUtil {
    * @return a list of all created files and directories extracted to target directory
    */
   public static List&lt;File&gt; unzipFile(File directory, File zipFile, boolean keepSubdirectories) throws IOException {
-<span class="fc" id="L399">    LOG.debug(&quot;Unzipping archive &quot; + zipFile.getName() + &quot; into directory: &quot; + directory.getAbsolutePath());</span>
+<span class="fc" id="L398">    LOG.debug(&quot;Unzipping archive &quot; + zipFile.getName() + &quot; into directory: &quot; + directory.getAbsolutePath());</span>
 
     // This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain Zip64 files.
     // https://bugs.openjdk.java.net/browse/JDK-8186464
-<span class="fc" id="L403">    try (FileInputStream fInput = new FileInputStream(zipFile);</span>
-<span class="fc" id="L404">         ZipInputStream zipInput = new ZipInputStream(fInput)) {</span>
+<span class="fc" id="L402">    try (FileInputStream fInput = new FileInputStream(zipFile);</span>
+<span class="fc" id="L403">         ZipInputStream zipInput = new ZipInputStream(fInput)) {</span>
       ZipEntry entry;
 
-<span class="fc bfc" id="L407" title="All 2 branches covered.">      while ((entry = zipInput.getNextEntry()) != null) {</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">      while ((entry = zipInput.getNextEntry()) != null) {</span>
         // ignore resource fork directories and subfiles
-<span class="fc bfc" id="L409" title="All 2 branches covered.">        if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {</span>
-<span class="fc" id="L410">          LOG.debug(&quot;Ignoring resource fork file: &quot; + entry.getName());</span>
+<span class="fc bfc" id="L408" title="All 2 branches covered.">        if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {</span>
+<span class="fc" id="L409">          LOG.debug(&quot;Ignoring resource fork file: &quot; + entry.getName());</span>
         }
         // ignore directories and hidden directories (e.g. .svn) (based on flag)
-<span class="fc bfc" id="L413" title="All 2 branches covered.">        else if (entry.isDirectory()) {</span>
-<span class="fc bfc" id="L414" title="All 2 branches covered.">          if (isHiddenFile(new File(entry.getName()))) {</span>
-<span class="fc" id="L415">            LOG.debug(&quot;Ignoring hidden directory: &quot; + entry.getName());</span>
-<span class="fc bfc" id="L416" title="All 2 branches covered.">          } else if (keepSubdirectories) {</span>
-<span class="fc" id="L417">            new File(directory, entry.getName()).mkdir();</span>
+<span class="fc bfc" id="L412" title="All 2 branches covered.">        else if (entry.isDirectory()) {</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">          if (isHiddenFile(new File(entry.getName()))) {</span>
+<span class="fc" id="L414">            LOG.debug(&quot;Ignoring hidden directory: &quot; + entry.getName());</span>
+<span class="fc bfc" id="L415" title="All 2 branches covered.">          } else if (keepSubdirectories) {</span>
+<span class="fc" id="L416">            new File(directory, entry.getName()).mkdir();</span>
           } else {
-<span class="fc" id="L419">            LOG.debug(&quot;Ignoring (sub)directory: &quot; + entry.getName());</span>
+<span class="fc" id="L418">            LOG.debug(&quot;Ignoring (sub)directory: &quot; + entry.getName());</span>
           }
         }
         // ignore hidden files
         else {
-<span class="fc bfc" id="L424" title="All 2 branches covered.">          if (isHiddenFile(new File(entry.getName()))) {</span>
-<span class="fc" id="L425">            LOG.debug(&quot;Ignoring hidden file: &quot; + entry.getName());</span>
+<span class="fc bfc" id="L423" title="All 2 branches covered.">          if (isHiddenFile(new File(entry.getName()))) {</span>
+<span class="fc" id="L424">            LOG.debug(&quot;Ignoring hidden file: &quot; + entry.getName());</span>
           } else {
-<span class="fc bfc" id="L427" title="All 2 branches covered.">            File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())</span>
-<span class="fc" id="L428">              : new File(directory, new File(entry.getName()).getName());</span>
+<span class="fc bfc" id="L426" title="All 2 branches covered.">            File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())</span>
+<span class="fc" id="L427">              : new File(directory, new File(entry.getName()).getName());</span>
             // ensure parent folder always exists, and extract file
-<span class="fc" id="L430">            createParentFolder(targetFile);</span>
+<span class="fc" id="L429">            createParentFolder(targetFile);</span>
 
-<span class="fc" id="L432">            LOG.debug(&quot;Extracting file: {} to: {}&quot;, entry.getName(), targetFile.getAbsolutePath());</span>
-<span class="fc" id="L433">            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {</span>
-<span class="fc" id="L434">              IOUtils.copy(zipInput, out);</span>
+<span class="fc" id="L431">            LOG.debug(&quot;Extracting file: {} to: {}&quot;, entry.getName(), targetFile.getAbsolutePath());</span>
+<span class="fc" id="L432">            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {</span>
+<span class="fc" id="L433">              IOUtils.copy(zipInput, out);</span>
             }
-<span class="fc" id="L436">          }</span>
+<span class="fc" id="L435">          }</span>
         }
       }
     }
     // remove the wrapping root directory and flatten structure
-<span class="fc bfc" id="L441" title="All 2 branches covered.">    if (keepSubdirectories) {</span>
-<span class="fc" id="L442">      removeRootDirectory(directory);</span>
+<span class="fc bfc" id="L440" title="All 2 branches covered.">    if (keepSubdirectories) {</span>
+<span class="fc" id="L441">      removeRootDirectory(directory);</span>
     }
-<span class="pc bpc" id="L444" title="1 of 2 branches missed.">    return (directory.listFiles() == null) ? new ArrayList&lt;File&gt;() : Arrays.asList(directory.listFiles());</span>
+<span class="pc bpc" id="L443" title="1 of 2 branches missed.">    return (directory.listFiles() == null) ? new ArrayList&lt;File&gt;() : Arrays.asList(directory.listFiles());</span>
   }
 
   /**
@@ -449,12 +448,12 @@ public class CompressionUtil {
    * recursively
    */
   private static boolean isHiddenFile(File f) {
-<span class="fc bfc" id="L452" title="All 2 branches covered.">    if (f.getName().startsWith(&quot;.&quot;)) {</span>
-<span class="fc" id="L453">      return true;</span>
-<span class="fc bfc" id="L454" title="All 2 branches covered.">    } else if (f.getParentFile() != null) {</span>
-<span class="fc" id="L455">      return isHiddenFile(f.getParentFile());</span>
+<span class="fc bfc" id="L451" title="All 2 branches covered.">    if (f.getName().startsWith(&quot;.&quot;)) {</span>
+<span class="fc" id="L452">      return true;</span>
+<span class="fc bfc" id="L453" title="All 2 branches covered.">    } else if (f.getParentFile() != null) {</span>
+<span class="fc" id="L454">      return isHiddenFile(f.getParentFile());</span>
     }
-<span class="fc" id="L457">    return false;</span>
+<span class="fc" id="L456">    return false;</span>
   }
 
   /**
@@ -462,19 +461,19 @@ public class CompressionUtil {
    * subdirectories up to the same level as the root directory.
    */
   private static void removeRootDirectory(File directory) {
-<span class="fc" id="L465">    File[] rootFiles = directory.listFiles((FileFilter) HiddenFileFilter.VISIBLE);</span>
-<span class="fc bfc" id="L466" title="All 2 branches covered.">    if (rootFiles.length == 1) {</span>
-<span class="fc" id="L467">      File root = rootFiles[0];</span>
-<span class="pc bpc" id="L468" title="1 of 2 branches missed.">      if (root.isDirectory()) {</span>
-<span class="fc" id="L469">        LOG.debug(&quot;Removing single root folder {} found in decompressed archive&quot;, root.getAbsoluteFile());</span>
-<span class="fc bfc" id="L470" title="All 2 branches covered.">        for (File f : org.apache.commons.io.FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE)) {</span>
-<span class="fc" id="L471">          File f2 = new File(directory, f.getName());</span>
-<span class="fc" id="L472">          f.renameTo(f2);</span>
-<span class="fc" id="L473">        }</span>
-<span class="fc" id="L474">        root.delete();</span>
+<span class="fc" id="L464">    File[] rootFiles = directory.listFiles((FileFilter) HiddenFileFilter.VISIBLE);</span>
+<span class="fc bfc" id="L465" title="All 2 branches covered.">    if (rootFiles.length == 1) {</span>
+<span class="fc" id="L466">      File root = rootFiles[0];</span>
+<span class="pc bpc" id="L467" title="1 of 2 branches missed.">      if (root.isDirectory()) {</span>
+<span class="fc" id="L468">        LOG.debug(&quot;Removing single root folder {} found in decompressed archive&quot;, root.getAbsoluteFile());</span>
+<span class="fc bfc" id="L469" title="All 2 branches covered.">        for (File f : org.apache.commons.io.FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE)) {</span>
+<span class="fc" id="L470">          File f2 = new File(directory, f.getName());</span>
+<span class="fc" id="L471">          f.renameTo(f2);</span>
+<span class="fc" id="L472">        }</span>
+<span class="fc" id="L473">        root.delete();</span>
       }
     }
-<span class="fc" id="L477">  }</span>
+<span class="fc" id="L476">  }</span>
 
   /**
    * Make parent folder.
@@ -482,11 +481,11 @@ public class CompressionUtil {
    * @param file destination file
    */
   private static void createParentFolder(File file) {
-<span class="fc" id="L485">    File parent = new File(file.getParent());</span>
-<span class="fc bfc" id="L486" title="All 2 branches covered.">    if (!parent.exists()) {</span>
-<span class="pc bpc" id="L487" title="1 of 2 branches missed.">      LOG.debug((parent.mkdirs()) ? &quot;Created parent directory: &quot; + parent.getAbsolutePath()</span>
-<span class="nc" id="L488">        : &quot;Failed to create parent directory: &quot; + parent.getAbsolutePath());</span>
+<span class="fc" id="L484">    File parent = new File(file.getParent());</span>
+<span class="fc bfc" id="L485" title="All 2 branches covered.">    if (!parent.exists()) {</span>
+<span class="pc bpc" id="L486" title="1 of 2 branches missed.">      LOG.debug((parent.mkdirs()) ? &quot;Created parent directory: &quot; + parent.getAbsolutePath()</span>
+<span class="nc" id="L487">        : &quot;Failed to create parent directory: &quot; + parent.getAbsolutePath());</span>
     }
-<span class="fc" id="L490">  }</span>
+<span class="fc" id="L489">  }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

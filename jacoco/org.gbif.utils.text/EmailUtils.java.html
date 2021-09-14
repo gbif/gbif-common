@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.text</a> &gt; <span class="el_source">EmailUtils.java</span></div><h1>EmailUtils.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2010 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.text</a> &gt; <span class="el_source">EmailUtils.java</span></div><h1>EmailUtils.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.text;
 
 import java.util.regex.Matcher;
@@ -23,38 +22,38 @@ import org.apache.commons.lang3.StringUtils;
 
 public class EmailUtils {
 
-<span class="fc" id="L26">  public static class EmailWithName {</span>
+<span class="fc" id="L25">  public static class EmailWithName {</span>
 
     public String email;
     public String name;
   }
 
-<span class="fc" id="L32">  private static final Pattern EMAIL_PATTERN =</span>
-<span class="fc" id="L33">    Pattern.compile(&quot;(?:(.+)(?: +| *&lt;))?([^@ ]+(?:@| at )[^@ ]+\\.[a-zA-Z0-9_-]{2,4})(?: *&gt;)?&quot;);</span>
+<span class="fc" id="L31">  private static final Pattern EMAIL_PATTERN =</span>
+<span class="fc" id="L32">    Pattern.compile(&quot;(?:(.+)(?: +| *&lt;))?([^@ ]+(?:@| at )[^@ ]+\\.[a-zA-Z0-9_-]{2,4})(?: *&gt;)?&quot;);</span>
 
   public static EmailWithName parseEmail(String x) {
-<span class="pc bpc" id="L36" title="1 of 2 branches missed.">    if (StringUtils.isBlank(x)) {</span>
-<span class="nc" id="L37">      return null;</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">    if (StringUtils.isBlank(x)) {</span>
+<span class="nc" id="L36">      return null;</span>
     }
-<span class="fc" id="L39">    EmailWithName n = new EmailWithName();</span>
-<span class="fc" id="L40">    Matcher m = EMAIL_PATTERN.matcher(x);</span>
-<span class="fc bfc" id="L41" title="All 2 branches covered.">    if (m.find()) {</span>
+<span class="fc" id="L38">    EmailWithName n = new EmailWithName();</span>
+<span class="fc" id="L39">    Matcher m = EMAIL_PATTERN.matcher(x);</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">    if (m.find()) {</span>
       //      int all = m.groupCount();
       //      int idx = 0;
       //      while (idx&lt;=all){
       //        System.out.println(m.group(idx));
       //        idx++;
       //      }
-<span class="fc" id="L48">      n.name = StringUtils.trimToNull(m.group(1));</span>
-<span class="fc" id="L49">      n.email = StringUtils.trimToNull(m.group(2));</span>
+<span class="fc" id="L47">      n.name = StringUtils.trimToNull(m.group(1));</span>
+<span class="fc" id="L48">      n.email = StringUtils.trimToNull(m.group(2));</span>
     } else {
-<span class="fc" id="L51">      n.name = StringUtils.trimToNull(x);</span>
+<span class="fc" id="L50">      n.name = StringUtils.trimToNull(x);</span>
     }
-<span class="fc" id="L53">    return n;</span>
+<span class="fc" id="L52">    return n;</span>
   }
 
-<span class="nc" id="L56">  private EmailUtils() {</span>
-<span class="nc" id="L57">    throw new UnsupportedOperationException(&quot;Can't initialize class&quot;);</span>
+<span class="nc" id="L55">  private EmailUtils() {</span>
+<span class="nc" id="L56">    throw new UnsupportedOperationException(&quot;Can't initialize class&quot;);</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

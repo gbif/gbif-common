@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TabularFileMetadataExtractor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.tabular</a> &gt; <span class="el_source">TabularFileMetadataExtractor.java</span></div><h1>TabularFileMetadataExtractor.java</h1><pre class="source lang-java linenums">/***************************************************************************
- * Copyright 2017 Global Biodiversity Information Facility Secretariat
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TabularFileMetadataExtractor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.tabular</a> &gt; <span class="el_source">TabularFileMetadataExtractor.java</span></div><h1>TabularFileMetadataExtractor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021 Global Biodiversity Information Facility (GBIF)
  *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.utils.file.tabular;
 
+import org.gbif.utils.PreconditionUtils;
 import org.gbif.utils.file.CharsetDetection;
 import org.gbif.utils.file.UnknownCharsetException;
 
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +56,7 @@ import static java.util.stream.Collectors.toSet;
  */
 public class TabularFileMetadataExtractor {
 
-<span class="fc" id="L60">  private static final Logger LOG = LoggerFactory.getLogger(TabularFileMetadataExtractor.class);</span>
+<span class="fc" id="L59">  private static final Logger LOG = LoggerFactory.getLogger(TabularFileMetadataExtractor.class);</span>
   private static final int MAX_SAMPLE_SIZE = 15;
 
   // This needs to be large enough to stumble upon a non-ASCII character.
@@ -66,13 +65,13 @@ public class TabularFileMetadataExtractor {
   private TabularFileMetadataExtractor() {
   }
 
-<span class="fc" id="L69">  private static final Character[] POTENTIAL_DELIMITER_CHAR = {',', '\t', ';', '|'};</span>
-<span class="fc" id="L70">  private static final Character[] POTENTIAL_QUOTES_CHAR = {'&quot;', '\''};</span>
+<span class="fc" id="L68">  private static final Character[] POTENTIAL_DELIMITER_CHAR = {',', '\t', ';', '|'};</span>
+<span class="fc" id="L69">  private static final Character[] POTENTIAL_QUOTES_CHAR = {'&quot;', '\''};</span>
 
-<span class="fc bfc" id="L72" title="All 2 branches covered.">  private static final Predicate&lt;LineDelimiterStats&gt; CONTAINS_FREQUENCY = lineStats -&gt; lineStats.getFrequency() &gt; 0;</span>
-<span class="fc" id="L73">  private static final Comparator&lt;Map.Entry&lt;Character, Long&gt;&gt; BY_VALUE_LONG_DESC = Comparator.comparing(Map.Entry::getValue, reverseOrder());</span>
-<span class="fc" id="L74">  private static final BiFunction&lt;Character, Character, Pattern&gt; COMPILE_QUOTE_PATTERN_FCT = (delimiter, quoteChar)</span>
-<span class="fc" id="L75">          -&gt; Pattern.compile(&quot;[&quot; + delimiter + &quot;][ ]*[&quot; + quoteChar + &quot;][ ]*[^&quot; + delimiter + &quot;]&quot;);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">  private static final Predicate&lt;LineDelimiterStats&gt; CONTAINS_FREQUENCY = lineStats -&gt; lineStats.getFrequency() &gt; 0;</span>
+<span class="fc" id="L72">  private static final Comparator&lt;Map.Entry&lt;Character, Long&gt;&gt; BY_VALUE_LONG_DESC = Map.Entry.comparingByValue(reverseOrder());</span>
+<span class="fc" id="L73">  private static final BiFunction&lt;Character, Character, Pattern&gt; COMPILE_QUOTE_PATTERN_FCT = (delimiter, quoteChar)</span>
+<span class="fc" id="L74">          -&gt; Pattern.compile(&quot;[&quot; + delimiter + &quot;][ ]*[&quot; + quoteChar + &quot;][ ]*[^&quot; + delimiter + &quot;]&quot;);</span>
 
   /**
    * Extract metadata from a tabular file using a sample (defined by {@link #MAX_SAMPLE_SIZE}) of the file.
@@ -86,34 +85,34 @@ public class TabularFileMetadataExtractor {
    * @throws UnknownCharsetException
    */
   public static TabularFileMetadata extractTabularFileMetadata(Path filePath) throws IOException, UnknownCharsetException {
-<span class="fc" id="L89">    Objects.requireNonNull(filePath, &quot;filePath shall be provided&quot;);</span>
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">    Preconditions.checkArgument(!Files.isDirectory(filePath), &quot;filePath should point to a file, not a directory&quot;);</span>
+<span class="fc" id="L88">    Objects.requireNonNull(filePath, &quot;filePath shall be provided&quot;);</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    PreconditionUtils.checkArgument(!Files.isDirectory(filePath), &quot;filePath should point to a file, not a directory&quot;);</span>
 
     Charset encoding;
     try {
-<span class="fc" id="L94">      encoding = CharsetDetection.detectEncoding(filePath.toFile(), CHARSET_DETECTION_BUFFER_LENGTH);</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">      if (encoding == null) {</span>
-<span class="nc" id="L96">        throw new UnknownCharsetException(&quot;Unable to detect the file's character encoding&quot;);</span>
+<span class="fc" id="L93">      encoding = CharsetDetection.detectEncoding(filePath.toFile(), CHARSET_DETECTION_BUFFER_LENGTH);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">      if (encoding == null) {</span>
+<span class="nc" id="L95">        throw new UnknownCharsetException(&quot;Unable to detect the file's character encoding&quot;);</span>
       }
-<span class="nc" id="L98">    } catch (IOException e) {</span>
-<span class="nc" id="L99">      throw new UnknownCharsetException(e);</span>
-<span class="fc" id="L100">    }</span>
+<span class="nc" id="L97">    } catch (IOException e) {</span>
+<span class="nc" id="L98">      throw new UnknownCharsetException(e);</span>
+<span class="fc" id="L99">    }</span>
 
     // open a first stream to read a sample of the file
-<span class="fc" id="L103">    List&lt;String&gt; lines = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L104">    try (BufferedReader bf = Files.newBufferedReader(filePath, encoding)) {</span>
+<span class="fc" id="L102">    List&lt;String&gt; lines = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L103">    try (BufferedReader bf = Files.newBufferedReader(filePath, encoding)) {</span>
       String line;
       do {
-<span class="fc" id="L107">        line = bf.readLine();</span>
-<span class="fc bfc" id="L108" title="All 2 branches covered.">        if(line != null) {</span>
-<span class="fc" id="L109">          lines.add(line);</span>
+<span class="fc" id="L106">        line = bf.readLine();</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if(line != null) {</span>
+<span class="fc" id="L108">          lines.add(line);</span>
         }
       }
-<span class="fc bfc" id="L112" title="All 4 branches covered.">      while(line != null &amp;&amp; lines.size() &lt; MAX_SAMPLE_SIZE);</span>
+<span class="fc bfc" id="L111" title="All 4 branches covered.">      while(line != null &amp;&amp; lines.size() &lt; MAX_SAMPLE_SIZE);</span>
     }
-<span class="fc" id="L114">    TabularFileMetadata tabularFileMetadata = extractTabularMetadata(lines);</span>
-<span class="fc" id="L115">    tabularFileMetadata.setEncoding(encoding);</span>
-<span class="fc" id="L116">    return tabularFileMetadata;</span>
+<span class="fc" id="L113">    TabularFileMetadata tabularFileMetadata = extractTabularMetadata(lines);</span>
+<span class="fc" id="L114">    tabularFileMetadata.setEncoding(encoding);</span>
+<span class="fc" id="L115">    return tabularFileMetadata;</span>
   }
 
   /**
@@ -123,22 +122,22 @@ public class TabularFileMetadataExtractor {
    * @return new {@link TabularFileMetadata}, never null (but the content can be null).
    */
   static TabularFileMetadata extractTabularMetadata(final List&lt;String&gt; sample) {
-<span class="fc" id="L126">    Objects.requireNonNull(sample, &quot;sample shall be provided&quot;);</span>
-<span class="fc" id="L127">    TabularFileMetadata tabularFileMetadata = new TabularFileMetadata();</span>
+<span class="fc" id="L125">    Objects.requireNonNull(sample, &quot;sample shall be provided&quot;);</span>
+<span class="fc" id="L126">    TabularFileMetadata tabularFileMetadata = new TabularFileMetadata();</span>
 
-<span class="fc" id="L129">    Optional&lt;Character&gt; delimiterFound = getDelimiterChar(sample);</span>
-<span class="fc" id="L130">    final Character delimiter = delimiterFound.orElse(null);</span>
-<span class="pc bpc" id="L131" title="1 of 2 branches missed.">    if(delimiter == null) {</span>
-<span class="nc" id="L132">      return tabularFileMetadata;</span>
+<span class="fc" id="L128">    Optional&lt;Character&gt; delimiterFound = getDelimiterChar(sample);</span>
+<span class="fc" id="L129">    final Character delimiter = delimiterFound.orElse(null);</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">    if(delimiter == null) {</span>
+<span class="nc" id="L131">      return tabularFileMetadata;</span>
     }
 
-<span class="fc" id="L135">    Optional&lt;Character&gt; quoteFound = getHighestCountOf(sample, line -&gt; getQuoteCharWithHighestCount(line, delimiter));</span>
-<span class="fc" id="L136">    final Character quote = quoteFound.orElse(null);</span>
+<span class="fc" id="L134">    Optional&lt;Character&gt; quoteFound = getHighestCountOf(sample, line -&gt; getQuoteCharWithHighestCount(line, delimiter));</span>
+<span class="fc" id="L135">    final Character quote = quoteFound.orElse(null);</span>
 
-<span class="fc" id="L138">    tabularFileMetadata.setDelimiter(delimiter);</span>
-<span class="fc" id="L139">    tabularFileMetadata.setQuotedBy(quote);</span>
+<span class="fc" id="L137">    tabularFileMetadata.setDelimiter(delimiter);</span>
+<span class="fc" id="L138">    tabularFileMetadata.setQuotedBy(quote);</span>
 
-<span class="fc" id="L141">    return tabularFileMetadata;</span>
+<span class="fc" id="L140">    return tabularFileMetadata;</span>
   }
 
   /**
@@ -153,15 +152,15 @@ public class TabularFileMetadataExtractor {
   private static Optional&lt;Character&gt; getHighestCountOf(final List&lt;String&gt; sample, final Function&lt;String,
           Optional&lt;Character&gt;&gt; characterExtractor) {
 
+    //remove Optional wrapper and ignore Optional.empty
 <span class="fc" id="L156">    return sample.stream()</span>
-<span class="fc" id="L157">            .map(characterExtractor)</span>
-<span class="fc" id="L158">            .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty</span>
-<span class="fc" id="L159">            .collect(Collectors.groupingBy(Function.identity(), counting()))</span>
-<span class="fc" id="L160">            .entrySet()</span>
-<span class="fc" id="L161">            .stream()</span>
-<span class="fc" id="L162">            .sorted(BY_VALUE_LONG_DESC)</span>
-<span class="fc" id="L163">            .findFirst()</span>
-<span class="fc" id="L164">            .map(Map.Entry::getKey);</span>
+<span class="fc" id="L157">        .map(characterExtractor)</span>
+<span class="fc" id="L158">        .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty</span>
+<span class="fc" id="L159">        .collect(Collectors.groupingBy(Function.identity(), counting()))</span>
+<span class="fc" id="L160">        .entrySet()</span>
+<span class="fc" id="L161">        .stream()</span>
+<span class="fc" id="L162">        .min(BY_VALUE_LONG_DESC)</span>
+<span class="fc" id="L163">        .map(Map.Entry::getKey);</span>
   }
 
   /**
@@ -174,73 +173,67 @@ public class TabularFileMetadataExtractor {
   public static Optional&lt;Character&gt; getDelimiterChar(final List&lt;String&gt; sample) {
 
     // count the frequency of all possible delimiter for each lines
-<span class="fc" id="L177">    List&lt;LineDelimiterStats&gt; linesStats =</span>
-<span class="fc" id="L178">            computeLineDelimiterStats(sample);</span>
+<span class="fc" id="L176">    List&lt;LineDelimiterStats&gt; linesStats =</span>
+<span class="fc" id="L177">            computeLineDelimiterStats(sample);</span>
 
     // get the distinct set of frequency for each delimiters to check the &quot;stability&quot;
-<span class="fc" id="L181">    Map&lt;Character, Set&lt;Integer&gt;&gt; delimiterDistinctFrequency =</span>
-<span class="fc" id="L182">            computeDelimiterDistinctFrequency(linesStats)</span>
-<span class="fc" id="L183">                    .entrySet().stream()</span>
+<span class="fc" id="L180">    Map&lt;Character, Set&lt;Integer&gt;&gt; delimiterDistinctFrequency =</span>
+<span class="fc" id="L181">            computeDelimiterDistinctFrequency(linesStats)</span>
+<span class="fc" id="L182">                    .entrySet().stream()</span>
                     // filter out delimiter that we never saw
-<span class="fc bfc" id="L185" title="All 4 branches covered.">                    .filter(entry -&gt; entry.getValue().size() &gt; 1 || !entry.getValue().contains(Integer.valueOf(0)))</span>
-<span class="fc" id="L186">                    .sorted(Comparator.comparing(e -&gt; e.getValue().size()))</span>
-<span class="fc" id="L187">                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,</span>
-<span class="nc" id="L188">                            (e1, e2) -&gt; e2, LinkedHashMap::new));</span>
+<span class="fc bfc" id="L184" title="All 4 branches covered.">                    .filter(entry -&gt; entry.getValue().size() &gt; 1 || !entry.getValue().contains(0))</span>
+<span class="fc" id="L185">                    .sorted(Comparator.comparing(e -&gt; e.getValue().size()))</span>
+<span class="fc" id="L186">                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,</span>
+<span class="nc" id="L187">                            (e1, e2) -&gt; e2, LinkedHashMap::new));</span>
 
     // we can have more than one
-<span class="fc" id="L191">    Set&lt;Character&gt; mostStableDelimiter =</span>
-<span class="fc bfc" id="L192" title="All 2 branches covered.">            getAllEqualsToFirst(delimiterDistinctFrequency, (s1,s2) -&gt; s1.size() == s2.size());</span>
+<span class="fc" id="L190">    Set&lt;Character&gt; mostStableDelimiter =</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">            getAllEqualsToFirst(delimiterDistinctFrequency, (s1,s2) -&gt; s1.size() == s2.size());</span>
 
     // get the most used delimiter to check the &quot;overall usage&quot;
-<span class="fc" id="L195">    Map&lt;Character, Integer&gt; delimiterFrequencySums = computeDelimiterFrequencySums(linesStats)</span>
-<span class="fc" id="L196">            .entrySet().stream()</span>
-<span class="fc" id="L197">            .sorted( Comparator.comparing( (Map.Entry&lt;Character, Integer&gt; e) -&gt; e.getValue()).reversed())</span>
-<span class="fc" id="L198">            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,</span>
-<span class="nc" id="L199">                    (e1, e2) -&gt; e2, LinkedHashMap::new));</span>
+<span class="fc" id="L194">    Map&lt;Character, Integer&gt; delimiterFrequencySums = computeDelimiterFrequencySums(linesStats)</span>
+<span class="fc" id="L195">            .entrySet().stream()</span>
+<span class="fc" id="L196">            .sorted(Map.Entry.&lt;Character, Integer&gt;comparingByValue().reversed())</span>
+<span class="fc" id="L197">            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,</span>
+<span class="nc" id="L198">                    (e1, e2) -&gt; e2, LinkedHashMap::new));</span>
 
-<span class="fc" id="L201">    Set&lt;Character&gt; mostFrequentDelimiter = getAllEqualsToFirst(delimiterFrequencySums, Integer::equals);</span>
+<span class="fc" id="L200">    Set&lt;Character&gt; mostFrequentDelimiter = getAllEqualsToFirst(delimiterFrequencySums, Integer::equals);</span>
 
     //get the highest frequency per line to check for &quot;usage per line&quot;
-<span class="fc" id="L204">    Map&lt;Character, Long&gt; delimiterHighestFrequencyPerLine = computeDelimiterHighestFrequencyPerLine(sample)</span>
-<span class="fc" id="L205">            .entrySet().stream()</span>
-<span class="fc" id="L206">            .sorted( Comparator.comparing( (Map.Entry&lt;Character, Long&gt; e) -&gt; e.getValue()).reversed())</span>
-<span class="fc" id="L207">            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,</span>
-<span class="nc" id="L208">                    (e1, e2) -&gt; e2, LinkedHashMap::new));</span>
-<span class="fc" id="L209">    Set&lt;Character&gt; mostFrequentDelimiterPerLine = getAllEqualsToFirst(delimiterHighestFrequencyPerLine,</span>
+<span class="fc" id="L203">    Map&lt;Character, Long&gt; delimiterHighestFrequencyPerLine = computeDelimiterHighestFrequencyPerLine(sample)</span>
+<span class="fc" id="L204">            .entrySet().stream()</span>
+<span class="fc" id="L205">            .sorted(Map.Entry.&lt;Character, Long&gt;comparingByValue().reversed())</span>
+<span class="fc" id="L206">            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,</span>
+<span class="nc" id="L207">                    (e1, e2) -&gt; e2, LinkedHashMap::new));</span>
+<span class="fc" id="L208">    Set&lt;Character&gt; mostFrequentDelimiterPerLine = getAllEqualsToFirst(delimiterHighestFrequencyPerLine,</span>
            Long::equals);
 
     //summary
-<span class="pc bpc" id="L213" title="1 of 2 branches missed.">    if (LOG.isDebugEnabled()) {</span>
-<span class="fc" id="L214">      LOG.debug(&quot;delimiterDistinctFrequency -&gt; &quot; + delimiterDistinctFrequency);</span>
-<span class="fc" id="L215">      LOG.debug(&quot;mostStableDelimiter -&gt; &quot; + mostStableDelimiter);</span>
-<span class="fc" id="L216">      LOG.debug(&quot;delimiterFrequencySums -&gt; &quot; + delimiterFrequencySums);</span>
-<span class="fc" id="L217">      LOG.debug(&quot;mostFrequentDelimiter -&gt; &quot; + mostFrequentDelimiter);</span>
-<span class="fc" id="L218">      LOG.debug(&quot;delimiterHighestFrequencyPerLine-&gt;&quot; + delimiterHighestFrequencyPerLine);</span>
-<span class="fc" id="L219">      LOG.debug(&quot;mostFrequentDelimiterPerLine -&gt;&quot; + mostFrequentDelimiterPerLine);</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">    if (LOG.isDebugEnabled()) {</span>
+<span class="fc" id="L213">      LOG.debug(&quot;delimiterDistinctFrequency -&gt; &quot; + delimiterDistinctFrequency);</span>
+<span class="fc" id="L214">      LOG.debug(&quot;mostStableDelimiter -&gt; &quot; + mostStableDelimiter);</span>
+<span class="fc" id="L215">      LOG.debug(&quot;delimiterFrequencySums -&gt; &quot; + delimiterFrequencySums);</span>
+<span class="fc" id="L216">      LOG.debug(&quot;mostFrequentDelimiter -&gt; &quot; + mostFrequentDelimiter);</span>
+<span class="fc" id="L217">      LOG.debug(&quot;delimiterHighestFrequencyPerLine-&gt;&quot; + delimiterHighestFrequencyPerLine);</span>
+<span class="fc" id="L218">      LOG.debug(&quot;mostFrequentDelimiterPerLine -&gt;&quot; + mostFrequentDelimiterPerLine);</span>
     }
 
     //if the most stable is also the one that is used to most within the sample
-<span class="fc" id="L223">    Optional&lt;Character&gt; resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiter);</span>
-<span class="fc bfc" id="L224" title="All 2 branches covered.">    if(resultCharacter.isPresent()) {</span>
-<span class="fc" id="L225">      return resultCharacter;</span>
+<span class="fc" id="L222">    Optional&lt;Character&gt; resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiter);</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">    if(resultCharacter.isPresent()) {</span>
+<span class="fc" id="L224">      return resultCharacter;</span>
     }
 
     //otherwise, if the most stable is also the most used based on lines
-<span class="fc" id="L229">    resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiterPerLine);</span>
-<span class="pc bpc" id="L230" title="1 of 2 branches missed.">    if(resultCharacter.isPresent()) {</span>
-<span class="fc" id="L231">      return resultCharacter;</span>
+<span class="fc" id="L228">    resultCharacter = intersectSingle(mostStableDelimiter, mostFrequentDelimiterPerLine);</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">    if(resultCharacter.isPresent()) {</span>
+<span class="fc" id="L230">      return resultCharacter;</span>
     }
 
     //as last resort if the most frequent delimiter overall and by line is the same
-<span class="nc" id="L235">    resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);</span>
-<span class="nc bnc" id="L236" title="All 2 branches missed.">    if(resultCharacter.isPresent()) {</span>
-<span class="nc" id="L237">      return resultCharacter;</span>
-    }
+<span class="nc" id="L234">    resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);</span>
 
-    // other idea
-    // give more weight to the first line (it is probably the header line where normally no quotes are used)
-    // give more weight to the first &quot;column&quot; (it is probably the &quot;id&quot; line where normally no quotes are used)
-<span class="nc" id="L243">    return Optional.empty();</span>
+<span class="nc" id="L236">    return resultCharacter;</span>
   }
 
   /**
@@ -251,8 +244,10 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   private static Optional&lt;Character&gt; intersectSingle(Set&lt;Character&gt; set1, Set&lt;Character&gt; set2) {
-<span class="fc" id="L254">    Sets.SetView&lt;Character&gt; intersection = Sets.intersection(set1, set2);</span>
-<span class="fc bfc" id="L255" title="All 2 branches covered.">    return intersection.size() == 1 ? intersection.stream().findFirst() : Optional.empty();</span>
+<span class="fc" id="L247">    Set&lt;Character&gt; intersection = new HashSet&lt;&gt;(set1);</span>
+<span class="fc" id="L248">    intersection.retainAll(set2);</span>
+
+<span class="fc bfc" id="L250" title="All 2 branches covered.">    return intersection.size() == 1 ? intersection.stream().findFirst() : Optional.empty();</span>
   }
 
   /**
@@ -265,14 +260,14 @@ public class TabularFileMetadataExtractor {
    */
   private static &lt;T&gt; Set&lt;Character&gt; getAllEqualsToFirst(Map&lt;Character, T&gt; map, BiFunction&lt;T,T, Boolean&gt; equalsPredicate) {
 
-<span class="fc" id="L268">    Optional&lt;Map.Entry&lt;Character, T&gt;&gt; firstMapEntry = map.entrySet().stream().findFirst();</span>
-<span class="pc bpc" id="L269" title="1 of 2 branches missed.">    if(!firstMapEntry.isPresent()){</span>
-<span class="nc" id="L270">      return Collections.EMPTY_SET;</span>
+<span class="fc" id="L263">    Optional&lt;Map.Entry&lt;Character, T&gt;&gt; firstMapEntry = map.entrySet().stream().findFirst();</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">    if(!firstMapEntry.isPresent()){</span>
+<span class="nc" id="L265">      return Collections.EMPTY_SET;</span>
     }
 
-<span class="fc" id="L273">    final T firstValue = firstMapEntry.get().getValue();</span>
-<span class="fc" id="L274">    return map.entrySet().stream().filter( e -&gt; equalsPredicate.apply(firstValue,e.getValue()))</span>
-<span class="fc" id="L275">            .map(Map.Entry::getKey).collect(Collectors.toSet());</span>
+<span class="fc" id="L268">    final T firstValue = firstMapEntry.get().getValue();</span>
+<span class="fc" id="L269">    return map.entrySet().stream().filter( e -&gt; equalsPredicate.apply(firstValue,e.getValue()))</span>
+<span class="fc" id="L270">            .map(Map.Entry::getKey).collect(Collectors.toSet());</span>
   }
 
   /**
@@ -282,10 +277,10 @@ public class TabularFileMetadataExtractor {
    * @return new List, never null
    */
   static List&lt;LineDelimiterStats&gt; computeLineDelimiterStats(List&lt;String&gt; sample){
-<span class="fc" id="L285">    return sample.stream()</span>
-<span class="fc" id="L286">            .map(TabularFileMetadataExtractor::lineToLineDelimiterStats)</span>
-<span class="fc" id="L287">            .flatMap(List::stream)</span>
-<span class="fc" id="L288">            .collect(Collectors.toList());</span>
+<span class="fc" id="L280">    return sample.stream()</span>
+<span class="fc" id="L281">            .map(TabularFileMetadataExtractor::lineToLineDelimiterStats)</span>
+<span class="fc" id="L282">            .flatMap(List::stream)</span>
+<span class="fc" id="L283">            .collect(Collectors.toList());</span>
   }
 
   /**
@@ -294,9 +289,9 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   private static List&lt;LineDelimiterStats&gt; lineToLineDelimiterStats(String line) {
-<span class="fc" id="L297">    return Arrays.stream(POTENTIAL_DELIMITER_CHAR)</span>
-<span class="fc" id="L298">            .map( delimiter -&gt; new LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))</span>
-<span class="fc" id="L299">            .collect(Collectors.toList());</span>
+<span class="fc" id="L292">    return Arrays.stream(POTENTIAL_DELIMITER_CHAR)</span>
+<span class="fc" id="L293">            .map(delimiter -&gt; new LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))</span>
+<span class="fc" id="L294">            .collect(Collectors.toList());</span>
   }
 
   /**
@@ -315,10 +310,10 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   static Map&lt;Character, Set&lt;Integer&gt;&gt; computeDelimiterDistinctFrequency(List&lt;LineDelimiterStats&gt; linesStats) {
-<span class="fc" id="L318">    return linesStats.stream()</span>
-<span class="fc" id="L319">            .collect(</span>
-<span class="fc" id="L320">                    Collectors.groupingBy(LineDelimiterStats::getDelimiter,</span>
-<span class="fc" id="L321">                            Collectors.mapping(LineDelimiterStats::getFrequency, toSet())));</span>
+<span class="fc" id="L313">    return linesStats.stream()</span>
+<span class="fc" id="L314">            .collect(</span>
+<span class="fc" id="L315">                    Collectors.groupingBy(LineDelimiterStats::getDelimiter,</span>
+<span class="fc" id="L316">                            Collectors.mapping(LineDelimiterStats::getFrequency, toSet())));</span>
   }
 
   /**
@@ -328,10 +323,10 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   static Map&lt;Character, Long&gt; computeDelimiterHighestFrequencyPerLine(List&lt;String&gt; lines) {
-<span class="fc" id="L331">    return lines.stream()</span>
-<span class="fc" id="L332">            .map(TabularFileMetadataExtractor::getDelimiterWithHighestCount2)</span>
-<span class="fc" id="L333">            .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty</span>
-<span class="fc" id="L334">            .collect(Collectors.groupingBy(LineDelimiterStats::getDelimiter, counting()));</span>
+<span class="fc" id="L326">    return lines.stream()</span>
+<span class="fc" id="L327">            .map(TabularFileMetadataExtractor::getDelimiterWithHighestCount2)</span>
+<span class="fc" id="L328">            .flatMap(o -&gt; o.map(Stream::of).orElseGet(Stream::empty)) //remove Optional wrapper and ignore Optional.empty</span>
+<span class="fc" id="L329">            .collect(Collectors.groupingBy(LineDelimiterStats::getDelimiter, counting()));</span>
   }
 
   /**
@@ -346,11 +341,11 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   static Map&lt;Character, Integer&gt; computeDelimiterFrequencySums(List&lt;LineDelimiterStats&gt; linesStats) {
-<span class="fc" id="L349">    return linesStats.stream()</span>
-<span class="fc" id="L350">            .filter(CONTAINS_FREQUENCY)</span>
-<span class="fc" id="L351">            .collect(</span>
-<span class="fc" id="L352">                    Collectors.groupingBy(LineDelimiterStats::getDelimiter,</span>
-<span class="fc" id="L353">                            Collectors.summingInt(LineDelimiterStats::getFrequency)));</span>
+<span class="fc" id="L344">    return linesStats.stream()</span>
+<span class="fc" id="L345">            .filter(CONTAINS_FREQUENCY)</span>
+<span class="fc" id="L346">            .collect(</span>
+<span class="fc" id="L347">                    Collectors.groupingBy(LineDelimiterStats::getDelimiter,</span>
+<span class="fc" id="L348">                            Collectors.summingInt(LineDelimiterStats::getFrequency)));</span>
   }
 
   /**
@@ -362,30 +357,30 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   static Optional&lt;Character&gt; getDelimiterWithHighestCount(String line) {
-<span class="fc" id="L365">    int highestCount = 0;</span>
-<span class="fc" id="L366">    Character highestCountDelimiter = null;</span>
-<span class="fc bfc" id="L367" title="All 2 branches covered.">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
-<span class="fc" id="L368">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
-<span class="fc bfc" id="L369" title="All 2 branches covered.">      if (currentCount &gt; highestCount) {</span>
-<span class="fc" id="L370">        highestCount = currentCount;</span>
-<span class="fc" id="L371">        highestCountDelimiter = delimiter;</span>
+<span class="fc" id="L360">    int highestCount = 0;</span>
+<span class="fc" id="L361">    Character highestCountDelimiter = null;</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
+<span class="fc" id="L363">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">      if (currentCount &gt; highestCount) {</span>
+<span class="fc" id="L365">        highestCount = currentCount;</span>
+<span class="fc" id="L366">        highestCountDelimiter = delimiter;</span>
       }
     }
-<span class="fc" id="L374">    return Optional.ofNullable(highestCountDelimiter);</span>
+<span class="fc" id="L369">    return Optional.ofNullable(highestCountDelimiter);</span>
   }
 
   static Optional&lt;LineDelimiterStats&gt; getDelimiterWithHighestCount2(String line) {
-<span class="fc" id="L378">    int highestCount = 0;</span>
+<span class="fc" id="L373">    int highestCount = 0;</span>
    // Character highestCountDelimiter = null;
-<span class="fc" id="L380">    LineDelimiterStats lineDelimiterStats = null;</span>
-<span class="fc bfc" id="L381" title="All 2 branches covered.">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
-<span class="fc" id="L382">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
-<span class="fc bfc" id="L383" title="All 2 branches covered.">      if (currentCount &gt; highestCount) {</span>
-<span class="fc" id="L384">        highestCount = currentCount;</span>
-<span class="fc" id="L385">        lineDelimiterStats = new LineDelimiterStats(delimiter,highestCount);</span>
+<span class="fc" id="L375">    LineDelimiterStats lineDelimiterStats = null;</span>
+<span class="fc bfc" id="L376" title="All 2 branches covered.">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
+<span class="fc" id="L377">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">      if (currentCount &gt; highestCount) {</span>
+<span class="fc" id="L379">        highestCount = currentCount;</span>
+<span class="fc" id="L380">        lineDelimiterStats = new LineDelimiterStats(delimiter,highestCount);</span>
       }
     }
-<span class="fc" id="L388">    return Optional.ofNullable(lineDelimiterStats);</span>
+<span class="fc" id="L383">    return Optional.ofNullable(lineDelimiterStats);</span>
   }
 
   /**
@@ -398,20 +393,20 @@ public class TabularFileMetadataExtractor {
    * @return
    */
   static Optional&lt;Character&gt; getQuoteCharWithHighestCount(String line, Character delimiter) {
-<span class="fc" id="L401">    int highestCount = 0;</span>
-<span class="fc" id="L402">    Character highestCountQuoteChar = null;</span>
-<span class="fc bfc" id="L403" title="All 2 branches covered.">    for (Character quoteChar : POTENTIAL_QUOTES_CHAR) {</span>
-<span class="fc" id="L404">      int currentCount = 0;</span>
-<span class="fc" id="L405">      Matcher m = COMPILE_QUOTE_PATTERN_FCT.apply(delimiter, quoteChar).matcher(line);</span>
-<span class="fc bfc" id="L406" title="All 2 branches covered.">      while (m.find()) {</span>
-<span class="fc" id="L407">        currentCount++;</span>
+<span class="fc" id="L396">    int highestCount = 0;</span>
+<span class="fc" id="L397">    Character highestCountQuoteChar = null;</span>
+<span class="fc bfc" id="L398" title="All 2 branches covered.">    for (Character quoteChar : POTENTIAL_QUOTES_CHAR) {</span>
+<span class="fc" id="L399">      int currentCount = 0;</span>
+<span class="fc" id="L400">      Matcher m = COMPILE_QUOTE_PATTERN_FCT.apply(delimiter, quoteChar).matcher(line);</span>
+<span class="fc bfc" id="L401" title="All 2 branches covered.">      while (m.find()) {</span>
+<span class="fc" id="L402">        currentCount++;</span>
       }
-<span class="fc bfc" id="L409" title="All 2 branches covered.">      if (currentCount &gt; highestCount) {</span>
-<span class="fc" id="L410">        highestCount = currentCount;</span>
-<span class="fc" id="L411">        highestCountQuoteChar = quoteChar;</span>
+<span class="fc bfc" id="L404" title="All 2 branches covered.">      if (currentCount &gt; highestCount) {</span>
+<span class="fc" id="L405">        highestCount = currentCount;</span>
+<span class="fc" id="L406">        highestCountQuoteChar = quoteChar;</span>
       }
     }
-<span class="fc" id="L414">    return Optional.ofNullable(highestCountQuoteChar);</span>
+<span class="fc" id="L409">    return Optional.ofNullable(highestCountQuoteChar);</span>
   }
 
   /**
@@ -420,19 +415,19 @@ public class TabularFileMetadataExtractor {
   static class LineDelimiterStats {
     private Character delimiter;
     private int frequency;
-<span class="fc" id="L423">    LineDelimiterStats(Character delimiter, int frequency) {</span>
-<span class="fc" id="L424">      this.delimiter = delimiter;</span>
-<span class="fc" id="L425">      this.frequency = frequency;</span>
-<span class="fc" id="L426">    }</span>
+<span class="fc" id="L418">    LineDelimiterStats(Character delimiter, int frequency) {</span>
+<span class="fc" id="L419">      this.delimiter = delimiter;</span>
+<span class="fc" id="L420">      this.frequency = frequency;</span>
+<span class="fc" id="L421">    }</span>
 
     Character getDelimiter() {
-<span class="fc" id="L429">      return delimiter;</span>
+<span class="fc" id="L424">      return delimiter;</span>
     }
 
     int getFrequency() {
-<span class="fc" id="L433">      return frequency;</span>
+<span class="fc" id="L428">      return frequency;</span>
     }
   }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

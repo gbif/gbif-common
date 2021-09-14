@@ -1,24 +1,23 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-GBIF Common,org.gbif.utils.file.properties,PropertiesUtil,258,114,22,14,52,26,17,13,6,6
+GBIF Common,org.gbif.utils.file.properties,PropertiesUtil,246,130,20,14,50,26,16,13,6,6
 GBIF Common,org.gbif.utils.collection,MapUtils.new Comparator() {...},0,10,0,0,0,2,0,2,0,2
-GBIF Common,org.gbif.utils.collection,IterableUtils.new Iterable() {...},0,9,0,0,0,2,0,2,0,2
 GBIF Common,org.gbif.utils.collection,MapUtils.new Comparator() {...},14,0,0,0,2,0,2,0,2,0
-GBIF Common,org.gbif.utils.collection,CompactHashSet,635,0,80,0,121,0,55,0,15,0
+GBIF Common,org.gbif.utils.collection,CompactHashSet,634,0,80,0,121,0,55,0,15,0
 GBIF Common,org.gbif.utils.collection,CompactHashSet.CompactHashIterator,196,0,30,0,27,0,19,0,4,0
 GBIF Common,org.gbif.utils.collection,MapUtils,24,41,2,2,4,8,4,3,3,2
-GBIF Common,org.gbif.utils.collection,IterableUtils,3,5,0,0,1,1,1,1,1,1
-GBIF Common,org.gbif.utils.collection,ArrayUtils,189,0,10,0,26,0,10,0,5,0
+GBIF Common,org.gbif.utils.collection,IterableUtils,3,5,0,0,1,1,1,2,1,2
+GBIF Common,org.gbif.utils.collection,ArrayUtils,188,0,10,0,26,0,10,0,5,0
 GBIF Common,org.gbif.utils.file.tabular,JacksonUtils,0,20,0,2,0,6,0,2,0,1
 GBIF Common,org.gbif.utils.file.tabular,JacksonCsvFileReader,5,142,2,12,2,34,3,11,1,6
-GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadataExtractor,33,616,8,38,12,127,10,43,3,27
+GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadataExtractor,28,609,6,38,10,127,9,41,3,25
 GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadata,0,24,0,0,0,10,0,7,0,7
 GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadataExtractor.LineDelimiterStats,0,15,0,0,0,6,0,3,0,3
-GBIF Common,org.gbif.utils.file.tabular,TabularFileNormalizer,13,122,4,6,5,30,5,5,1,4
+GBIF Common,org.gbif.utils.file.tabular,TabularFileNormalizer,15,117,4,6,5,27,5,5,1,4
 GBIF Common,org.gbif.utils.file.tabular,TabularFiles,3,39,0,0,1,6,1,3,1,3
 GBIF Common,org.gbif.utils.concurrent,ExecutorUtils,18,25,0,2,7,8,2,3,2,2
 GBIF Common,org.gbif.utils.concurrent,DirectExecutor,6,0,0,0,3,0,2,0,2,0
 GBIF Common,org.gbif.utils.concurrent,NamedThreadFactory,3,68,1,1,0,14,1,3,0,3
-GBIF Common,org.gbif.utils.text,StringUtils,404,290,65,44,79,84,48,33,13,7
+GBIF Common,org.gbif.utils.text,StringUtils,404,290,63,44,80,84,47,33,13,7
 GBIF Common,org.gbif.utils.text,StringLengthComparator,18,0,2,0,4,0,3,0,2,0
 GBIF Common,org.gbif.utils.text,EmailUtils,9,37,1,3,3,10,2,3,1,2
 GBIF Common,org.gbif.utils.text,StringComparator,21,0,8,0,8,0,6,0,2,0
@@ -27,18 +26,19 @@ GBIF Common,org.gbif.utils.text,EmailUtils.EmailWithName,0,3,0,0,0,1,0,1,0,1
 GBIF Common,org.gbif.utils.number,BigDecimalUtils,0,28,0,4,0,6,0,3,0,1
 GBIF Common,org.gbif.utils.file,CharsetDetection,106,630,51,105,28,169,37,62,1,20
 GBIF Common,org.gbif.utils.file,CompressionUtil,114,676,14,56,34,131,15,40,4,16
-GBIF Common,org.gbif.utils.file,ResourcesUtil,103,134,13,11,20,29,9,6,0,3
+GBIF Common,org.gbif.utils.file,ResourcesUtil,104,164,13,13,20,31,9,8,0,4
 GBIF Common,org.gbif.utils.file,UnknownCharsetException,13,0,0,0,6,0,3,0,3,0
 GBIF Common,org.gbif.utils.file,InputStreamUtils,63,43,3,3,15,11,3,5,1,4
-GBIF Common,org.gbif.utils.file,FileUtils,699,1001,79,73,159,206,76,50,27,23
+GBIF Common,org.gbif.utils.file,FileUtils,752,1047,87,77,166,216,83,52,28,25
 GBIF Common,org.gbif.utils.file,FileSplitter,249,0,14,0,60,0,11,0,4,0
 GBIF Common,org.gbif.utils.file,BomSafeInputStreamWrapper,1,66,0,8,1,17,0,7,0,3
 GBIF Common,org.gbif.utils.file,CompressionUtil.UnsupportedCompressionType,12,0,0,0,6,0,3,0,3,0
-GBIF Common,org.gbif.utils.rs,RsGbifOrg,19,73,0,2,4,8,1,6,1,5
+GBIF Common,org.gbif.utils.rs,RsGbifOrg,18,76,0,2,4,10,1,6,1,5
 GBIF Common,org.gbif.utils.file.csv,CSVReaderFactory,73,303,7,43,14,73,12,27,6,8
 GBIF Common,org.gbif.utils.file.csv,CSVReaderFactory.CSVMetadata,0,17,0,0,0,7,0,5,0,5
 GBIF Common,org.gbif.utils.file.csv,UnknownDelimitersException,13,0,0,0,6,0,3,0,3,0
-GBIF Common,org.gbif.utils.file.csv,CSVReader,89,242,8,18,24,55,14,15,7,9
+GBIF Common,org.gbif.utils.file.csv,CSVReader,89,249,10,20,24,54,16,15,7,9
 GBIF Common,org.gbif.utils,ObjectUtils,0,42,1,11,0,6,1,7,0,2
-GBIF Common,org.gbif.utils,AnnotationUtils,3,14,0,0,1,5,1,1,1,1
+GBIF Common,org.gbif.utils,PreconditionUtils,14,18,4,4,6,6,4,4,2,2
+GBIF Common,org.gbif.utils,AnnotationUtils,0,14,0,0,0,5,0,1,0,1
 GBIF Common,org.gbif.utils,HumanSize,51,0,2,0,5,0,3,0,2,0
