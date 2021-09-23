@@ -46,4 +46,22 @@ public final class CommonStringUtils {
   public static String trim(String str) {
     return StringUtils.strip(str, WHITESPACES_LIST);
   }
+
+  public static String deleteWhitespace(final String str) {
+    if (StringUtils.isEmpty(str)) {
+      return str;
+    }
+    final int sz = str.length();
+    final char[] chs = new char[sz];
+    int count = 0;
+    for (int i = 0; i < sz; i++) {
+      if (StringUtils.containsNone(WHITESPACES_LIST, str.charAt(i))) {
+        chs[count++] = str.charAt(i);
+      }
+    }
+    if (count == sz) {
+      return str;
+    }
+    return new String(chs, 0, count);
+  }
 }

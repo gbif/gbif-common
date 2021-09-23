@@ -17,6 +17,7 @@ package org.gbif.utils;
 
 import org.junit.jupiter.api.Test;
 
+import static org.gbif.utils.CommonStringUtils.deleteWhitespace;
 import static org.gbif.utils.CommonStringUtils.trim;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,7 +26,14 @@ public class CommonStringUtilsTest {
   @Test
   public void testTrim() {
     assertEquals("str", trim(" str "));
-    assertEquals("str str", trim(" str str "));
-    assertEquals("str  str", trim(" \n\u0085str  str \u00A0\n\t"));
+    assertEquals("str StR", trim(" str StR "));
+    assertEquals("STR  str", trim(" \n\u0085STR  str \u00A0\n\t"));
+  }
+
+  @Test
+  public void testDeleteWhitespace() {
+    assertEquals("str", deleteWhitespace(" str "));
+    assertEquals("strStR", deleteWhitespace(" str StR "));
+    assertEquals("STRstr", deleteWhitespace(" \n\u000CSTR\u00A0   str \u2007\n\t"));
   }
 }
