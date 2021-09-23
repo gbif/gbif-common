@@ -48,7 +48,22 @@ public final class StringUtils {
   private static final Pattern HEX = Pattern.compile("^[0-9abcdefABCDEF]+$");
 
   private static final String VOC = "AEIOU";
-  private static Random rnd = new Random();
+  private static final Random RND = new Random();
+
+  /**
+   * This includes some special whitespaces which not present in standard trim list:
+   * <ul>
+   *  <li>U+0085 Next Line (NEL)</li>
+   *  <li>U+00A0 No-Break Space (NBSP)</li>
+   *  <li>U+000C Form Feed (FF)</li>
+   *  <li>U+2007 Figure Space </li>
+   * </ul>
+   */
+  public static final String WHITESPACES_LIST = ""
+      + "\u2002\u3000\r\u0085\u200A\u2005\u2000\u3000"
+      + "\u2029\u000B\u3000\u2008\u2003\u205F\u3000\u1680"
+      + "\u0009\u0020\u2006\u2001\u202F\u00A0\u000C\u2009"
+      + "\u3000\u2004\u3000\u3000\u2028\n\u2007\u3000";
 
   private StringUtils() {
   }
@@ -218,18 +233,18 @@ public final class StringUtils {
   }
 
   public static String randomGenus() {
-    return WordUtils.capitalize(randomString(rnd.nextInt(9) + 3).toLowerCase());
+    return WordUtils.capitalize(randomString(RND.nextInt(9) + 3).toLowerCase());
   }
 
   public static String randomEpithet() {
-    return randomString(rnd.nextInt(12) + 4).toLowerCase();
+    return randomString(RND.nextInt(12) + 4).toLowerCase();
   }
   public static String randomFamily() {
-      return WordUtils.capitalize(StringUtils.randomString(rnd.nextInt(15) + 5).toLowerCase()) + "idae";
+      return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(15) + 5).toLowerCase()) + "idae";
   }
 
   public static String randomAuthor() {
-    return WordUtils.capitalize(StringUtils.randomString(rnd.nextInt(12) + 1).toLowerCase());
+    return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(12) + 1).toLowerCase());
   }
 
   /**
@@ -241,10 +256,10 @@ public final class StringUtils {
   public static String randomString(int len) {
     StringBuilder sb = new StringBuilder(len);
     for (int i = 0; i < len; i++) {
-      if (rnd.nextInt(3) > 1) {
-        sb.append(CONS.charAt(rnd.nextInt(CONS.length())));
+      if (RND.nextInt(3) > 1) {
+        sb.append(CONS.charAt(RND.nextInt(CONS.length())));
       } else {
-        sb.append(VOC.charAt(rnd.nextInt(VOC.length())));
+        sb.append(VOC.charAt(RND.nextInt(VOC.length())));
       }
     }
 
@@ -256,7 +271,7 @@ public final class StringUtils {
    */
   public static String randomSpeciesYear() {
     int maxYear = Calendar.getInstance().get(Calendar.YEAR);
-    return String.valueOf(LINNEAN_YEAR + rnd.nextInt(maxYear - LINNEAN_YEAR + 1));
+    return String.valueOf(LINNEAN_YEAR + RND.nextInt(maxYear - LINNEAN_YEAR + 1));
   }
 
   /**
@@ -468,4 +483,38 @@ public final class StringUtils {
     return result.toString();
   }
 
+  /**
+   * Strips a set of whitespace characters from the start and end of a String.
+   * This is similar to String.trim() but also includes some specific characters.
+   *
+   * @param str String to be trimmed
+   * @return trimmed String
+   */
+  public static String trim(String str) {
+    return org.apache.commons.lang3.StringUtils.strip(str, WHITESPACES_LIST);
+  }
+
+  /**
+   * Removes all whitespace characters from the String.
+   *
+   * @param str String to be processed
+   * @return String without whitespaces
+   */
+  public static String deleteWhitespace(final String str) {
+    if (org.apache.commons.lang3.StringUtils.isEmpty(str)) {
+      return str;
+    }
+    final int sz = str.length();
+    final char[] chs = new char[sz];
+    int count = 0;
+    for (int i = 0; i < sz; i++) {
+      if (org.apache.commons.lang3.StringUtils.containsNone(WHITESPACES_LIST, str.charAt(i))) {
+        chs[count++] = str.charAt(i);
+      }
+    }
+    if (count == sz) {
+      return str;
+    }
+    return new String(chs, 0, count);
+  }
 }

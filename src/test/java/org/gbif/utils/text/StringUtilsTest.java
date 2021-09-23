@@ -77,7 +77,7 @@ public class StringUtilsTest {
   }
   @Test
   public void testFoldToAscii() throws Exception {
-    assertEquals(null, StringUtils.foldToAscii(null));
+    assertNull(StringUtils.foldToAscii(null));
     assertEquals("", StringUtils.foldToAscii(""));
     assertEquals("Schulhof, Gymnasium Hurth", StringUtils.foldToAscii("Schulhof, Gymnasium Hürth"));
     assertEquals("Doring", StringUtils.foldToAscii("Döring"));
@@ -104,5 +104,19 @@ public class StringUtilsTest {
     assertEquals("x", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "", "  x "));
     assertEquals("x y", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "x", "  y "));
     assertEquals("x   y ", StringUtils.thenJoin(Function.identity(), "x", "  y "));
+  }
+
+  @Test
+  public void testTrim() {
+    assertEquals("str", StringUtils.trim(" str "));
+    assertEquals("str StR", StringUtils.trim(" str StR "));
+    assertEquals("STR  str", StringUtils.trim(" \n\u0085STR  str \u00A0\n\t"));
+  }
+
+  @Test
+  public void testDeleteWhitespace() {
+    assertEquals("str", StringUtils.deleteWhitespace(" str "));
+    assertEquals("strStR", StringUtils.deleteWhitespace(" str StR "));
+    assertEquals("STRstr", StringUtils.deleteWhitespace(" \n\u000CSTR\u00A0   str \u2007\n\t"));
   }
 }
