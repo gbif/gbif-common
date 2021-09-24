@@ -17,7 +17,7 @@ GBIF Common,org.gbif.utils.file.tabular,TabularFiles,3,39,0,0,1,6,1,3,1,3
 GBIF Common,org.gbif.utils.concurrent,ExecutorUtils,18,25,0,2,7,8,2,3,2,2
 GBIF Common,org.gbif.utils.concurrent,DirectExecutor,6,0,0,0,3,0,2,0,2,0
 GBIF Common,org.gbif.utils.concurrent,NamedThreadFactory,3,68,1,1,0,14,1,3,0,3
-GBIF Common,org.gbif.utils.text,StringUtils,404,290,63,44,80,84,47,33,13,7
+GBIF Common,org.gbif.utils.text,StringUtils,408,340,65,50,82,94,49,37,13,9
 GBIF Common,org.gbif.utils.text,StringLengthComparator,18,0,2,0,4,0,3,0,2,0
 GBIF Common,org.gbif.utils.text,EmailUtils,9,37,1,3,3,10,2,3,1,2
 GBIF Common,org.gbif.utils.text,StringComparator,21,0,8,0,8,0,6,0,2,0
