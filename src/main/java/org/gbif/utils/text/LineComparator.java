@@ -39,9 +39,16 @@ public class LineComparator implements Comparator<String> {
     this(column, columnDelimiter, quoteChar, null);
   }
 
-  public LineComparator(int column, String columnDelimiter, Character quoteChar, Comparator<String> columnComparator) {
+  public LineComparator(
+      int column,
+      String columnDelimiter,
+      Character quoteChar,
+      Comparator<String> columnComparator) {
     this.column = column;
-    this.comp = columnComparator == null ? Comparator.nullsFirst(Comparator.naturalOrder()) : columnComparator;
+    this.comp =
+        columnComparator == null
+            ? Comparator.nullsFirst(Comparator.naturalOrder())
+            : columnComparator;
     tokenizer = new StrTokenizer();
     tokenizer.setEmptyTokenAsNull(true);
     tokenizer.setIgnoreEmptyTokens(false);
@@ -83,17 +90,15 @@ public class LineComparator implements Comparator<String> {
         return 0;
       } else if (s1 == null) {
         return 1;
-      } else if (s2 == null)  {
+      } else if (s2 == null) {
         return -1;
       } else {
         return comp.compare(s1, s2);
       }
-
     }
   }
 
   public Comparator<String> getColumnComparator() {
     return comp;
   }
-
 }

@@ -44,15 +44,14 @@ public final class RsGbifOrg {
    * @param path given as array of individual names that will be concatenated
    * @return url to file inside rs.gbif.org
    */
-  public static URL url(String ... path) {
+  public static URL url(String... path) {
     try {
       if (path == null) {
         return new URL(DOMAIN);
       }
 
-      String fullPath = DOMAIN + Arrays.stream(path)
-          .filter(Objects::nonNull)
-          .collect(Collectors.joining("/"));
+      String fullPath =
+          DOMAIN + Arrays.stream(path).filter(Objects::nonNull).collect(Collectors.joining("/"));
 
       return new URL(fullPath);
     } catch (MalformedURLException e) {
@@ -62,9 +61,9 @@ public final class RsGbifOrg {
   }
 
   /**
-  * @param filename of dictionary file requested
-  * @return url to file inside to dictionary folder of rs.gbif.org
-  */
+   * @param filename of dictionary file requested
+   * @return url to file inside to dictionary folder of rs.gbif.org
+   */
   public static URL dictionaryUrl(String filename) {
     return url("dictionaries", filename);
   }

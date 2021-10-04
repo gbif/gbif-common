@@ -52,18 +52,26 @@ public class CSVReader implements ClosableReportingIterator<String[]> {
   private String errorMessage;
   private Exception exception;
 
-  public CSVReader(File source, String encoding, String delimiter, Character quotes, Integer headerRows)
-          throws IOException {
+  public CSVReader(
+      File source, String encoding, String delimiter, Character quotes, Integer headerRows)
+      throws IOException {
     this(new FileInputStream(source), encoding, delimiter, quotes, headerRows);
   }
 
-  public CSVReader(InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows)
-          throws IOException {
+  public CSVReader(
+      InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows)
+      throws IOException {
     this(stream, encoding, delimiter, quotes, headerRows, 1000);
   }
 
-  public CSVReader(InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows, int emptyLineCache)
-          throws IOException {
+  public CSVReader(
+      InputStream stream,
+      String encoding,
+      String delimiter,
+      Character quotes,
+      Integer headerRows,
+      int emptyLineCache)
+      throws IOException {
     this.emptyLinesCacheLimit = emptyLineCache;
     if (emptyLineCache > 0) {
       this.emptyLines = new ConcurrentHashMap<>(emptyLineCache);

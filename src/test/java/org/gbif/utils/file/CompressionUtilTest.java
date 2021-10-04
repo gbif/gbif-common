@@ -52,7 +52,8 @@ public class CompressionUtilTest {
     return temp;
   }
 
-  private static void assureEqualContent(List<File> result, String metaContent, String dataContent) throws IOException {
+  private static void assureEqualContent(List<File> result, String metaContent, String dataContent)
+      throws IOException {
     for (File f : result) {
       String x = FileUtils.readFileToString(f, "utf-8");
       if ("meta.xml".equals(f.getName())) {
@@ -283,7 +284,7 @@ public class CompressionUtilTest {
 
     File zipWithoutDirs = File.createTempFile("aha", ".zip");
     System.out.println(zipWithoutDirs.getAbsolutePath());
-    //tmp.deleteOnExit();
+    // tmp.deleteOnExit();
     File testFolder = classpathFile("charsets");
     // remember how many files we have in the root folder, exlcuding files in subdirectories
     final int rootFileNum = testFolder.listFiles().length;
@@ -336,19 +337,19 @@ public class CompressionUtilTest {
     }
 
     // From all the other tests.
-    List<String> files = Arrays.asList(
-      "compression/archive/meta.xml",
-      "compression/archive/quote_in_quote.csv",
-      "compression/archive.tgz",
-      "compression/archive-tgz.dat",
-      "compression/archive.zip",
-      "compression/archive-zip.dat",
-      "compression/cate.zip",
-      "compression/infozip64.zip",
-      "compression/test.txt.gz",
-      "compression/with_dot_svn.zip",
-      "compression/withSubdirsAndHiddenFiles.zip"
-    );
+    List<String> files =
+        Arrays.asList(
+            "compression/archive/meta.xml",
+            "compression/archive/quote_in_quote.csv",
+            "compression/archive.tgz",
+            "compression/archive-tgz.dat",
+            "compression/archive.zip",
+            "compression/archive-zip.dat",
+            "compression/cate.zip",
+            "compression/infozip64.zip",
+            "compression/test.txt.gz",
+            "compression/with_dot_svn.zip",
+            "compression/withSubdirsAndHiddenFiles.zip");
 
     for (String file : files) {
       tmpDir = createTempDirectory();

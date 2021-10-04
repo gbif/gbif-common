@@ -32,8 +32,7 @@ public class AnnotationUtilsTest {
   }
 
   private static class TestClass {
-    @Deprecated
-    private int a;
+    @Deprecated private int a;
     private int b;
   }
 

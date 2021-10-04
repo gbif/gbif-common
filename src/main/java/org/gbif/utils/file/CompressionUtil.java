@@ -54,8 +54,7 @@ public class CompressionUtil {
 
   public static class UnsupportedCompressionType extends RuntimeException {
 
-    public UnsupportedCompressionType() {
-    }
+    public UnsupportedCompressionType() {}
 
     public UnsupportedCompressionType(String message) {
       super(message);
@@ -64,13 +63,12 @@ public class CompressionUtil {
     public UnsupportedCompressionType(String message, Throwable cause) {
       super(message, cause);
     }
-
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(CompressionUtil.class);
   private static final int BUFFER = 2048;
   private static final String APPLE_RESOURCE_FORK = "__MACOSX";
-  private static final byte[] TAR_MAGIC_BYTES = new byte[]{'u', 's', 't', 'a', 'r'};
+  private static final byte[] TAR_MAGIC_BYTES = new byte[] {'u', 's', 't', 'a', 'r'};
 
   /**
    * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename
@@ -78,7 +76,8 @@ public class CompressionUtil {
    *
    * @return folder containing all decompressed files
    */
-  public static File decompressFile(File compressedFile) throws IOException, UnsupportedCompressionType {
+  public static File decompressFile(File compressedFile)
+      throws IOException, UnsupportedCompressionType {
     // create empty tmp dir
     File dir = File.createTempFile("gbif-", null);
     if (dir.exists() && !dir.delete()) {
@@ -101,7 +100,7 @@ public class CompressionUtil {
    * @see org.gbif.utils.file.CompressionUtil#decompressFile(java.io.File, java.io.File, boolean)
    */
   public static List<File> decompressFile(File directory, File compressedFile)
-    throws IOException, UnsupportedCompressionType {
+      throws IOException, UnsupportedCompressionType {
     return decompressFile(directory, compressedFile, false);
   }
 
@@ -117,8 +116,9 @@ public class CompressionUtil {
    *                                    to
    * @throws UnsupportedCompressionType if the compression type wasn't recognized
    */
-  public static List<File> decompressFile(File directory, File compressedFile, boolean keepSubdirectories)
-    throws IOException, UnsupportedCompressionType {
+  public static List<File> decompressFile(
+      File directory, File compressedFile, boolean keepSubdirectories)
+      throws IOException, UnsupportedCompressionType {
     List<File> files = null;
 
     // Test before trying gzip format
@@ -265,7 +265,8 @@ public class CompressionUtil {
    *
    * @throws IOException if reading or writing fails
    */
-  public static List<File> ungzipFile(File directory, File gzipFile, boolean isTarred) throws IOException {
+  public static List<File> ungzipFile(File directory, File gzipFile, boolean isTarred)
+      throws IOException {
     if (isTarred) return untgzFile(directory, gzipFile);
 
     List<File> files = new ArrayList<File>();
@@ -304,7 +305,7 @@ public class CompressionUtil {
    * @see org.gbif.utils.file.CompressionUtil#unzipFile(java.io.File, java.io.File, boolean)
    */
   public static List<File> unzipFile(File directory, File zipFile) throws IOException {
-     return unzipFile(directory, zipFile, false);
+    return unzipFile(directory, zipFile, false);
   }
 
   /**
@@ -347,7 +348,8 @@ public class CompressionUtil {
    * @param zipFile the zip file to be created
    * @throws IOException
    */
-  public static void zipFiles(Collection<File> files, File rootContext, File zipFile) throws IOException {
+  public static void zipFiles(Collection<File> files, File rootContext, File zipFile)
+      throws IOException {
     if (files.isEmpty()) {
       LOG.info("no files to zip.");
     } else {
@@ -362,7 +364,9 @@ public class CompressionUtil {
           FileInputStream fi = new FileInputStream(f);
           origin = new BufferedInputStream(fi, BUFFER);
 
-          String zipPath = StringUtils.removeStart(f.getAbsolutePath(), rootContext.getAbsolutePath() + File.separator);
+          String zipPath =
+              StringUtils.removeStart(
+                  f.getAbsolutePath(), rootContext.getAbsolutePath() + File.separator);
           ZipEntry entry = new ZipEntry(zipPath);
           out.putNextEntry(entry);
           int count;
@@ -394,13 +398,19 @@ public class CompressionUtil {
    *
    * @return a list of all created files and directories extracted to target directory
    */
-  public static List<File> unzipFile(File directory, File zipFile, boolean keepSubdirectories) throws IOException {
-    LOG.debug("Unzipping archive " + zipFile.getName() + " into directory: " + directory.getAbsolutePath());
+  public static List<File> unzipFile(File directory, File zipFile, boolean keepSubdirectories)
+      throws IOException {
+    LOG.debug(
+        "Unzipping archive "
+            + zipFile.getName()
+            + " into directory: "
+            + directory.getAbsolutePath());
 
-    // This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain Zip64 files.
+    // This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain
+    // Zip64 files.
     // https://bugs.openjdk.java.net/browse/JDK-8186464
     try (FileInputStream fInput = new FileInputStream(zipFile);
-         ZipInputStream zipInput = new ZipInputStream(fInput)) {
+        ZipInputStream zipInput = new ZipInputStream(fInput)) {
       ZipEntry entry;
 
       while ((entry = zipInput.getNextEntry()) != null) {
@@ -423,8 +433,10 @@ public class CompressionUtil {
           if (isHiddenFile(new File(entry.getName()))) {
             LOG.debug("Ignoring hidden file: " + entry.getName());
           } else {
-            File targetFile = (keepSubdirectories) ? new File(directory, entry.getName())
-              : new File(directory, new File(entry.getName()).getName());
+            File targetFile =
+                (keepSubdirectories)
+                    ? new File(directory, entry.getName())
+                    : new File(directory, new File(entry.getName()).getName());
             // ensure parent folder always exists, and extract file
             createParentFolder(targetFile);
 
@@ -440,7 +452,9 @@ public class CompressionUtil {
     if (keepSubdirectories) {
       removeRootDirectory(directory);
     }
-    return (directory.listFiles() == null) ? new ArrayList<File>() : Arrays.asList(directory.listFiles());
+    return (directory.listFiles() == null)
+        ? new ArrayList<File>()
+        : Arrays.asList(directory.listFiles());
   }
 
   /**
@@ -465,8 +479,11 @@ public class CompressionUtil {
     if (rootFiles.length == 1) {
       File root = rootFiles[0];
       if (root.isDirectory()) {
-        LOG.debug("Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());
-        for (File f : org.apache.commons.io.FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE)) {
+        LOG.debug(
+            "Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());
+        for (File f :
+            org.apache.commons.io.FileUtils.listFilesAndDirs(
+                root, TrueFileFilter.TRUE, TrueFileFilter.TRUE)) {
           File f2 = new File(directory, f.getName());
           f.renameTo(f2);
         }
@@ -483,8 +500,10 @@ public class CompressionUtil {
   private static void createParentFolder(File file) {
     File parent = new File(file.getParent());
     if (!parent.exists()) {
-      LOG.debug((parent.mkdirs()) ? "Created parent directory: " + parent.getAbsolutePath()
-        : "Failed to create parent directory: " + parent.getAbsolutePath());
+      LOG.debug(
+          (parent.mkdirs())
+              ? "Created parent directory: " + parent.getAbsolutePath()
+              : "Failed to create parent directory: " + parent.getAbsolutePath());
     }
   }
 }

@@ -22,8 +22,7 @@ import java.lang.reflect.Field;
  */
 public final class AnnotationUtils {
 
-  private AnnotationUtils() {
-  }
+  private AnnotationUtils() {}
 
   /**
    * Check if a field is annotated with @Deprecated in the provided class.
@@ -39,7 +38,8 @@ public final class AnnotationUtils {
       Field field = _class.getDeclaredField(fieldName);
       field.setAccessible(true);
       return field.isAnnotationPresent(Deprecated.class);
-    } catch (NoSuchFieldException ignore) {}
+    } catch (NoSuchFieldException ignore) {
+    }
     return false;
   }
 }

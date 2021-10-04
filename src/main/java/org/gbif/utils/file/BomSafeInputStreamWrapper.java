@@ -64,5 +64,4 @@ public class BomSafeInputStreamWrapper extends InputStream {
     } catch (IOException ignored) {
     }
   }
-
 }

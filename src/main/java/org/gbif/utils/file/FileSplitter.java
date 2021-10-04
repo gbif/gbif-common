@@ -40,7 +40,8 @@ public class FileSplitter {
   public static final String SEPARATOR = "_";
   public static final int READ_AHEAD_BYTES = 256;
 
-  // for the file, gives the Byte markers for reading lines, such that the lines read will approximately
+  // for the file, gives the Byte markers for reading lines, such that the lines read will
+  // approximately
   // equate be the chunk size (slightly more as it reads to the end of the row)
   public static List<Long> scanToChunk(File from, long chunkSizeBytes) throws IOException {
     List<Long> chunkBytes = new ArrayList<Long>();
@@ -77,8 +78,8 @@ public class FileSplitter {
    * - pumaConcolor_part_2.txt
    * Returns the files parts
    */
-  public static List<File> split(File from, File targetDirectory, String suffix, long chunkSizeBytes)
-    throws IOException {
+  public static List<File> split(
+      File from, File targetDirectory, String suffix, long chunkSizeBytes) throws IOException {
     List<File> files = new ArrayList<File>();
     FileInputStream fis = new FileInputStream(from);
     FileChannel fcin = fis.getChannel();
@@ -98,7 +99,8 @@ public class FileSplitter {
     while (byteCount < fcin.size()) {
       long time = System.currentTimeMillis();
       // create the output file
-      String fileName = filePartNamePrefix + SEPARATOR + suffix + SEPARATOR + filePartCount + filePartNameSuffix;
+      String fileName =
+          filePartNamePrefix + SEPARATOR + suffix + SEPARATOR + filePartCount + filePartNameSuffix;
       File to = new File(targetDirectory, fileName);
       files.add(to);
 
@@ -126,7 +128,12 @@ public class FileSplitter {
       fcout.close();
       fos.close();
       filePartCount++;
-      LOG.debug("Filepart[" + fileName + "] created in " + (1 + System.currentTimeMillis() - time) / 1000 + " secs");
+      LOG.debug(
+          "Filepart["
+              + fileName
+              + "] created in "
+              + (1 + System.currentTimeMillis() - time) / 1000
+              + " secs");
     }
 
     // TODO - have tested but need to test thoroughly...
@@ -143,5 +150,4 @@ public class FileSplitter {
   private FileSplitter() {
     throw new UnsupportedOperationException("Can't initialize class");
   }
-
 }

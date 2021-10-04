@@ -38,7 +38,6 @@ public class HashSetPerformance {
     for (int ix = 0; ix < 3; ix++) {
       test(true, new CompactHashSet());
     }
-
   }
 
   public static void test(boolean output, Set set) {

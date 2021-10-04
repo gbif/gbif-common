@@ -43,8 +43,13 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
   private long lastLineNumber = 0;
   private long recordNumber = 0;
 
-  JacksonCsvFileReader(Reader reader, char delimiterChar, String endOfLineSymbols, Character quoteChar,
-                       boolean headerLineIncluded) throws IOException {
+  JacksonCsvFileReader(
+      Reader reader,
+      char delimiterChar,
+      String endOfLineSymbols,
+      Character quoteChar,
+      boolean headerLineIncluded)
+      throws IOException {
     this(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLineIncluded, null);
   }
 
@@ -59,8 +64,14 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
    * @param lineToSkipBeforeHeader Nullable. How many line(s) is required to skip before reading the header or the data.
    * @throws IOException
    */
-  JacksonCsvFileReader(Reader reader, char delimiterChar, String endOfLineSymbols, Character quoteChar,
-                       boolean headerLineIncluded, Integer lineToSkipBeforeHeader) throws IOException {
+  JacksonCsvFileReader(
+      Reader reader,
+      char delimiterChar,
+      String endOfLineSymbols,
+      Character quoteChar,
+      boolean headerLineIncluded,
+      Integer lineToSkipBeforeHeader)
+      throws IOException {
 
     Objects.requireNonNull(reader, "reader shall be provided");
     Objects.requireNonNull(endOfLineSymbols, "endOfLineSymbols shall be provided");
@@ -70,16 +81,14 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
 
     CsvSchema schema = buildCsvSchema(delimiterChar, endOfLineSymbols, quoteChar);
 
-    it = mapper.readerFor(List.class)
-            .with(schema)
-            .readValues(reader);
+    it = mapper.readerFor(List.class).with(schema).readValues(reader);
 
     // if we have to skip lines before the header line
     for (int line = 0; line < Optional.ofNullable(lineToSkipBeforeHeader).orElse(0); line++) {
       it.next();
     }
 
-    //ensure to pull the header line if we need to
+    // ensure to pull the header line if we need to
     if (headerLineIncluded && it.hasNext()) {
       headerLine = it.next();
     }
@@ -104,21 +113,21 @@ class JacksonCsvFileReader implements TabularDataFileReader<List<String>> {
   public List<String> read() throws IOException, ParseException {
     try {
       while (it.hasNext()) {
-        //get the current line number before we read the next record
+        // get the current line number before we read the next record
         lastLineNumber = it.getCurrentLocation().getLineNr();
         List<String> row = it.next();
-        // an empty line is returned as a list of one element, check if the element is empty before skipping
+        // an empty line is returned as a list of one element, check if the element is empty before
+        // skipping
         if (row.size() != 1 || StringUtils.isNotBlank(row.get(0))) {
           recordNumber++;
           return row;
         }
       }
-    }
-    catch (RuntimeException rtEx) {
-      if(JsonParseException.class == rtEx.getCause().getClass()){
-        throw new ParseException(rtEx.getMessage(), ((JsonParseException)rtEx.getCause()).getLocation().getLineNr());
-      }
-      else{
+    } catch (RuntimeException rtEx) {
+      if (JsonParseException.class == rtEx.getCause().getClass()) {
+        throw new ParseException(
+            rtEx.getMessage(), ((JsonParseException) rtEx.getCause()).getLocation().getLineNr());
+      } else {
         throw rtEx;
       }
     }

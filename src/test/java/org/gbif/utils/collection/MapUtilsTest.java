@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MapUtilsTest {
 
-
   @Test
   public void testMap() {
     Map<String, Double> map = new HashMap<String, Double>(4);

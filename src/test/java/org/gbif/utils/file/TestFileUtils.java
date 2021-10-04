@@ -30,9 +30,11 @@ public class TestFileUtils {
   @Test
   public void testSourceRepo() throws MalformedURLException {
     URL url = new URL("http://www.gbif.org:8081/~markus/testdata/geobotany.pdf");
-    assertTrue(FileUtils.toFilePath(url).equals("www.gbif.org:8081/~markus/testdata/geobotany.pdf"));
+    assertTrue(
+        FileUtils.toFilePath(url).equals("www.gbif.org:8081/~markus/testdata/geobotany.pdf"));
 
     url = new URL("ftp://ftp.gbif.org/testdata/markus/geobotany.pdf");
-    assertTrue(FileUtils.toFilePath(url).equals("ftp.gbif.org/__ftp__/testdata/markus/geobotany.pdf"));
+    assertTrue(
+        FileUtils.toFilePath(url).equals("ftp.gbif.org/__ftp__/testdata/markus/geobotany.pdf"));
   }
 }

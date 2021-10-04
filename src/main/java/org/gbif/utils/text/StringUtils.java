@@ -59,14 +59,14 @@ public final class StringUtils {
    *  <li>U+2007 Figure Space </li>
    * </ul>
    */
-  public static final String WHITESPACES_LIST = ""
-      + "\u2002\u3000\r\u0085\u200A\u2005\u2000\u3000"
-      + "\u2029\u000B\u3000\u2008\u2003\u205F\u3000\u1680"
-      + "\u0009\u0020\u2006\u2001\u202F\u00A0\u000C\u2009"
-      + "\u3000\u2004\u3000\u3000\u2028\n\u2007\u3000";
+  public static final String WHITESPACES_LIST =
+      ""
+          + "\u2002\u3000\r\u0085\u200A\u2005\u2000\u3000"
+          + "\u2029\u000B\u3000\u2008\u2003\u205F\u3000\u1680"
+          + "\u0009\u0020\u2006\u2001\u202F\u00A0\u000C\u2009"
+          + "\u3000\u2004\u3000\u3000\u2028\n\u2007\u3000";
 
-  private StringUtils() {
-  }
+  private StringUtils() {}
 
   /**
    * Removes accents & diacretics and converts ligatures into several chars
@@ -94,11 +94,12 @@ public final class StringUtils {
    * @return a String that represents all parts joined by a space or empty String. Never null.
    */
   public static String thenJoin(Function<String, String> fct, String... parts) {
-    Objects.requireNonNull(fct, "fct shall be provided, use Function.identity() is you want to use the String as is");
+    Objects.requireNonNull(
+        fct, "fct shall be provided, use Function.identity() is you want to use the String as is");
     return Arrays.stream(parts != null ? parts : new String[0])
-            .map(fct)
-            .filter(Objects::nonNull)
-            .collect(Collectors.joining(" "));
+        .map(fct)
+        .filter(Objects::nonNull)
+        .collect(Collectors.joining(" "));
   }
 
   /**
@@ -185,22 +186,22 @@ public final class StringUtils {
     boolean appendingNeeded = false;
     Character lastOriginalChar = null;
 
-    while (idx >= 0){
+    while (idx >= 0) {
       char c = chars[idx];
-      if (!Character.isLetter(c)){
+      if (!Character.isLetter(c)) {
         idx--;
         continue;
       }
 
-      if (lastOriginalChar == null){
+      if (lastOriginalChar == null) {
         lastOriginalChar = c;
       }
 
-      if (c == 'z'){
+      if (c == 'z') {
         chars[idx] = 'a';
         appendingNeeded = true;
 
-      } else if (c == 'Z'){
+      } else if (c == 'Z') {
         chars[idx] = 'A';
         appendingNeeded = true;
 
@@ -214,8 +215,9 @@ public final class StringUtils {
     }
 
     // first char, also append to end
-    if (appendingNeeded){
-      char append = (lastOriginalChar==null || Character.isLowerCase(lastOriginalChar)) ? 'a' : 'A';
+    if (appendingNeeded) {
+      char append =
+          (lastOriginalChar == null || Character.isLowerCase(lastOriginalChar)) ? 'a' : 'A';
       return String.valueOf(chars) + append;
 
     } else {
@@ -239,8 +241,10 @@ public final class StringUtils {
   public static String randomEpithet() {
     return randomString(RND.nextInt(12) + 4).toLowerCase();
   }
+
   public static String randomFamily() {
-      return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(15) + 5).toLowerCase()) + "idae";
+    return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(15) + 5).toLowerCase())
+        + "idae";
   }
 
   public static String randomAuthor() {
@@ -340,15 +344,19 @@ public final class StringUtils {
     //
     // octal escape
     // \nnn
-    // The octal value nnn, where nnn stands for 1 to 3 digits between ‘0’ and ‘7’. For example, the code for the ASCII
+    // The octal value nnn, where nnn stands for 1 to 3 digits between ‘0’ and ‘7’. For example, the
+    // code for the ASCII
     // ESC (escape) character is ‘\033’.
     //
     // hexadecimal escape
     // \xhh...
-    // The hexadecimal value hh, where hh stands for a sequence of hexadecimal digits (‘0’–‘9’, and either ‘A’–‘F’ or
+    // The hexadecimal value hh, where hh stands for a sequence of hexadecimal digits (‘0’–‘9’, and
+    // either ‘A’–‘F’ or
     // ‘a’–‘f’).
-    // Like the same construct in ISO C, the escape sequence continues until the first nonhexadecimal digit is seen.
-    // However, using more than two hexadecimal digits produces undefined results. (The ‘\x’ escape sequence is not allowed
+    // Like the same construct in ISO C, the escape sequence continues until the first
+    // nonhexadecimal digit is seen.
+    // However, using more than two hexadecimal digits produces undefined results. (The ‘\x’ escape
+    // sequence is not allowed
     // in POSIX awk.)
     int i = 0, len = text.length();
     char c;
@@ -414,10 +422,15 @@ public final class StringUtils {
    * E.g. Ã¼ is the German Umlaut ü and indicates we have encoded utf8 text still.
    */
   public static String decodeUtf8Garbage(String text) {
-    Pattern UTF8_TEST = Pattern.compile("(Ã¤|Ã¼|Ã¶|Ã\u0084|Ã\u009C|Ã\u0096|" + // äüöÄÜÖ
-        "Ã±|Ã¸|Ã§|Ã®|Ã´|Ã»|Ã\u0091|Ã\u0098|Ã\u0087|Ã\u008E|Ã\u0094|Ã\u009B"  + // ñøçîôûÑØÇÎÔÛ
-        "Ã¡|Ã©|Ã³|Ãº|Ã\u00AD|Ã\u0081|Ã\u0089|Ã\u0093|Ã\u009A|Ã\u008D)"         // áéóúíÁÉÓÚÍ
-        , Pattern.CASE_INSENSITIVE);
+    Pattern UTF8_TEST =
+        Pattern.compile(
+            "(Ã¤|Ã¼|Ã¶|Ã\u0084|Ã\u009C|Ã\u0096|"
+                + // äüöÄÜÖ
+                "Ã±|Ã¸|Ã§|Ã®|Ã´|Ã»|Ã\u0091|Ã\u0098|Ã\u0087|Ã\u008E|Ã\u0094|Ã\u009B"
+                + // ñøçîôûÑØÇÎÔÛ
+                "Ã¡|Ã©|Ã³|Ãº|Ã\u00AD|Ã\u0081|Ã\u0089|Ã\u0093|Ã\u009A|Ã\u008D)" // áéóúíÁÉÓÚÍ
+            ,
+            Pattern.CASE_INSENSITIVE);
     if (text != null && UTF8_TEST.matcher(text).find()) {
       // typical utf8 combinations found. Try to decode from latin1 to utf8
       byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);

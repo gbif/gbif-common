@@ -48,8 +48,9 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     private int expectedModCount;
 
     CompactHashIterator() {
-      for (index = 0; index < objects.length && (objects[index] == null || objects[index] == deletedObject); index++) {
-      }
+      for (index = 0;
+          index < objects.length && (objects[index] == null || objects[index] == deletedObject);
+          index++) {}
       expectedModCount = modCount;
     }
 
@@ -70,8 +71,9 @@ public class CompactHashSet<T> extends AbstractSet<T> {
       }
 
       lastReturned = index;
-      for (index += 1; index < length && (objects[index] == null || objects[index] == deletedObject); index++) {
-      }
+      for (index += 1;
+          index < length && (objects[index] == null || objects[index] == deletedObject);
+          index++) {}
       if (objects[lastReturned] == nullObject) {
         return null;
       } else {
@@ -111,6 +113,7 @@ public class CompactHashSet<T> extends AbstractSet<T> {
    * delete an object in the collision chain.
    */
   protected static final Object deletedObject = new Object();
+
   protected int elements;
   protected int freecells;
   protected Object[] objects;
@@ -174,7 +177,8 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     int deletedix = -1;
 
     // search for the object (continue while !null and !this object)
-    while (objects[index] != null && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
+    while (objects[index] != null
+        && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
 
       // if there's a deleted object here we can put this object here,
       // provided it's not in here somewhere else already
@@ -246,7 +250,8 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     int offset = 1;
 
     // search for the object (continue while !null and !this object)
-    while (objects[index] != null && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
+    while (objects[index] != null
+        && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
       index = ((index + offset) & 0x7FFFFFFF) % objects.length;
       offset = offset * 2 + 1;
 
@@ -340,7 +345,8 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     int offset = 1;
 
     // search for the object (continue while !null and !this object)
-    while (objects[index] != null && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
+    while (objects[index] != null
+        && !(objects[index].hashCode() == hash && objects[index].equals(o))) {
       index = ((index + offset) & 0x7FFFFFFF) % objects.length;
       offset = offset * 2 + 1;
 
@@ -402,5 +408,4 @@ public class CompactHashSet<T> extends AbstractSet<T> {
     }
     return a;
   }
-
 }

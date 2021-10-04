@@ -51,16 +51,16 @@ public class TabularFileMetadataExtractorTest {
     sample.add("3\tf\tg\th,3");
 
     List<TabularFileMetadataExtractor.LineDelimiterStats> linesStats =
-            computeLineDelimiterStats(sample);
-    Map<Character, Integer> delimiterFrequencySums = TabularFileMetadataExtractor.computeDelimiterFrequencySums(linesStats);
+        computeLineDelimiterStats(sample);
+    Map<Character, Integer> delimiterFrequencySums =
+        TabularFileMetadataExtractor.computeDelimiterFrequencySums(linesStats);
     // here, the delimiter that is used the most often is in fact the correct one
     assertEquals(12, delimiterFrequencySums.get('\t').intValue());
     assertEquals(3, delimiterFrequencySums.get(',').intValue());
 
-    //add a "noise" line to demonstrate the impact on this function
+    // add a "noise" line to demonstrate the impact on this function
     sample.add("4\ti\tj\tk,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4");
-    linesStats =
-            computeLineDelimiterStats(sample);
+    linesStats = computeLineDelimiterStats(sample);
     delimiterFrequencySums = TabularFileMetadataExtractor.computeDelimiterFrequencySums(linesStats);
     // here, the delimiter that is used the most often is the wrong one
     assertEquals(15, delimiterFrequencySums.get('\t').intValue());
@@ -76,8 +76,9 @@ public class TabularFileMetadataExtractorTest {
     sample.add("3\tf\tg\th,3");
 
     List<TabularFileMetadataExtractor.LineDelimiterStats> linesStats =
-            computeLineDelimiterStats(sample);
-    Map<Character, Set<Integer>> delimiterDistinctFrequency = TabularFileMetadataExtractor.computeDelimiterDistinctFrequency(linesStats);
+        computeLineDelimiterStats(sample);
+    Map<Character, Set<Integer>> delimiterDistinctFrequency =
+        TabularFileMetadataExtractor.computeDelimiterDistinctFrequency(linesStats);
 
     // here, the delimiter with the most stable frequency is the correct one
     assertEquals(1, delimiterDistinctFrequency.get('\t').size());
@@ -85,10 +86,11 @@ public class TabularFileMetadataExtractorTest {
 
     sample.add("4\ti\t\"j\t\"\tk,4");
     sample.add("5\tl\t\"m\t\t\"\tn,5");
-    linesStats =
-            computeLineDelimiterStats(sample);
-    delimiterDistinctFrequency = TabularFileMetadataExtractor.computeDelimiterDistinctFrequency(linesStats);
-    // here, the delimiter that is the most stable is now the wrong one (because of the delimiter inside the quoted text)
+    linesStats = computeLineDelimiterStats(sample);
+    delimiterDistinctFrequency =
+        TabularFileMetadataExtractor.computeDelimiterDistinctFrequency(linesStats);
+    // here, the delimiter that is the most stable is now the wrong one (because of the delimiter
+    // inside the quoted text)
     assertEquals(3, delimiterDistinctFrequency.get('\t').size());
     assertEquals(2, delimiterDistinctFrequency.get(',').size());
   }
@@ -101,16 +103,16 @@ public class TabularFileMetadataExtractorTest {
     sample.add("2\tc\td\te,2");
     sample.add("3\tf\tg\th,3");
 
-    Map<Character, Long> delimiterDistinctFrequency = TabularFileMetadataExtractor.
-      computeDelimiterHighestFrequencyPerLine(sample);
+    Map<Character, Long> delimiterDistinctFrequency =
+        TabularFileMetadataExtractor.computeDelimiterHighestFrequencyPerLine(sample);
 
     assertEquals(4, delimiterDistinctFrequency.get('\t').intValue());
     assertNull(delimiterDistinctFrequency.get(','));
 
-    //this line alone won't have an impact on computeDelimiterHighestFrequencyPerLine result
+    // this line alone won't have an impact on computeDelimiterHighestFrequencyPerLine result
     sample.add("4\ti\tj\tk,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4");
-    delimiterDistinctFrequency = TabularFileMetadataExtractor.
-            computeDelimiterHighestFrequencyPerLine(sample);
+    delimiterDistinctFrequency =
+        TabularFileMetadataExtractor.computeDelimiterHighestFrequencyPerLine(sample);
     assertEquals(4, delimiterDistinctFrequency.get('\t').intValue());
     assertEquals(1, delimiterDistinctFrequency.get(',').intValue());
   }
@@ -141,7 +143,7 @@ public class TabularFileMetadataExtractorTest {
     assertEquals(Character.valueOf('\t').charValue(), metadata.getDelimiter().charValue());
     assertNull(metadata.getQuotedBy());
 
-    //try another version
+    // try another version
     sample.clear();
     sample.add("1\tCarlos");
     sample.add("2\tPeter, Karl & Inge");
@@ -154,31 +156,45 @@ public class TabularFileMetadataExtractorTest {
 
   @Test
   public void testGetDelimiterWithHighestCount() {
-    //no delimiter
+    // no delimiter
     assertFalse(getDelimiterWithHighestCount("there is no delimiter here").isPresent());
 
-    assertEquals(Character.valueOf(',').charValue(), getDelimiterWithHighestCount("a,b,c,d,e").get().charValue());
-    assertEquals(Character.valueOf('|').charValue(), getDelimiterWithHighestCount("a|b,c|d|e").get().charValue());
-    assertEquals(Character.valueOf('\t').charValue(), getDelimiterWithHighestCount("a\tb\tc\td\te").get().charValue());
-    assertEquals(Character.valueOf(';').charValue(), getDelimiterWithHighestCount("a; b; c; d; e").get().charValue());
+    assertEquals(
+        Character.valueOf(',').charValue(),
+        getDelimiterWithHighestCount("a,b,c,d,e").get().charValue());
+    assertEquals(
+        Character.valueOf('|').charValue(),
+        getDelimiterWithHighestCount("a|b,c|d|e").get().charValue());
+    assertEquals(
+        Character.valueOf('\t').charValue(),
+        getDelimiterWithHighestCount("a\tb\tc\td\te").get().charValue());
+    assertEquals(
+        Character.valueOf(';').charValue(),
+        getDelimiterWithHighestCount("a; b; c; d; e").get().charValue());
   }
 
   @Test
   public void testGetQuoteCharWithHighestCount() {
-    //no quote character
+    // no quote character
     assertFalse(getQuoteCharWithHighestCount("a,b,c,d", ',').isPresent());
 
-    // test double quote character and ensure the result is not affected by another quote character that is not used for quoting
-    assertEquals(Character.valueOf('\"').charValue(), getQuoteCharWithHighestCount("a,\"b,8\",c\'\'\'\'\'\'\'\'\'\'\',d", ',').get().charValue());
+    // test double quote character and ensure the result is not affected by another quote character
+    // that is not used for quoting
+    assertEquals(
+        Character.valueOf('\"').charValue(),
+        getQuoteCharWithHighestCount("a,\"b,8\",c\'\'\'\'\'\'\'\'\'\'\',d", ',').get().charValue());
 
     // test single quote character
-    assertEquals(Character.valueOf('\'').charValue(), getQuoteCharWithHighestCount("a,\'b,8\',c,d", ',').get().charValue());
+    assertEquals(
+        Character.valueOf('\'').charValue(),
+        getQuoteCharWithHighestCount("a,\'b,8\',c,d", ',').get().charValue());
   }
-
 
   @Test
   public void detectCsvAlwaysQuoted() throws IOException {
-    TabularFileMetadata tabFileMetadata = extractTabularFileMetadata(FileUtils.getClasspathFile("csv/csv_always_quoted.csv").toPath());
+    TabularFileMetadata tabFileMetadata =
+        extractTabularFileMetadata(
+            FileUtils.getClasspathFile("csv/csv_always_quoted.csv").toPath());
     assertEquals(',', tabFileMetadata.getDelimiter().charValue());
     assertEquals('"', tabFileMetadata.getQuotedBy().charValue());
   }
@@ -195,8 +211,15 @@ public class TabularFileMetadataExtractorTest {
 
   @Test
   public void detectTab() throws IOException {
-    String[] files = {"csv/ipni.tab.txt", "csv/tab_separated_generic.txt", "csv/iucn100.tab.txt", "csv/ebird.tab.txt",
-            "csv/empty_line.tab", "csv/irmng.tail", "csv/MOBOT.tab.csv"};
+    String[] files = {
+      "csv/ipni.tab.txt",
+      "csv/tab_separated_generic.txt",
+      "csv/iucn100.tab.txt",
+      "csv/ebird.tab.txt",
+      "csv/empty_line.tab",
+      "csv/irmng.tail",
+      "csv/MOBOT.tab.csv"
+    };
     for (String fn : files) {
       runExtractTabularFileMetadata(fn, '\t', null, StandardCharsets.UTF_8);
     }
@@ -204,23 +227,29 @@ public class TabularFileMetadataExtractorTest {
 
   @Test
   public void detectTabQuoted() throws IOException {
-    String[] files = {"csv/eol/my_darwincore_tab_separated_quoted.txt",
-            "csv/eol/my_dataobject_tab_separated_quoted.txt", "csv/borza_tab_separated_quoted.txt"};
+    String[] files = {
+      "csv/eol/my_darwincore_tab_separated_quoted.txt",
+      "csv/eol/my_dataobject_tab_separated_quoted.txt",
+      "csv/borza_tab_separated_quoted.txt"
+    };
     for (String fn : files) {
-      runExtractTabularFileMetadata(fn,'\t', '"', StandardCharsets.UTF_8);
+      runExtractTabularFileMetadata(fn, '\t', '"', StandardCharsets.UTF_8);
     }
   }
 
-  private static void runExtractTabularFileMetadata(String classPathFile, Character expectedDelimiter, Character expectedQuoteChar,
-                                                    Charset expectedCharset) throws IOException {
+  private static void runExtractTabularFileMetadata(
+      String classPathFile,
+      Character expectedDelimiter,
+      Character expectedQuoteChar,
+      Charset expectedCharset)
+      throws IOException {
     Path source = FileUtils.getClasspathFile(classPathFile).toPath();
     TabularFileMetadata tabFileMetadata = extractTabularFileMetadata(source);
     assertEquals(expectedDelimiter.charValue(), tabFileMetadata.getDelimiter().charValue());
 
-    if(expectedQuoteChar == null) {
+    if (expectedQuoteChar == null) {
       assertNull(tabFileMetadata.getQuotedBy());
-    }
-    else{
+    } else {
       assertNotNull(tabFileMetadata.getQuotedBy(), "Expect a quote character -> " + source);
       assertEquals(expectedQuoteChar, tabFileMetadata.getQuotedBy(), "Source file -> " + source);
     }
@@ -230,7 +259,9 @@ public class TabularFileMetadataExtractorTest {
 
   @Test
   public void detectEncoding() throws IOException {
-    runExtractTabularFileMetadata("tabular/test_encoding_detection.iso-8859-1.csv",',', null, StandardCharsets.ISO_8859_1);
-    runExtractTabularFileMetadata("tabular/test_encoding_detection.utf-8.csv",',', null, StandardCharsets.UTF_8);
+    runExtractTabularFileMetadata(
+        "tabular/test_encoding_detection.iso-8859-1.csv", ',', null, StandardCharsets.ISO_8859_1);
+    runExtractTabularFileMetadata(
+        "tabular/test_encoding_detection.utf-8.csv", ',', null, StandardCharsets.UTF_8);
   }
 }

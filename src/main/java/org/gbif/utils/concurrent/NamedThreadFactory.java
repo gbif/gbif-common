@@ -33,7 +33,6 @@ public class NamedThreadFactory implements ThreadFactory {
   private final int priority;
   private final boolean daemon;
 
-
   /**
    * Creates a new named user thread factory using a normal priority.
    * @param poolName the name prefix of the thread pool which will be appended -number for the individual thread

@@ -49,11 +49,11 @@ public class CSVReaderTest {
   @Test
   public void testCsvQuotedDelimiter() throws IOException {
     String rows =
-            "12,\"not real\"\n"
-                    + "13,not \"real\"\n"
-                    + "\"14\",noting\n"
-                    + "15,\"not \"\"real\"\"\"\n"
-                    + "16,\"no, this is \"\"real\"\"\"\n";
+        "12,\"not real\"\n"
+            + "13,not \"real\"\n"
+            + "\"14\",noting\n"
+            + "15,\"not \"\"real\"\"\"\n"
+            + "16,\"no, this is \"\"real\"\"\"\n";
 
     InputStream stream = new ByteArrayInputStream(rows.getBytes(StandardCharsets.UTF_8));
     CSVReader reader = new CSVReader(stream, UTF8, ",", '"', 0);
@@ -212,10 +212,16 @@ public class CSVReaderTest {
     assertEquals(71, atom.length);
     assertEquals("779", atom[0]);
     assertEquals("Cambridge, Cambridge", atom[62]);
-    // Without the Java escapes: {"chronostratigraphy": "Cretaceous, Early Cretaceous, Albian - Late Cretaceous, Cenomanian", "cataloguedescription": "Very worn vertebra. Old catalogue says \"fragments of bone\".", "created": "2009-05-13", "barcode": "010039076", "project": "eMesozoic", "determinationnames": "Ornithocheirus", "subdepartment": "Vertebrates", "lithostratigraphy": "Selborne Group, Upper Greensand Formation, Cambridge Greensand Member", "imagecategory": ["Register;Specimen"]}
-    assertEquals("{\"chronostratigraphy\": \"Cretaceous, Early Cretaceous, Albian - Late Cretaceous, Cenomanian\", \"cataloguedescription\": \"Very worn vertebra. Old catalogue says \\\"fragments of bone\\\".\", \"created\": \"2009-05-13\", \"barcode\": \"010039076\", \"project\": \"eMesozoic\", \"determinationnames\": \"Ornithocheirus\", \"subdepartment\": \"Vertebrates\", \"lithostratigraphy\": \"Selborne Group, Upper Greensand Formation, Cambridge Greensand Member\", \"imagecategory\": [\"Register;Specimen\"]}", atom[2]);
+    // Without the Java escapes: {"chronostratigraphy": "Cretaceous, Early Cretaceous, Albian - Late
+    // Cretaceous, Cenomanian", "cataloguedescription": "Very worn vertebra. Old catalogue says
+    // \"fragments of bone\".", "created": "2009-05-13", "barcode": "010039076", "project":
+    // "eMesozoic", "determinationnames": "Ornithocheirus", "subdepartment": "Vertebrates",
+    // "lithostratigraphy": "Selborne Group, Upper Greensand Formation, Cambridge Greensand Member",
+    // "imagecategory": ["Register;Specimen"]}
+    assertEquals(
+        "{\"chronostratigraphy\": \"Cretaceous, Early Cretaceous, Albian - Late Cretaceous, Cenomanian\", \"cataloguedescription\": \"Very worn vertebra. Old catalogue says \\\"fragments of bone\\\".\", \"created\": \"2009-05-13\", \"barcode\": \"010039076\", \"project\": \"eMesozoic\", \"determinationnames\": \"Ornithocheirus\", \"subdepartment\": \"Vertebrates\", \"lithostratigraphy\": \"Selborne Group, Upper Greensand Formation, Cambridge Greensand Member\", \"imagecategory\": [\"Register;Specimen\"]}",
+        atom[2]);
 
     reader.close();
   }
-
 }

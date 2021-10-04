@@ -37,9 +37,15 @@ public class TabularFiles {
    * @param headerLine
    * @return
    */
-  public static TabularDataFileReader<List<String>> newTabularFileReader(Reader reader, char delimiterChar,
-                                                           String endOfLineSymbols, Character quoteChar, boolean headerLine) throws IOException {
-    return newTabularFileReader(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, null);
+  public static TabularDataFileReader<List<String>> newTabularFileReader(
+      Reader reader,
+      char delimiterChar,
+      String endOfLineSymbols,
+      Character quoteChar,
+      boolean headerLine)
+      throws IOException {
+    return newTabularFileReader(
+        reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, null);
   }
 
   /**
@@ -54,13 +60,19 @@ public class TabularFiles {
    *                               This can be used to skip a comment block but if there is a header line, the comment block shall be before the header.
    * @return
    */
-  public static TabularDataFileReader<List<String>> newTabularFileReader(Reader reader, char delimiterChar,
-                                                                         String endOfLineSymbols, Character quoteChar, boolean headerLine,
-                                                                         Integer lineToSkipBeforeHeader) throws IOException {
+  public static TabularDataFileReader<List<String>> newTabularFileReader(
+      Reader reader,
+      char delimiterChar,
+      String endOfLineSymbols,
+      Character quoteChar,
+      boolean headerLine,
+      Integer lineToSkipBeforeHeader)
+      throws IOException {
 
     Objects.requireNonNull(reader, "A Reader must be provided");
     Objects.requireNonNull(endOfLineSymbols, "A endOfLineSymbols must be provided");
-    return new JacksonCsvFileReader(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, lineToSkipBeforeHeader);
+    return new JacksonCsvFileReader(
+        reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, lineToSkipBeforeHeader);
   }
 
   /**
@@ -69,9 +81,9 @@ public class TabularFiles {
    * <pre>
    * {@code
    * try (TabularDataFileReader<List<String>> reader = TabularFiles.newTabularFileReader(
-  Files.newBufferedReader(Paths.get("/tmp/test.csv"), StandardCharsets.UTF_8), ',', true)) {
-  ...
-  }
+   * Files.newBufferedReader(Paths.get("/tmp/test.csv"), StandardCharsets.UTF_8), ',', true)) {
+   * ...
+   * }
    * }
    * </pre>
    *
@@ -80,11 +92,13 @@ public class TabularFiles {
    * @param delimiterChar
    * @param headerLine
    */
-  public static TabularDataFileReader<List<String>> newTabularFileReader(Reader reader, char delimiterChar,
-                                                                         boolean headerLine) throws IOException {
-    return new JacksonCsvFileReader(reader, delimiterChar, new String(CsvSchema.DEFAULT_LINEFEED),
-            CsvSchema.DEFAULT_QUOTE_CHAR, headerLine);
+  public static TabularDataFileReader<List<String>> newTabularFileReader(
+      Reader reader, char delimiterChar, boolean headerLine) throws IOException {
+    return new JacksonCsvFileReader(
+        reader,
+        delimiterChar,
+        new String(CsvSchema.DEFAULT_LINEFEED),
+        CsvSchema.DEFAULT_QUOTE_CHAR,
+        headerLine);
   }
-
-
 }

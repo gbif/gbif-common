@@ -89,8 +89,14 @@ public class CSVReaderFactoryTest {
    */
   @Test
   public void detectCsvOptionallyQuoted() throws IOException {
-    String[] files = {"csv/csv_optional_quotes_puma.csv", "csv/csv_optional_quotes_excel2008.csv",
-            "csv/csv_incl_single_quotes.csv", "csv/iucn100.csv", "csv/csv_unquoted.txt", "csv/csv_unquoted_coordinates.txt"};
+    String[] files = {
+      "csv/csv_optional_quotes_puma.csv",
+      "csv/csv_optional_quotes_excel2008.csv",
+      "csv/csv_incl_single_quotes.csv",
+      "csv/iucn100.csv",
+      "csv/csv_unquoted.txt",
+      "csv/csv_unquoted_coordinates.txt"
+    };
     for (String fn : files) {
       File source = FileUtils.getClasspathFile(fn);
       CSVReader reader = CSVReaderFactory.build(source);
@@ -103,8 +109,14 @@ public class CSVReaderFactoryTest {
 
   @Test
   public void detectTab() throws IOException {
-    String[] files = {"csv/ipni.tab.txt", "csv/tab_separated_generic.txt", "csv/iucn100.tab.txt", "csv/ebird.tab.txt",
-            "csv/irmng.tail", "csv/MOBOT.tab.csv"};
+    String[] files = {
+      "csv/ipni.tab.txt",
+      "csv/tab_separated_generic.txt",
+      "csv/iucn100.tab.txt",
+      "csv/ebird.tab.txt",
+      "csv/irmng.tail",
+      "csv/MOBOT.tab.csv"
+    };
     for (String fn : files) {
       File source = FileUtils.getClasspathFile(fn);
       CSVReader reader = CSVReaderFactory.build(source);
@@ -117,8 +129,11 @@ public class CSVReaderFactoryTest {
 
   @Test
   public void detectTabQuoted() throws IOException {
-    String[] files = {"csv/eol/my_darwincore_tab_separated_quoted.txt",
-            "csv/eol/my_dataobject_tab_separated_quoted.txt", "csv/borza_tab_separated_quoted.txt"};
+    String[] files = {
+      "csv/eol/my_darwincore_tab_separated_quoted.txt",
+      "csv/eol/my_dataobject_tab_separated_quoted.txt",
+      "csv/borza_tab_separated_quoted.txt"
+    };
     for (String fn : files) {
       File source = FileUtils.getClasspathFile(fn);
       CSVReader reader = CSVReaderFactory.build(source);
@@ -128,5 +143,4 @@ public class CSVReaderFactoryTest {
       reader.close();
     }
   }
-
 }

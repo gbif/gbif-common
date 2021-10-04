@@ -24,23 +24,23 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class StringUtilsTest {
 
-	@Test
-	public void testIncrease() {
-		assertEquals("Carlb",StringUtils.increase("Carla"));
-		assertEquals("Homa",StringUtils.increase("Holz"));
-		assertEquals("Aua",StringUtils.increase("Atz"));
-		assertEquals("b",StringUtils.increase("a"));
-		assertEquals("aa",StringUtils.increase("z"));
-    assertEquals("AAA",StringUtils.increase("ZZ"));
-    assertEquals("Aaa",StringUtils.increase("Zz"));
-    assertEquals("aaa",StringUtils.increase("zz"));
-    assertEquals("Abiet aaa",StringUtils.increase("Abies zzz"));
-    assertEquals("Alle31.3-a ",StringUtils.increase("Alld31.3-z "));
-    assertEquals("31.3-a a",StringUtils.increase("31.3-z "));
-    assertEquals("aAaa",StringUtils.increase("zZz"));
-		assertEquals("",StringUtils.increase(""));
-		assertNull(StringUtils.increase(null));
-	}
+  @Test
+  public void testIncrease() {
+    assertEquals("Carlb", StringUtils.increase("Carla"));
+    assertEquals("Homa", StringUtils.increase("Holz"));
+    assertEquals("Aua", StringUtils.increase("Atz"));
+    assertEquals("b", StringUtils.increase("a"));
+    assertEquals("aa", StringUtils.increase("z"));
+    assertEquals("AAA", StringUtils.increase("ZZ"));
+    assertEquals("Aaa", StringUtils.increase("Zz"));
+    assertEquals("aaa", StringUtils.increase("zz"));
+    assertEquals("Abiet aaa", StringUtils.increase("Abies zzz"));
+    assertEquals("Alle31.3-a ", StringUtils.increase("Alld31.3-z "));
+    assertEquals("31.3-a a", StringUtils.increase("31.3-z "));
+    assertEquals("aAaa", StringUtils.increase("zZz"));
+    assertEquals("", StringUtils.increase(""));
+    assertNull(StringUtils.increase(null));
+  }
 
   @Test
   public void testRandomString() {
@@ -75,6 +75,7 @@ public class StringUtilsTest {
     // make sure if we had gotten the correct string it would not be modified
     assertEquals(expected, StringUtils.decodeUtf8Garbage(decoded));
   }
+
   @Test
   public void testFoldToAscii() throws Exception {
     assertNull(StringUtils.foldToAscii(null));
@@ -85,24 +86,33 @@ public class StringUtilsTest {
     assertEquals("Debreczy & I. Racz", StringUtils.foldToAscii("Debreçzÿ & Ï. Rácz"));
     assertEquals("Donatia novae-zelandiae", StringUtils.foldToAscii("Donatia novae-zelandiæ"));
     assertEquals("Carex ×cayouettei", StringUtils.foldToAscii("Carex ×cayouettei"));
-    assertEquals("Carex comosa × Carex lupulina", StringUtils.foldToAscii("Carex comosa × Carex lupulina"));
-    assertEquals("Aeropyrum coil-shaped virus", StringUtils.foldToAscii("Aeropyrum coil-shaped virus"));
+    assertEquals(
+        "Carex comosa × Carex lupulina", StringUtils.foldToAscii("Carex comosa × Carex lupulina"));
+    assertEquals(
+        "Aeropyrum coil-shaped virus", StringUtils.foldToAscii("Aeropyrum coil-shaped virus"));
     assertEquals("†Lachnus bonneti", StringUtils.foldToAscii("†Lachnus bonneti"));
 
     assertEquals("lachs", StringUtils.foldToAscii("łachs"));
 
     String test = "ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ";
-    assertEquals("SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy", StringUtils.foldToAscii(test));
-
+    assertEquals(
+        "SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy",
+        StringUtils.foldToAscii(test));
   }
 
   @Test
   public void testThenJoin() {
-    assertEquals("", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, (String[]) null));
-    assertEquals("", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, (String) null));
-    assertEquals("", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "", " "));
-    assertEquals("x", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "", "  x "));
-    assertEquals("x y", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "x", "  y "));
+    assertEquals(
+        "",
+        StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, (String[]) null));
+    assertEquals(
+        "", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, (String) null));
+    assertEquals(
+        "", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "", " "));
+    assertEquals(
+        "x", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "", "  x "));
+    assertEquals(
+        "x y", StringUtils.thenJoin(org.apache.commons.lang3.StringUtils::trimToNull, "x", "  y "));
     assertEquals("x   y ", StringUtils.thenJoin(Function.identity(), "x", "  y "));
   }
 

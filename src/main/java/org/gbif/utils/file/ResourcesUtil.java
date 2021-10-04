@@ -45,8 +45,7 @@ public final class ResourcesUtil {
   /**
    * Static utils class.
    */
-  private ResourcesUtil() {
-  }
+  private ResourcesUtil() {}
 
   /**
    * Copies classpath resources to real files.
@@ -57,8 +56,12 @@ public final class ResourcesUtil {
    *                               path.
    * @param classpathResources     list of classpath resources to be copied into folder
    */
-  public static void copy(File folder, String classpathPrefix, boolean ignoreMissingResources,
-    String... classpathResources) throws IOException {
+  public static void copy(
+      File folder,
+      String classpathPrefix,
+      boolean ignoreMissingResources,
+      String... classpathResources)
+      throws IOException {
     for (String classpathResource : classpathResources) {
       String res = classpathPrefix + classpathResource;
       URL url;
@@ -102,70 +105,74 @@ public final class ResourcesUtil {
    */
   public static URL getResource(String resourceName) {
     ClassLoader loader =
-        ObjectUtils.firstNonNull(Thread.currentThread().getContextClassLoader(), ResourcesUtil.class.getClassLoader());
+        ObjectUtils.firstNonNull(
+            Thread.currentThread().getContextClassLoader(), ResourcesUtil.class.getClassLoader());
     URL url = loader.getResource(resourceName);
     PreconditionUtils.checkArgument(url != null, "resource " + resourceName + " not found.");
     return url;
   }
 
-    /**
-     * List directory contents for a resource folder. Not recursive.
-     * Works for regular files and also JARs.
-     *
-     * Based on code from Greg Briggs, slightly modified.
-     *
-     * @param clazz Any java class that lives in the same place as the resources you want.
-     * @param path Should end with "/", but not start with one.
-     * @return Just the name of each member item, not the full paths. Empty array in case folder cannot be found
-     * @throws IOException
-     */
-    public static String[] list(Class clazz, String path) throws IOException {
-        if (!path.endsWith("/")) {
-            path = path + "/";
-        }
-        URL dirURL = clazz.getClassLoader().getResource(path);
-        if (dirURL != null && dirURL.getProtocol().equals("file")) {
-        /* A file path: easy enough */
-            try {
-                return new File(dirURL.toURI()).list();
-            } catch (URISyntaxException e) {
-                throw new IOException("Bad URI. Cannot list files for path " + path + " in class " + clazz, e);
-            }
-        }
-
-        if (dirURL == null) {
-        /*
-         * In case of a jar file, we can't actually find a directory.
-         * Have to assume the same jar as clazz.
-         */
-            String me = clazz.getName().replace(".", "/")+".class";
-            dirURL = clazz.getClassLoader().getResource(me);
-        }
-
-        if (dirURL.getProtocol().equals("jar")) {
-        /* A JAR path */
-            String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
-            JarFile jar = new JarFile(URLDecoder.decode(jarPath, FileUtils.UTF8));
-            Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
-            Set<String> result = new HashSet<>(); //avoid duplicates in case it is a subdirectory
-            while(entries.hasMoreElements()) {
-                String name = entries.nextElement().getName();
-                if (name.startsWith(path)) { //filter according to the path
-                    String entry = name.substring(path.length());
-                    if (!StringUtils.isBlank(entry)) {
-                        int checkSubdir = entry.indexOf("/");
-                        if (checkSubdir >= 0) {
-                            // if it is a subdirectory, we just return the directory name
-                            entry = entry.substring(0, checkSubdir);
-                        }
-                        result.add(entry);
-                    }
-                }
-            }
-            return result.toArray(new String[result.size()]);
-        }
-
-        return new String[]{};
+  /**
+   * List directory contents for a resource folder. Not recursive.
+   * Works for regular files and also JARs.
+   *
+   * Based on code from Greg Briggs, slightly modified.
+   *
+   * @param clazz Any java class that lives in the same place as the resources you want.
+   * @param path Should end with "/", but not start with one.
+   * @return Just the name of each member item, not the full paths. Empty array in case folder cannot be found
+   * @throws IOException
+   */
+  public static String[] list(Class clazz, String path) throws IOException {
+    if (!path.endsWith("/")) {
+      path = path + "/";
+    }
+    URL dirURL = clazz.getClassLoader().getResource(path);
+    if (dirURL != null && dirURL.getProtocol().equals("file")) {
+      /* A file path: easy enough */
+      try {
+        return new File(dirURL.toURI()).list();
+      } catch (URISyntaxException e) {
+        throw new IOException(
+            "Bad URI. Cannot list files for path " + path + " in class " + clazz, e);
+      }
     }
 
+    if (dirURL == null) {
+      /*
+       * In case of a jar file, we can't actually find a directory.
+       * Have to assume the same jar as clazz.
+       */
+      String me = clazz.getName().replace(".", "/") + ".class";
+      dirURL = clazz.getClassLoader().getResource(me);
+    }
+
+    if (dirURL.getProtocol().equals("jar")) {
+      /* A JAR path */
+      String jarPath =
+          dirURL
+              .getPath()
+              .substring(5, dirURL.getPath().indexOf("!")); // strip out only the JAR file
+      JarFile jar = new JarFile(URLDecoder.decode(jarPath, FileUtils.UTF8));
+      Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
+      Set<String> result = new HashSet<>(); // avoid duplicates in case it is a subdirectory
+      while (entries.hasMoreElements()) {
+        String name = entries.nextElement().getName();
+        if (name.startsWith(path)) { // filter according to the path
+          String entry = name.substring(path.length());
+          if (!StringUtils.isBlank(entry)) {
+            int checkSubdir = entry.indexOf("/");
+            if (checkSubdir >= 0) {
+              // if it is a subdirectory, we just return the directory name
+              entry = entry.substring(0, checkSubdir);
+            }
+            result.add(entry);
+          }
+        }
+      }
+      return result.toArray(new String[result.size()]);
+    }
+
+    return new String[] {};
+  }
 }

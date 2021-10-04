@@ -35,12 +35,12 @@ public class BigDecimalUtilsTest {
    * new BigDecimal(23.1) equals 23.10000000000000142108547152020037174224853515625
    */
   @Test
-  public void testBigDecimalConstructor(){
+  public void testBigDecimalConstructor() {
     assertNotEquals(new BigDecimal("23.1"), new BigDecimal(23.1d));
   }
 
   @Test
-  public void testBigDecimalConstructorNull(){
+  public void testBigDecimalConstructorNull() {
     assertThrows(NullPointerException.class, () -> BigDecimalUtils.fromDouble(null, false));
   }
 
@@ -56,7 +56,7 @@ public class BigDecimalUtilsTest {
   }
 
   @Test
-  public void testFromDouble(){
+  public void testFromDouble() {
     assertEquals(new BigDecimal("23.4"), BigDecimalUtils.fromDouble(23.4, true));
     assertEquals(new BigDecimal("23.4"), BigDecimalUtils.fromDouble(23.4, false));
 
@@ -69,8 +69,10 @@ public class BigDecimalUtilsTest {
     assertEquals(new BigDecimal("23"), BigDecimalUtils.fromDouble(23.0000000000, true));
     assertEquals(new BigDecimal("23.0"), BigDecimalUtils.fromDouble(23.0000000000, false));
 
-    assertEquals(new BigDecimal("23.000000000001"), BigDecimalUtils.fromDouble(23.000000000001, true));
-    assertEquals(new BigDecimal("23.000000000001"), BigDecimalUtils.fromDouble(23.000000000001, false));
+    assertEquals(
+        new BigDecimal("23.000000000001"), BigDecimalUtils.fromDouble(23.000000000001, true));
+    assertEquals(
+        new BigDecimal("23.000000000001"), BigDecimalUtils.fromDouble(23.000000000001, false));
 
     assertEquals(new BigDecimal("500"), BigDecimalUtils.fromDouble(500d, true));
     assertEquals(new BigDecimal("500.0"), BigDecimalUtils.fromDouble(500d, false));

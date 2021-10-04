@@ -29,7 +29,7 @@ public class EmailUtils {
   }
 
   private static final Pattern EMAIL_PATTERN =
-    Pattern.compile("(?:(.+)(?: +| *<))?([^@ ]+(?:@| at )[^@ ]+\\.[a-zA-Z0-9_-]{2,4})(?: *>)?");
+      Pattern.compile("(?:(.+)(?: +| *<))?([^@ ]+(?:@| at )[^@ ]+\\.[a-zA-Z0-9_-]{2,4})(?: *>)?");
 
   public static EmailWithName parseEmail(String x) {
     if (StringUtils.isBlank(x)) {

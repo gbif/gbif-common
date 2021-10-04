@@ -48,7 +48,6 @@ public class ComparatorPerformance {
    * Sorting with org.gbif.utils.text.StringComparator and 1000k lines in memory (2 parts) took 15492 ms
    * Sorting with org.gbif.utils.text.CCollationComparator and 1000k lines in memory (2 parts) took 14317 ms
    */
-
   @Test
   public void testFileSorting() throws IOException {
     // 10MB text file, big file used in results above was concatenated from this one
@@ -74,7 +73,9 @@ public class ComparatorPerformance {
         futils.sortInJava(source, sorted, ENCODING, comp, 0);
         end = System.currentTimeMillis();
 
-        System.out.printf("Sorting with %s and %s lines in memory took %s ms%n", comp.getClass().getName(), linesInMen, (end - start));
+        System.out.printf(
+            "Sorting with %s and %s lines in memory took %s ms%n",
+            comp.getClass().getName(), linesInMen, (end - start));
       }
     }
   }
@@ -91,11 +92,13 @@ public class ComparatorPerformance {
     // sort with comparator to test
     List<Comparator<String>> comparators = availableComparators();
     for (Comparator<String> comp : comparators) {
-      LinkedList<String> source = FileUtils.streamToList(FileUtils.classpathStream("sorting/irmng.tail"));
+      LinkedList<String> source =
+          FileUtils.streamToList(FileUtils.classpathStream("sorting/irmng.tail"));
       long start = System.currentTimeMillis();
       source.sort(comp);
       long end = System.currentTimeMillis();
-      System.out.println("Sorting with " + comp.getClass().getName() + " took " + (end - start) + " ms");
+      System.out.println(
+          "Sorting with " + comp.getClass().getName() + " took " + (end - start) + " ms");
     }
   }
 }

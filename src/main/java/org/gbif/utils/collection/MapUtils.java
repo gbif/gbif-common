@@ -38,12 +38,14 @@ public class MapUtils {
    * @return a map ordered by the values of the input map
    */
   public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-    return sortByValueInternal(map, new Comparator<Map.Entry<K, V>>() {
-      @Override
-      public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-        return o1.getValue().compareTo(o2.getValue());
-      }
-    });
+    return sortByValueInternal(
+        map,
+        new Comparator<Map.Entry<K, V>>() {
+          @Override
+          public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+            return o1.getValue().compareTo(o2.getValue());
+          }
+        });
   }
 
   /**
@@ -56,15 +58,18 @@ public class MapUtils {
    * @return a map ordered by the values of the input map
    */
   public static <K, V> Map<K, V> sortByValue(Map<K, V> map, final Comparator<V> comparator) {
-    return sortByValueInternal(map, new Comparator<Map.Entry<K, V>>() {
-        @Override
-        public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-          return comparator.compare(o1.getValue(), o2.getValue());
-        }
-      });
+    return sortByValueInternal(
+        map,
+        new Comparator<Map.Entry<K, V>>() {
+          @Override
+          public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+            return comparator.compare(o1.getValue(), o2.getValue());
+          }
+        });
   }
 
-  private static <K, V> Map<K, V> sortByValueInternal(Map<K, V> map, final Comparator<Map.Entry<K, V>> comp) {
+  private static <K, V> Map<K, V> sortByValueInternal(
+      Map<K, V> map, final Comparator<Map.Entry<K, V>> comp) {
     List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
     Collections.sort(list, comp);
 
@@ -79,7 +84,7 @@ public class MapUtils {
    * Returns a maps value or a given default if not present.
    * For pre java8 code since j8 introduced Map.getOrDefault.
    */
-  public static <K, V> V getOrDefault(Map<K,V> map, K key, V defaultValue) {
+  public static <K, V> V getOrDefault(Map<K, V> map, K key, V defaultValue) {
     return map.containsKey(key) ? map.get(key) : defaultValue;
   }
 }

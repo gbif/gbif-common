@@ -274,7 +274,8 @@ public class CharsetDetection {
       }
     }
 
-    LOG.debug("8bit Encoding guessed: {} with {} rare characters", bestEncoding, leastSuspicousChars);
+    LOG.debug(
+        "8bit Encoding guessed: {} with {} rare characters", bestEncoding, leastSuspicousChars);
     return bestEncoding;
   }
 
@@ -381,7 +382,10 @@ public class CharsetDetection {
         else if (isFiveBytesSequence(b0)) {
           // there must be four continuation bytes of the form 10xxxxxx,
           // otherwise the following character is is not a valid UTF-8 construct
-          if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)) {
+          if (isContinuationChar(b1)
+              && isContinuationChar(b2)
+              && isContinuationChar(b3)
+              && isContinuationChar(b4)) {
             i += 4;
           } else {
             validU8Char = false;
@@ -391,7 +395,10 @@ public class CharsetDetection {
         else if (isSixBytesSequence(b0)) {
           // there must be five continuation bytes of the form 10xxxxxx,
           // otherwise the following character is is not a valid UTF-8 construct
-          if (isContinuationChar(b1) && isContinuationChar(b2) && isContinuationChar(b3) && isContinuationChar(b4)
+          if (isContinuationChar(b1)
+              && isContinuationChar(b2)
+              && isContinuationChar(b3)
+              && isContinuationChar(b4)
               && isContinuationChar(b5)) {
             i += 5;
           } else {
@@ -419,7 +426,8 @@ public class CharsetDetection {
 
   private Charset detectUtf16() {
 
-    // first try to see if we got a little or big endian, i.e. lots of zeros as the first byte or second byte if we deal
+    // first try to see if we got a little or big endian, i.e. lots of zeros as the first byte or
+    // second byte if we deal
     // with latin characters at least
     int zerosLE = 0;
     int zerosBE = 0;
@@ -441,7 +449,8 @@ public class CharsetDetection {
       }
     }
 
-    // a UTF16 encoding with many latin characters would have either lots of even or uneven bytes as zero - but not both
+    // a UTF16 encoding with many latin characters would have either lots of even or uneven bytes as
+    // zero - but not both
     int min = buffer.length / 10;
     if ((zerosBE > min || zerosLE > min) && Math.abs(zerosBE - zerosLE) > min) {
       Charset charset = zerosBE > zerosLE ? StandardCharsets.UTF_16BE : StandardCharsets.UTF_16LE;
@@ -485,7 +494,8 @@ public class CharsetDetection {
         }
       }
 
-      // if that worked without a problem try to count suspicious characters which are rarely used in our texts
+      // if that worked without a problem try to count suspicious characters which are rarely used
+      // in our texts
       int length = buffer.length;
       int i = 0;
       while (i < length) {
@@ -517,7 +527,8 @@ public class CharsetDetection {
           suspicious--;
         }
       }
-      // if that worked without a problem try to count suspicious characters which are rarely used in our texts
+      // if that worked without a problem try to count suspicious characters which are rarely used
+      // in our texts
       int length = buffer.length;
       int i = 0;
       while (i < length) {
@@ -545,7 +556,8 @@ public class CharsetDetection {
           suspicious--;
         }
       }
-      // if that worked without a problem try to count suspicous characters which are rarely used in our texts
+      // if that worked without a problem try to count suspicous characters which are rarely used in
+      // our texts
       // see http://de.wikipedia.org/wiki/ISO_8859-1
       int length = buffer.length;
       int i = 0;
@@ -553,7 +565,11 @@ public class CharsetDetection {
         byte b = buffer[i];
         i++;
         // 5 undefined chars
-        if (b == (byte) 0x81 || b == (byte) 0x8d || b == (byte) 0x8f || b == (byte) 0x90 || b == (byte) 0x9d) {
+        if (b == (byte) 0x81
+            || b == (byte) 0x8d
+            || b == (byte) 0x8f
+            || b == (byte) 0x90
+            || b == (byte) 0x9d) {
           suspicious += UNDEFINED_PENALTY;
         }
       }
@@ -563,5 +579,4 @@ public class CharsetDetection {
 
     return suspicious;
   }
-
 }

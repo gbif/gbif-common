@@ -66,7 +66,8 @@ public class InputStreamUtils {
   public String readEntireStream(InputStream source, String encoding) {
     if (!Charset.isSupported(encoding)) {
       throw new IllegalArgumentException("Unsupported encoding " + encoding);
-    };
+    }
+    ;
 
     ByteArrayOutputStream result = new ByteArrayOutputStream();
 

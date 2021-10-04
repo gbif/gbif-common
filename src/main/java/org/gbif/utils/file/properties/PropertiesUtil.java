@@ -58,7 +58,8 @@ public final class PropertiesUtil {
    * @throws IOException Should there be an issue in loading the file
    * @throws IllegalArgumentException If the file does not exist
    */
-  public static Properties loadProperties(String propertiesFile) throws IOException, IllegalArgumentException {
+  public static Properties loadProperties(String propertiesFile)
+      throws IOException, IllegalArgumentException {
     Properties tempProperties = new Properties();
     File file = new File(propertiesFile);
 
@@ -79,7 +80,8 @@ public final class PropertiesUtil {
   /**
    * Reads a property file from an absolute filepath.
    */
-  public static Properties readFromFile(String filepath) throws IOException, IllegalArgumentException {
+  public static Properties readFromFile(String filepath)
+      throws IOException, IllegalArgumentException {
     PreconditionUtils.checkArgument(StringUtils.isNotBlank(filepath), "No properties file given");
     File pf = new File(filepath);
     if (!pf.exists()) {
@@ -106,8 +108,9 @@ public final class PropertiesUtil {
    * @throws IllegalArgumentException if the property is invalid (can't be cast to a double) or not found and we are
    *         instructed to throw it.
    */
-  public static Double propertyAsDouble(Properties p, String key, boolean exceptionForNull, Double defaultValue)
-    throws IllegalArgumentException {
+  public static Double propertyAsDouble(
+      Properties p, String key, boolean exceptionForNull, Double defaultValue)
+      throws IllegalArgumentException {
     String v = p.getProperty(key);
     if (v != null) {
       try {
@@ -137,8 +140,9 @@ public final class PropertiesUtil {
    * @throws IllegalArgumentException if the property is invalid (can't be cast to a float) or not found and we are
    *         instructed to throw it.
    */
-  public static Float propertyAsFloat(Properties p, String key, boolean exceptionForNull, Float defaultValue)
-    throws IllegalArgumentException {
+  public static Float propertyAsFloat(
+      Properties p, String key, boolean exceptionForNull, Float defaultValue)
+      throws IllegalArgumentException {
     String v = p.getProperty(key);
     if (v != null) {
       try {
@@ -168,8 +172,9 @@ public final class PropertiesUtil {
    * @throws IllegalArgumentException if the property is invalid (can't be cast to an int) or not found and we are
    *         instructed to throw it.
    */
-  public static Integer propertyAsInt(Properties p, String key, boolean exceptionForNull, Integer defaultValue)
-    throws IllegalArgumentException {
+  public static Integer propertyAsInt(
+      Properties p, String key, boolean exceptionForNull, Integer defaultValue)
+      throws IllegalArgumentException {
     String v = p.getProperty(key);
     if (v != null) {
       try {
@@ -214,8 +219,9 @@ public final class PropertiesUtil {
    * @return The property at the key as byte[]t
    * @throws IllegalArgumentException if the property is not found and we are instructed to throw it.
    */
-  public static byte[] propertyAsUTF8Bytes(Properties p, String key, boolean exceptionForNull, byte[] defaultValue)
-    throws IllegalArgumentException {
+  public static byte[] propertyAsUTF8Bytes(
+      Properties p, String key, boolean exceptionForNull, byte[] defaultValue)
+      throws IllegalArgumentException {
     String v = p.getProperty(key);
     if (v != null) {
       try {
@@ -244,8 +250,8 @@ public final class PropertiesUtil {
    */
   public static Properties filterProperties(final Properties properties, String prefix) {
     Objects.requireNonNull(properties, "Can't filter a null Properties");
-    PreconditionUtils.checkState(StringUtils.isNotBlank(prefix),
-        "Can't filter using a blank prefix [" + properties + "]");
+    PreconditionUtils.checkState(
+        StringUtils.isNotBlank(prefix), "Can't filter using a blank prefix [" + properties + "]");
 
     Properties filtered = new Properties();
     for (String key : properties.stringPropertyNames()) {
@@ -286,13 +292,15 @@ public final class PropertiesUtil {
    * @param remove should the element(s) be removed from the original Properties object
    * @return
    */
-  private static Properties propertiesByPrefix(final Properties original, String prefix, boolean remove) {
+  private static Properties propertiesByPrefix(
+      final Properties original, String prefix, boolean remove) {
     Objects.requireNonNull(original, "Can't filter a null Properties");
-    PreconditionUtils.checkState(StringUtils.isNotBlank(prefix), "Can't filter using a blank prefix [" + original + "]");
+    PreconditionUtils.checkState(
+        StringUtils.isNotBlank(prefix), "Can't filter using a blank prefix [" + original + "]");
 
     Properties filtered = new Properties();
 
-    if(original.isEmpty()){
+    if (original.isEmpty()) {
       return filtered;
     }
 
@@ -302,12 +310,11 @@ public final class PropertiesUtil {
       key = String.valueOf(keysIt.next());
       if (key.startsWith(prefix)) {
         filtered.setProperty(key, original.getProperty(key));
-        if(remove){
+        if (remove) {
           keysIt.remove();
         }
       }
     }
     return filtered;
   }
-
 }

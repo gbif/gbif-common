@@ -67,8 +67,14 @@ public class TabularFileNormalizer {
    *
    * @throws IOException
    */
-  public static int normalizeFile(Path source, Path destination, Charset sourceCharset,
-                                  char delimiterChar, String endOfLineSymbols, Character quoteChar) throws IOException {
+  public static int normalizeFile(
+      Path source,
+      Path destination,
+      Charset sourceCharset,
+      char delimiterChar,
+      String endOfLineSymbols,
+      Character quoteChar)
+      throws IOException {
     Objects.requireNonNull(source, "source path shall be provided");
     Objects.requireNonNull(destination, "normalizedWriter shall be provided");
 
@@ -83,11 +89,11 @@ public class TabularFileNormalizer {
 
     Charset charset = Optional.ofNullable(sourceCharset).orElse(StandardCharsets.UTF_8);
     try (Reader sourceReader = Files.newBufferedReader(source, charset);
-         Writer writer = Files.newBufferedWriter(destination, charset);
-         MappingIterator<List<String>> it = mapper.readerFor(List.class)
-                 .with(readerSchema)
-                 .readValues(sourceReader);
-         SequenceWriter csvWriter = mapper.writerFor(List.class).with(writerSchema).writeValues(writer)) {
+        Writer writer = Files.newBufferedWriter(destination, charset);
+        MappingIterator<List<String>> it =
+            mapper.readerFor(List.class).with(readerSchema).readValues(sourceReader);
+        SequenceWriter csvWriter =
+            mapper.writerFor(List.class).with(writerSchema).writeValues(writer)) {
       List<String> line;
       while (it.hasNext()) {
         line = normalizeLine(it.next());
@@ -96,9 +102,8 @@ public class TabularFileNormalizer {
           numberOfLine++;
         }
       }
-    }
-    catch (IOException ioEx) {
-      //avoid keeping incomplete file
+    } catch (IOException ioEx) {
+      // avoid keeping incomplete file
       Files.deleteIfExists(destination);
       throw ioEx;
     }

@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PropertiesUtilTest {
 
   @Test
-  public void testFilterProperties(){
+  public void testFilterProperties() {
 
     Properties properties = new Properties();
     properties.put("prefix.key1", "value1");
@@ -39,11 +39,14 @@ public class PropertiesUtilTest {
     Properties filteredProperties = PropertiesUtil.filterProperties(properties, "prefix.");
     assertEquals(1, filteredProperties.size());
     assertTrue(filteredProperties.containsKey("key1"), "Prefix is removed from the original key");
-    assertEquals(properties.get("prefix.key1"), filteredProperties.getProperty("key1"), "Value remains the same");
+    assertEquals(
+        properties.get("prefix.key1"),
+        filteredProperties.getProperty("key1"),
+        "Value remains the same");
   }
 
   @Test
-  public void testSubsetProperties(){
+  public void testSubsetProperties() {
 
     Properties properties = new Properties();
     properties.put("prefix.key1", "value1");
@@ -59,7 +62,7 @@ public class PropertiesUtilTest {
   }
 
   @Test
-  public void testRemoveProperties(){
+  public void testRemoveProperties() {
 
     Properties properties = new Properties();
     properties.put("prefix.key1", "value1");
@@ -70,11 +73,12 @@ public class PropertiesUtilTest {
     assertEquals(1, properties.size());
 
     assertTrue(newProperties.containsKey("prefix.key1"), "Prefix is kept from the original key");
-    assertTrue(properties.containsKey("key2"), "Other element is still present in original Propeties");
+    assertTrue(
+        properties.containsKey("key2"), "Other element is still present in original Propeties");
   }
 
   @Test
-  public void testEmptyProperties(){
+  public void testEmptyProperties() {
     Properties properties = new Properties();
     Properties newProperties = PropertiesUtil.removeProperties(properties, "prefix");
     assertNotNull(newProperties);
@@ -82,7 +86,7 @@ public class PropertiesUtilTest {
   }
 
   @Test
-  public void testBooleanProperties(){
+  public void testBooleanProperties() {
     final String KEY = "key";
     Properties p = new Properties();
     p.put(KEY, "value1");
@@ -125,14 +129,15 @@ public class PropertiesUtilTest {
   }
 
   @Test
-  public void testExceptionNoProperties(){
+  public void testExceptionNoProperties() {
     assertThrows(NullPointerException.class, () -> PropertiesUtil.removeProperties(null, "prefix"));
   }
 
   @Test
-  public void testExceptionNoPrefix(){
+  public void testExceptionNoPrefix() {
     Properties properties = new Properties();
     properties.put("prefix.key1", "value1");
-    assertThrows(IllegalStateException.class, () -> PropertiesUtil.removeProperties(properties, null));
+    assertThrows(
+        IllegalStateException.class, () -> PropertiesUtil.removeProperties(properties, null));
   }
 }

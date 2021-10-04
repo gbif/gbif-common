@@ -22,7 +22,9 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
  */
 class JacksonUtils {
 
-  private JacksonUtils() { /*utility class*/}
+  private JacksonUtils() {
+    /*utility class*/
+  }
 
   /**
    * Build the default {@link CsvSchema}.
@@ -31,16 +33,14 @@ class JacksonUtils {
    * @param quoteChar
    * @return
    */
-  static CsvSchema buildCsvSchema(char delimiterChar, String endOfLineSymbols, Character quoteChar) {
+  static CsvSchema buildCsvSchema(
+      char delimiterChar, String endOfLineSymbols, Character quoteChar) {
     CsvSchema schema = CsvSchema.emptySchema();
-    schema = schema
-            .withColumnSeparator(delimiterChar)
-            .withLineSeparator(endOfLineSymbols);
+    schema = schema.withColumnSeparator(delimiterChar).withLineSeparator(endOfLineSymbols);
 
-    //quote character is optional
+    // quote character is optional
     schema = quoteChar == null ? schema.withoutQuoteChar() : schema.withQuoteChar(quoteChar);
 
     return schema;
   }
-
 }

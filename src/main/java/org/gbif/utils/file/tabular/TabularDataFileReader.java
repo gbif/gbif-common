@@ -44,7 +44,6 @@ public interface TabularDataFileReader<T> extends Closeable {
    */
   T read() throws IOException, ParseException;
 
-
   /**
    * The line number of where the last record returned by {@link #read()} starts.
    * If no records have been returned yet this method is expected to return 0.
@@ -64,5 +63,4 @@ public interface TabularDataFileReader<T> extends Closeable {
    * @return
    */
   long getLastRecordNumber();
-
 }

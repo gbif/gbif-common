@@ -19,8 +19,7 @@ import javax.annotation.Nullable;
 
 public final class PreconditionUtils {
 
-  private PreconditionUtils() {
-  }
+  private PreconditionUtils() {}
 
   /**
    * Ensures the truth of an expression involving the state of the calling instance, but not

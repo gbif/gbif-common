@@ -44,6 +44,5 @@ public class EmailUtilsTest {
     en = EmailUtils.parseEmail("Manuel Möglich manuel.moeglich@googlemail.com");
     assertEquals("Manuel Möglich", en.name);
     assertEquals("manuel.moeglich@googlemail.com", en.email);
-
   }
 }

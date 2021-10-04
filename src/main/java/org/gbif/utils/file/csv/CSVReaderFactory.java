@@ -86,8 +86,9 @@ public class CSVReaderFactory {
    * @return
    * @throws IOException
    */
-  public static CSVReader build(File source, String encoding, String delimiter, Character quotes, Integer headerRows)
-          throws IOException {
+  public static CSVReader build(
+      File source, String encoding, String delimiter, Character quotes, Integer headerRows)
+      throws IOException {
     return new CSVReader(source, encoding, delimiter, quotes, headerRows);
   }
 
@@ -101,7 +102,8 @@ public class CSVReaderFactory {
    * @return
    * @throws IOException
    */
-  public static CSVReader build(File source, String encoding, String delimiter, Integer headerRows) throws IOException {
+  public static CSVReader build(File source, String encoding, String delimiter, Integer headerRows)
+      throws IOException {
     return new CSVReader(source, encoding, delimiter, '"', headerRows);
   }
 
@@ -116,8 +118,9 @@ public class CSVReaderFactory {
    * @return
    * @throws IOException
    */
-  public static CSVReader build(InputStream stream, String encoding, String delimiter, Character quotes,
-                                Integer headerRows) throws IOException {
+  public static CSVReader build(
+      InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows)
+      throws IOException {
     return new CSVReader(stream, encoding, delimiter, quotes, headerRows);
   }
 
@@ -131,8 +134,9 @@ public class CSVReaderFactory {
    */
   public static CSVReader build(File source, Integer headerRows) throws IOException {
     String encoding = detectEncoding(source);
-    CSVMetadata csvMeta  = extractCsvMetadata(source, encoding);
-    return new CSVReader(source, encoding, csvMeta.getDelimiter(), csvMeta.getQuotedBy(), headerRows);
+    CSVMetadata csvMeta = extractCsvMetadata(source, encoding);
+    return new CSVReader(
+        source, encoding, csvMeta.getDelimiter(), csvMeta.getQuotedBy(), headerRows);
   }
 
   /**
@@ -146,7 +150,8 @@ public class CSVReaderFactory {
     return build(source, 1);
   }
 
-  public static CSVReader buildTabReader(InputStream stream, String encoding, Integer headerRows) throws IOException {
+  public static CSVReader buildTabReader(InputStream stream, String encoding, Integer headerRows)
+      throws IOException {
     return new CSVReader(stream, encoding, "\t", null, headerRows);
   }
 
@@ -165,14 +170,16 @@ public class CSVReaderFactory {
    * @return
    * @throws UnknownDelimitersException
    */
-  public static CSVMetadata extractCsvMetadata(File source, String encoding) throws UnknownDelimitersException {
+  public static CSVMetadata extractCsvMetadata(File source, String encoding)
+      throws UnknownDelimitersException {
     CSVMetadata csvMetadata = new CSVMetadata();
     // try csv, tab and then other popular delimiters
     // keep number of resulting columns for comparisons
     int maxColumns = 0;
 
     for (String delim : POTENTIAL_DELIMITERS) {
-      // test with various quotes including a dynamic one if the first char in each field is consistently the same
+      // test with various quotes including a dynamic one if the first char in each field is
+      // consistently the same
       List<Character> potentialQuotes = new ArrayList<Character>();
 
       CSVReader reader;
@@ -297,5 +304,4 @@ public class CSVReaderFactory {
     }
     return quote;
   }
-
 }

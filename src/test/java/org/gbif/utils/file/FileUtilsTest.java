@@ -59,13 +59,16 @@ public class FileUtilsTest {
 
   public static void assertUnixSortOrder(File sorted) throws IOException {
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    BufferedReader br =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     LineIterator liter = new LineIterator(br);
     assertUnixSortOrder(liter);
   }
 
   public static void assertUnixSortOrder(Iterator<String> it) throws IOException {
-    LinkedList<String> sorted = FileUtils.streamToList(FileUtils.classpathStream("sorting/LF_sorted.txt"));
+    LinkedList<String> sorted =
+        FileUtils.streamToList(FileUtils.classpathStream("sorting/LF_sorted.txt"));
     while (it.hasNext()) {
       String x = it.next();
       System.out.println(x);
@@ -91,7 +94,7 @@ public class FileUtilsTest {
   /**
    * tests deleting directory recursively.
    */
-    public void testDeleteRecursive() throws IOException {
+  public void testDeleteRecursive() throws IOException {
     File topFile = File.createTempFile("top", ".tmp");
     File middleFile = File.createTempFile("middle", ".tmp", topFile.getParentFile());
     File downFile = File.createTempFile("down", ".tmp", middleFile.getParentFile());
@@ -123,7 +126,9 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, IDCOLUMN, "\t", null, "\n", 0);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    BufferedReader br =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -162,7 +167,8 @@ public class FileUtilsTest {
     FileUtils futils = new FileUtils();
     final int IDCOLUMN = 0;
 
-    File source = FileUtils.getClasspathFile("sorting/unicode-supplementary-multilingual-plane.txt");
+    File source =
+        FileUtils.getClasspathFile("sorting/unicode-supplementary-multilingual-plane.txt");
     File gnuSorted = File.createTempFile("gbif-common-file-sort", "sorted-gnu.txt");
     File javaSorted = File.createTempFile("gbif-common-file-sort", "sorted-java.txt");
     gnuSorted.deleteOnExit();
@@ -173,8 +179,12 @@ public class FileUtilsTest {
     futils.sort(source, javaSorted, ENCODING, IDCOLUMN, "'", null, "\n", 0);
 
     // read file
-    BufferedReader gnuBr = new BufferedReader(new InputStreamReader(new FileInputStream(gnuSorted), StandardCharsets.UTF_8));
-    BufferedReader javaBr = new BufferedReader(new InputStreamReader(new FileInputStream(javaSorted), StandardCharsets.UTF_8));
+    BufferedReader gnuBr =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(gnuSorted), StandardCharsets.UTF_8));
+    BufferedReader javaBr =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(javaSorted), StandardCharsets.UTF_8));
 
     int line = 0;
     String gnuRow, javaRow;
@@ -185,7 +195,7 @@ public class FileUtilsTest {
 
       System.out.println(gnuRow + "\t\t\t\t" + javaRow);
 
-      assertEquals("Line "+line, gnuRow, javaRow);
+      assertEquals("Line " + line, gnuRow, javaRow);
     }
   }
 
@@ -215,7 +225,6 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, 0, "×", null, "\n", 0);
 
     assertUnixSortOrder(sorted);
-
   }
 
   /**
@@ -249,7 +258,7 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, 0, ";", null, "\n", 0);
 
     List<String> sortedStrings = FileUtils.streamToList(new FileInputStream(sorted), ENCODING);
-    assertEquals("980-sp10;x" , sortedStrings.get(0));
+    assertEquals("980-sp10;x", sortedStrings.get(0));
     assertEquals("980-sp100;x", sortedStrings.get(1));
     assertEquals("980-sp101;x", sortedStrings.get(2));
 
@@ -259,7 +268,7 @@ public class FileUtilsTest {
     futils.sort(source2, sorted2, ENCODING, 1, ";", null, "\n", 0);
 
     List<String> sortedStrings2 = FileUtils.streamToList(new FileInputStream(sorted2), ENCODING);
-    assertEquals("x;980-sp10" , sortedStrings2.get(0));
+    assertEquals("x;980-sp10", sortedStrings2.get(0));
     assertEquals("x;980-sp100", sortedStrings2.get(1));
     assertEquals("x;980-sp101", sortedStrings2.get(2));
   }
@@ -274,7 +283,9 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, IDCOLUMN, ",", '"', "\n", 1);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    BufferedReader br =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -286,10 +297,13 @@ public class FileUtilsTest {
       if (line == 1) {
         assertTrue(row.startsWith("\"ID\",\"catalogNumber\""));
       } else if (line == 2) {
-        assertTrue(row.startsWith("\"18728553\",\"18728553\",\"Event\",\"18728553\",\"Muscardinus avellanarius\""));
+        assertTrue(
+            row.startsWith(
+                "\"18728553\",\"18728553\",\"Event\",\"18728553\",\"Muscardinus avellanarius\""));
       } else if (line == 3) {
-        assertTrue(row.startsWith(
-          "\"8728372\",\"18728372\",\"Event\",\"18728372\",\"Muscardinus avellanarius\",\"52.31635664254722\""));
+        assertTrue(
+            row.startsWith(
+                "\"8728372\",\"18728372\",\"Event\",\"18728372\",\"Muscardinus avellanarius\",\"52.31635664254722\""));
       }
     }
   }
@@ -303,7 +317,9 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, 3, ";", null, "\n", 1);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    BufferedReader br =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -314,21 +330,24 @@ public class FileUtilsTest {
 
       if (line == 1) {
         assertEquals(
-          "taxonRank;scientificName;scientificNameAuthorship;taxonID;parentNameUsageID;vernacularName;taxonomicStatus",
-          row);
+            "taxonRank;scientificName;scientificNameAuthorship;taxonID;parentNameUsageID;vernacularName;taxonomicStatus",
+            row);
       } else if (line == 2) {
-        // row 2 and 3 have the same ids - only test if the id is correct (actual order of those 2 records can differ)
+        // row 2 and 3 have the same ids - only test if the id is correct (actual order of those 2
+        // records can differ)
         Iterator<String> columns = Arrays.stream(row.split(";", -1)).iterator();
 
         columns.next();
         columns.next();
         columns.next();
-        assertEquals("urn:lsid:luomus.fi:taxonconcept:0071b855-3d23-4fdc-b2e0-8464c22d752a:1", columns.next());
+        assertEquals(
+            "urn:lsid:luomus.fi:taxonconcept:0071b855-3d23-4fdc-b2e0-8464c22d752a:1",
+            columns.next());
 
       } else if (line == 100) {
         assertEquals(
-          "species;Ctenochira angulata;(Thomson, 1883) ;urn:lsid:luomus.fi:taxonconcept:4adcf436-a0d2-4940-9155-220ffc6f5859:1;urn:lsid:luomus.fi:taxonconcept:817994ea-b58b-4deb-973f-9fa99c537f8a:1;;valid",
-          row);
+            "species;Ctenochira angulata;(Thomson, 1883) ;urn:lsid:luomus.fi:taxonconcept:4adcf436-a0d2-4940-9155-220ffc6f5859:1;urn:lsid:luomus.fi:taxonconcept:817994ea-b58b-4deb-973f-9fa99c537f8a:1;;valid",
+            row);
       }
     }
   }
@@ -347,7 +366,9 @@ public class FileUtilsTest {
     futils.sort(source, sorted, ENCODING, 19, ",", '"', "\n", 1);
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    BufferedReader br =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 30950;
     while (true) {
       String row = br.readLine();
@@ -387,7 +408,9 @@ public class FileUtilsTest {
     assertTrue(sorted.exists());
 
     // read file
-    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    BufferedReader br =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;

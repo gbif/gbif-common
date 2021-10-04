@@ -29,12 +29,12 @@ public class ObjectUtilsTest {
   @Test
   public void testCoalesce() {
     assertNull(ObjectUtils.coalesce());
-    assertNull(ObjectUtils.coalesce((Integer)null));
-    assertNull(ObjectUtils.coalesce(null, (Integer)null));
+    assertNull(ObjectUtils.coalesce((Integer) null));
+    assertNull(ObjectUtils.coalesce(null, (Integer) null));
 
-    assertEquals((Integer)13, ObjectUtils.coalesce(null, 13));
-    assertEquals((Integer)13, ObjectUtils.coalesce(null, 13, 14));
-    assertEquals((Integer)13, ObjectUtils.coalesce(13, 15));
+    assertEquals((Integer) 13, ObjectUtils.coalesce(null, 13));
+    assertEquals((Integer) 13, ObjectUtils.coalesce(null, 13, 14));
+    assertEquals((Integer) 13, ObjectUtils.coalesce(13, 15));
   }
 
   @Test
@@ -43,9 +43,9 @@ public class ObjectUtilsTest {
     assertNull(ObjectUtils.coalesce(new ArrayList<>()));
     assertNull(ObjectUtils.coalesce(newArrayList(null, null)));
 
-    assertEquals((Integer)13, ObjectUtils.coalesce(newArrayList(null, null, 13)));
-    assertEquals((Integer)13, ObjectUtils.coalesce(newArrayList(null, null, 13, 14)));
-    assertEquals((Integer)13, ObjectUtils.coalesce(newArrayList(13, null)));
+    assertEquals((Integer) 13, ObjectUtils.coalesce(newArrayList(null, null, 13)));
+    assertEquals((Integer) 13, ObjectUtils.coalesce(newArrayList(null, null, 13, 14)));
+    assertEquals((Integer) 13, ObjectUtils.coalesce(newArrayList(13, null)));
   }
 
   public ArrayList<Integer> newArrayList(Integer... elements) {

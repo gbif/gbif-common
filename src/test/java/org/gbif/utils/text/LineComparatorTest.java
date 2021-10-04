@@ -89,8 +89,10 @@ public class LineComparatorTest {
   }
 
   // Direct copy from IPT codebase
-  // see https://code.google.com/p/gbif-providertoolkit/source/browse/trunk/gbif-ipt/src/main/java/org/gbif/ipt/task/GenerateDwca.java#93
-  private static final Comparator<String> IGNORE_CASE_COMPARATOR = Comparator.nullsFirst(String::compareToIgnoreCase);
+  // see
+  // https://code.google.com/p/gbif-providertoolkit/source/browse/trunk/gbif-ipt/src/main/java/org/gbif/ipt/task/GenerateDwca.java#93
+  private static final Comparator<String> IGNORE_CASE_COMPARATOR =
+      Comparator.nullsFirst(String::compareToIgnoreCase);
 
   /**
    * Test for respecting equals and compareTo to ensure comparator respects java contracts.

@@ -17,8 +17,7 @@ package org.gbif.utils;
 
 public final class ObjectUtils {
 
-  private ObjectUtils() {
-  }
+  private ObjectUtils() {}
 
   /**
    * Returns the first of the given parameters that is not null.
@@ -28,7 +27,7 @@ public final class ObjectUtils {
    * @param <T>
    * @return
    */
-  public static <T> T coalesce(T ... items) {
+  public static <T> T coalesce(T... items) {
     if (items != null) {
       for (T i : items) if (i != null) return i;
     }

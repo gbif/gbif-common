@@ -35,7 +35,8 @@ public class ResourcesUtilTest {
   public void testCopyResources() throws Exception {
     File tmp = FileUtils.createTempDir();
     tmp.deleteOnExit();
-    ResourcesUtil.copy(tmp, "", true, "testNOT_EXISTING.txt", "test1/test.txt", "test1/test2/test.txt");
+    ResourcesUtil.copy(
+        tmp, "", true, "testNOT_EXISTING.txt", "test1/test.txt", "test1/test2/test.txt");
 
     // test
     File t1 = new File(tmp, "test1/test.txt");
@@ -49,9 +50,11 @@ public class ResourcesUtilTest {
   public void testCopyResourcesThrowing() throws Exception {
     File tmp = FileUtils.createTempDir();
     tmp.deleteOnExit();
-    assertThrows(IOException.class,
-        () -> ResourcesUtil.copy(tmp, "", false,
-            "testNOT_EXISTING.txt", "test1/test.txt", "test1/test2/test.txt"));
+    assertThrows(
+        IOException.class,
+        () ->
+            ResourcesUtil.copy(
+                tmp, "", false, "testNOT_EXISTING.txt", "test1/test.txt", "test1/test2/test.txt"));
 
     // test
     File t1 = new File(tmp, "test1/test.txt");
@@ -63,9 +66,14 @@ public class ResourcesUtilTest {
 
   @Test
   public void testList() throws Exception {
-    assertEquals(newHashSet("test.txt", "test2"), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1")));
-    assertEquals(newHashSet("test.txt"), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1/test2")));
-    assertEquals(newHashSet("utf16be.xml", "utf16le.xml", "utf8.xml", "utf8bom.xml"), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "sax")));
+    assertEquals(
+        newHashSet("test.txt", "test2"),
+        newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1")));
+    assertEquals(
+        newHashSet("test.txt"), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "test1/test2")));
+    assertEquals(
+        newHashSet("utf16be.xml", "utf16le.xml", "utf8.xml", "utf8bom.xml"),
+        newHashSet(ResourcesUtil.list(ResourcesUtil.class, "sax")));
     assertEquals(newHashSet(), newHashSet(ResourcesUtil.list(ResourcesUtil.class, "abba")));
   }
 
