@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TabularFiles.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.tabular</a> &gt; <span class="el_source">TabularFiles.java</span></div><h1>TabularFiles.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +23,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 /**
  * Static utility methods related to {@link TabularDataFileReader} instances.
  */
-<span class="nc" id="L28">public class TabularFiles {</span>
+<span class="nc" id="L26">public class TabularFiles {</span>
 
   /**
    * Get a new TabularDataFileReader.
@@ -37,9 +35,15 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
    * @param headerLine
    * @return
    */
-  public static TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(Reader reader, char delimiterChar,
-                                                           String endOfLineSymbols, Character quoteChar, boolean headerLine) throws IOException {
-<span class="fc" id="L42">    return newTabularFileReader(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, null);</span>
+  public static TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(
+      Reader reader,
+      char delimiterChar,
+      String endOfLineSymbols,
+      Character quoteChar,
+      boolean headerLine)
+      throws IOException {
+<span class="fc" id="L45">    return newTabularFileReader(</span>
+        reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, null);
   }
 
   /**
@@ -54,13 +58,19 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
    *                               This can be used to skip a comment block but if there is a header line, the comment block shall be before the header.
    * @return
    */
-  public static TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(Reader reader, char delimiterChar,
-                                                                         String endOfLineSymbols, Character quoteChar, boolean headerLine,
-                                                                         Integer lineToSkipBeforeHeader) throws IOException {
+  public static TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(
+      Reader reader,
+      char delimiterChar,
+      String endOfLineSymbols,
+      Character quoteChar,
+      boolean headerLine,
+      Integer lineToSkipBeforeHeader)
+      throws IOException {
 
-<span class="fc" id="L61">    Objects.requireNonNull(reader, &quot;A Reader must be provided&quot;);</span>
-<span class="fc" id="L62">    Objects.requireNonNull(endOfLineSymbols, &quot;A endOfLineSymbols must be provided&quot;);</span>
-<span class="fc" id="L63">    return new JacksonCsvFileReader(reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, lineToSkipBeforeHeader);</span>
+<span class="fc" id="L70">    Objects.requireNonNull(reader, &quot;A Reader must be provided&quot;);</span>
+<span class="fc" id="L71">    Objects.requireNonNull(endOfLineSymbols, &quot;A endOfLineSymbols must be provided&quot;);</span>
+<span class="fc" id="L72">    return new JacksonCsvFileReader(</span>
+        reader, delimiterChar, endOfLineSymbols, quoteChar, headerLine, lineToSkipBeforeHeader);
   }
 
   /**
@@ -69,9 +79,9 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
    * &lt;pre&gt;
    * {@code
    * try (TabularDataFileReader&lt;List&lt;String&gt;&gt; reader = TabularFiles.newTabularFileReader(
-  Files.newBufferedReader(Paths.get(&quot;/tmp/test.csv&quot;), StandardCharsets.UTF_8), ',', true)) {
-  ...
-  }
+   * Files.newBufferedReader(Paths.get(&quot;/tmp/test.csv&quot;), StandardCharsets.UTF_8), ',', true)) {
+   * ...
+   * }
    * }
    * &lt;/pre&gt;
    *
@@ -80,12 +90,14 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
    * @param delimiterChar
    * @param headerLine
    */
-  public static TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(Reader reader, char delimiterChar,
-                                                                         boolean headerLine) throws IOException {
-<span class="fc" id="L85">    return new JacksonCsvFileReader(reader, delimiterChar, new String(CsvSchema.DEFAULT_LINEFEED),</span>
-<span class="fc" id="L86">            CsvSchema.DEFAULT_QUOTE_CHAR, headerLine);</span>
+  public static TabularDataFileReader&lt;List&lt;String&gt;&gt; newTabularFileReader(
+      Reader reader, char delimiterChar, boolean headerLine) throws IOException {
+<span class="fc" id="L95">    return new JacksonCsvFileReader(</span>
+        reader,
+        delimiterChar,
+        new String(CsvSchema.DEFAULT_LINEFEED),
+<span class="fc" id="L99">        CsvSchema.DEFAULT_QUOTE_CHAR,</span>
+        headerLine);
   }
-
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

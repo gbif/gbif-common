@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StringUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.text</a> &gt; <span class="el_source">StringUtils.java</span></div><h1>StringUtils.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,14 +39,14 @@ import org.apache.commons.lang3.text.WordUtils;
  */
 public final class StringUtils {
 
-<span class="fc" id="L44">  private static final Pattern MARKER = Pattern.compile(&quot;\\p{M}&quot;);</span>
+<span class="fc" id="L42">  private static final Pattern MARKER = Pattern.compile(&quot;\\p{M}&quot;);</span>
   public static final int LINNEAN_YEAR = 1751;
   private static final String CONS = &quot;BCDFGHJKLMNPQRSTVWXYZ&quot;;
-<span class="fc" id="L47">  private static final Pattern OCT = Pattern.compile(&quot;^[0-7]+$&quot;);</span>
-<span class="fc" id="L48">  private static final Pattern HEX = Pattern.compile(&quot;^[0-9abcdefABCDEF]+$&quot;);</span>
+<span class="fc" id="L45">  private static final Pattern OCT = Pattern.compile(&quot;^[0-7]+$&quot;);</span>
+<span class="fc" id="L46">  private static final Pattern HEX = Pattern.compile(&quot;^[0-9abcdefABCDEF]+$&quot;);</span>
 
   private static final String VOC = &quot;AEIOU&quot;;
-<span class="fc" id="L51">  private static final Random RND = new Random();</span>
+<span class="fc" id="L49">  private static final Random RND = new Random();</span>
 
   /**
    * This includes some special whitespaces which not present in standard trim list:
@@ -59,14 +57,14 @@ public final class StringUtils {
    *  &lt;li&gt;U+2007 Figure Space &lt;/li&gt;
    * &lt;/ul&gt;
    */
-  public static final String WHITESPACES_LIST = &quot;&quot;
-      + &quot;\u2002\u3000\r\u0085\u200A\u2005\u2000\u3000&quot;
-      + &quot;\u2029\u000B\u3000\u2008\u2003\u205F\u3000\u1680&quot;
-      + &quot;\u0009\u0020\u2006\u2001\u202F\u00A0\u000C\u2009&quot;
-      + &quot;\u3000\u2004\u3000\u3000\u2028\n\u2007\u3000&quot;;
+  public static final String WHITESPACES_LIST =
+      &quot;&quot;
+          + &quot;\u2002\u3000\r\u0085\u200A\u2005\u2000\u3000&quot;
+          + &quot;\u2029\u000B\u3000\u2008\u2003\u205F\u3000\u1680&quot;
+          + &quot;\u0009\u0020\u2006\u2001\u202F\u00A0\u000C\u2009&quot;
+          + &quot;\u3000\u2004\u3000\u3000\u2028\n\u2007\u3000&quot;;
 
-  private StringUtils() {
-  }
+  private StringUtils() {}
 
   /**
    * Removes accents &amp; diacretics and converts ligatures into several chars
@@ -74,13 +72,13 @@ public final class StringUtils {
    * @return string converted to ASCII equivalent, expanding common ligatures
    */
   public static String foldToAscii(String x) {
-<span class="fc bfc" id="L77" title="All 2 branches covered.">    if (x == null) {</span>
-<span class="fc" id="L78">      return null;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    if (x == null) {</span>
+<span class="fc" id="L76">      return null;</span>
     }
-<span class="fc" id="L80">    x = replaceSpecialCases(x);</span>
+<span class="fc" id="L78">    x = replaceSpecialCases(x);</span>
     // use java unicode normalizer to remove accents
-<span class="fc" id="L82">    x = Normalizer.normalize(x, Normalizer.Form.NFD);</span>
-<span class="fc" id="L83">    return MARKER.matcher(x).replaceAll(&quot;&quot;);</span>
+<span class="fc" id="L80">    x = Normalizer.normalize(x, Normalizer.Form.NFD);</span>
+<span class="fc" id="L81">    return MARKER.matcher(x).replaceAll(&quot;&quot;);</span>
   }
 
   /**
@@ -94,69 +92,70 @@ public final class StringUtils {
    * @return a String that represents all parts joined by a space or empty String. Never null.
    */
   public static String thenJoin(Function&lt;String, String&gt; fct, String... parts) {
-<span class="fc" id="L97">    Objects.requireNonNull(fct, &quot;fct shall be provided, use Function.identity() is you want to use the String as is&quot;);</span>
-<span class="fc bfc" id="L98" title="All 2 branches covered.">    return Arrays.stream(parts != null ? parts : new String[0])</span>
-<span class="fc" id="L99">            .map(fct)</span>
-<span class="fc" id="L100">            .filter(Objects::nonNull)</span>
-<span class="fc" id="L101">            .collect(Collectors.joining(&quot; &quot;));</span>
+<span class="fc" id="L95">    Objects.requireNonNull(</span>
+        fct, &quot;fct shall be provided, use Function.identity() is you want to use the String as is&quot;);
+<span class="fc bfc" id="L97" title="All 2 branches covered.">    return Arrays.stream(parts != null ? parts : new String[0])</span>
+<span class="fc" id="L98">        .map(fct)</span>
+<span class="fc" id="L99">        .filter(Objects::nonNull)</span>
+<span class="fc" id="L100">        .collect(Collectors.joining(&quot; &quot;));</span>
   }
 
   /**
    * The Normalizer misses a few cases and 2 char ligatures which we deal with here
    */
   private static String replaceSpecialCases(String x) {
-<span class="fc" id="L108">    StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L107">    StringBuilder sb = new StringBuilder();</span>
 
-<span class="fc bfc" id="L110" title="All 2 branches covered.">    for (int i = 0; i &lt; x.length(); i++) {</span>
-<span class="fc" id="L111">      char c = x.charAt(i);</span>
-<span class="pc bpc" id="L112" title="4 of 15 branches missed.">      switch (c) {</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">    for (int i = 0; i &lt; x.length(); i++) {</span>
+<span class="fc" id="L110">      char c = x.charAt(i);</span>
+<span class="pc bpc" id="L111" title="4 of 15 branches missed.">      switch (c) {</span>
         case 'ß':
-<span class="fc" id="L114">          sb.append(&quot;ss&quot;);</span>
-<span class="fc" id="L115">          break;</span>
+<span class="fc" id="L113">          sb.append(&quot;ss&quot;);</span>
+<span class="fc" id="L114">          break;</span>
         case 'Æ':
-<span class="fc" id="L117">          sb.append(&quot;AE&quot;);</span>
-<span class="fc" id="L118">          break;</span>
+<span class="fc" id="L116">          sb.append(&quot;AE&quot;);</span>
+<span class="fc" id="L117">          break;</span>
         case 'æ':
-<span class="fc" id="L120">          sb.append(&quot;ae&quot;);</span>
-<span class="fc" id="L121">          break;</span>
+<span class="fc" id="L119">          sb.append(&quot;ae&quot;);</span>
+<span class="fc" id="L120">          break;</span>
         case 'Ð':
-<span class="fc" id="L123">          sb.append(&quot;D&quot;);</span>
-<span class="fc" id="L124">          break;</span>
+<span class="fc" id="L122">          sb.append(&quot;D&quot;);</span>
+<span class="fc" id="L123">          break;</span>
         case 'đ':
-<span class="nc" id="L126">          sb.append(&quot;d&quot;);</span>
-<span class="nc" id="L127">          break;</span>
+<span class="nc" id="L125">          sb.append(&quot;d&quot;);</span>
+<span class="nc" id="L126">          break;</span>
         case 'ð':
-<span class="fc" id="L129">          sb.append(&quot;d&quot;);</span>
-<span class="fc" id="L130">          break;</span>
+<span class="fc" id="L128">          sb.append(&quot;d&quot;);</span>
+<span class="fc" id="L129">          break;</span>
         case 'Ø':
-<span class="fc" id="L132">          sb.append(&quot;O&quot;);</span>
-<span class="fc" id="L133">          break;</span>
+<span class="fc" id="L131">          sb.append(&quot;O&quot;);</span>
+<span class="fc" id="L132">          break;</span>
         case 'ø':
-<span class="fc" id="L135">          sb.append(&quot;o&quot;);</span>
-<span class="fc" id="L136">          break;</span>
+<span class="fc" id="L134">          sb.append(&quot;o&quot;);</span>
+<span class="fc" id="L135">          break;</span>
         case 'Œ':
-<span class="fc" id="L138">          sb.append(&quot;OE&quot;);</span>
-<span class="fc" id="L139">          break;</span>
+<span class="fc" id="L137">          sb.append(&quot;OE&quot;);</span>
+<span class="fc" id="L138">          break;</span>
         case 'œ':
-<span class="fc" id="L141">          sb.append(&quot;oe&quot;);</span>
-<span class="fc" id="L142">          break;</span>
+<span class="fc" id="L140">          sb.append(&quot;oe&quot;);</span>
+<span class="fc" id="L141">          break;</span>
         case 'Ŧ':
-<span class="nc" id="L144">          sb.append(&quot;T&quot;);</span>
-<span class="nc" id="L145">          break;</span>
+<span class="nc" id="L143">          sb.append(&quot;T&quot;);</span>
+<span class="nc" id="L144">          break;</span>
         case 'ŧ':
-<span class="nc" id="L147">          sb.append(&quot;t&quot;);</span>
-<span class="nc" id="L148">          break;</span>
+<span class="nc" id="L146">          sb.append(&quot;t&quot;);</span>
+<span class="nc" id="L147">          break;</span>
         case 'Ł':
-<span class="nc" id="L150">          sb.append(&quot;L&quot;);</span>
-<span class="nc" id="L151">          break;</span>
+<span class="nc" id="L149">          sb.append(&quot;L&quot;);</span>
+<span class="nc" id="L150">          break;</span>
         case 'ł':
-<span class="fc" id="L153">          sb.append(&quot;l&quot;);</span>
-<span class="fc" id="L154">          break;</span>
+<span class="fc" id="L152">          sb.append(&quot;l&quot;);</span>
+<span class="fc" id="L153">          break;</span>
         default:
-<span class="fc" id="L156">          sb.append(c);</span>
+<span class="fc" id="L155">          sb.append(c);</span>
       }
     }
-<span class="fc" id="L159">    return sb.toString();</span>
+<span class="fc" id="L158">    return sb.toString();</span>
   }
 
   /**
@@ -173,49 +172,50 @@ public final class StringUtils {
    * @return
    */
   public static String increase(String x) {
-<span class="fc bfc" id="L176" title="All 2 branches covered.">    if (x == null) {</span>
-<span class="fc" id="L177">      return null;</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">    if (x == null) {</span>
+<span class="fc" id="L176">      return null;</span>
     }
-<span class="fc bfc" id="L179" title="All 2 branches covered.">    if (x.equals(&quot;&quot;)) {</span>
-<span class="fc" id="L180">      return x;</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">    if (x.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L179">      return x;</span>
     }
 
-<span class="fc" id="L183">    char[] chars = x.toCharArray();</span>
-<span class="fc" id="L184">    int idx = chars.length - 1;</span>
-<span class="fc" id="L185">    boolean appendingNeeded = false;</span>
-<span class="fc" id="L186">    Character lastOriginalChar = null;</span>
+<span class="fc" id="L182">    char[] chars = x.toCharArray();</span>
+<span class="fc" id="L183">    int idx = chars.length - 1;</span>
+<span class="fc" id="L184">    boolean appendingNeeded = false;</span>
+<span class="fc" id="L185">    Character lastOriginalChar = null;</span>
 
-<span class="fc bfc" id="L188" title="All 2 branches covered.">    while (idx &gt;= 0){</span>
-<span class="fc" id="L189">      char c = chars[idx];</span>
-<span class="fc bfc" id="L190" title="All 2 branches covered.">      if (!Character.isLetter(c)){</span>
-<span class="fc" id="L191">        idx--;</span>
-<span class="fc" id="L192">        continue;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">    while (idx &gt;= 0) {</span>
+<span class="fc" id="L188">      char c = chars[idx];</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">      if (!Character.isLetter(c)) {</span>
+<span class="fc" id="L190">        idx--;</span>
+<span class="fc" id="L191">        continue;</span>
       }
 
-<span class="fc bfc" id="L195" title="All 2 branches covered.">      if (lastOriginalChar == null){</span>
-<span class="fc" id="L196">        lastOriginalChar = c;</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">      if (lastOriginalChar == null) {</span>
+<span class="fc" id="L195">        lastOriginalChar = c;</span>
       }
 
-<span class="fc bfc" id="L199" title="All 2 branches covered.">      if (c == 'z'){</span>
-<span class="fc" id="L200">        chars[idx] = 'a';</span>
-<span class="fc" id="L201">        appendingNeeded = true;</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">      if (c == 'z') {</span>
+<span class="fc" id="L199">        chars[idx] = 'a';</span>
+<span class="fc" id="L200">        appendingNeeded = true;</span>
 
-<span class="fc bfc" id="L203" title="All 2 branches covered.">      } else if (c == 'Z'){</span>
-<span class="fc" id="L204">        chars[idx] = 'A';</span>
-<span class="fc" id="L205">        appendingNeeded = true;</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">      } else if (c == 'Z') {</span>
+<span class="fc" id="L203">        chars[idx] = 'A';</span>
+<span class="fc" id="L204">        appendingNeeded = true;</span>
 
       } else {
-<span class="fc" id="L208">        c++;</span>
-<span class="fc" id="L209">        chars[idx] = c;</span>
-<span class="fc" id="L210">        appendingNeeded = false;</span>
-<span class="fc" id="L211">        break;</span>
+<span class="fc" id="L207">        c++;</span>
+<span class="fc" id="L208">        chars[idx] = c;</span>
+<span class="fc" id="L209">        appendingNeeded = false;</span>
+<span class="fc" id="L210">        break;</span>
       }
-<span class="fc" id="L213">      idx--;</span>
-<span class="fc" id="L214">    }</span>
+<span class="fc" id="L212">      idx--;</span>
+<span class="fc" id="L213">    }</span>
 
     // first char, also append to end
-<span class="fc bfc" id="L217" title="All 2 branches covered.">    if (appendingNeeded){</span>
-<span class="pc bpc" id="L218" title="1 of 4 branches missed.">      char append = (lastOriginalChar==null || Character.isLowerCase(lastOriginalChar)) ? 'a' : 'A';</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">    if (appendingNeeded) {</span>
+      char append =
+<span class="pc bpc" id="L218" title="1 of 4 branches missed.">          (lastOriginalChar == null || Character.isLowerCase(lastOriginalChar)) ? 'a' : 'A';</span>
 <span class="fc" id="L219">      return String.valueOf(chars) + append;</span>
 
     } else {
@@ -239,12 +239,14 @@ public final class StringUtils {
   public static String randomEpithet() {
 <span class="nc" id="L240">    return randomString(RND.nextInt(12) + 4).toLowerCase();</span>
   }
+
   public static String randomFamily() {
-<span class="nc" id="L243">      return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(15) + 5).toLowerCase()) + &quot;idae&quot;;</span>
+<span class="nc" id="L244">    return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(15) + 5).toLowerCase())</span>
+        + &quot;idae&quot;;
   }
 
   public static String randomAuthor() {
-<span class="nc" id="L247">    return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(12) + 1).toLowerCase());</span>
+<span class="nc" id="L249">    return WordUtils.capitalize(StringUtils.randomString(RND.nextInt(12) + 1).toLowerCase());</span>
   }
 
   /**
@@ -254,24 +256,24 @@ public final class StringUtils {
    * @return a random string in upper case
    */
   public static String randomString(int len) {
-<span class="fc" id="L257">    StringBuilder sb = new StringBuilder(len);</span>
-<span class="fc bfc" id="L258" title="All 2 branches covered.">    for (int i = 0; i &lt; len; i++) {</span>
-<span class="fc bfc" id="L259" title="All 2 branches covered.">      if (RND.nextInt(3) &gt; 1) {</span>
-<span class="fc" id="L260">        sb.append(CONS.charAt(RND.nextInt(CONS.length())));</span>
+<span class="fc" id="L259">    StringBuilder sb = new StringBuilder(len);</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">    for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">      if (RND.nextInt(3) &gt; 1) {</span>
+<span class="fc" id="L262">        sb.append(CONS.charAt(RND.nextInt(CONS.length())));</span>
       } else {
-<span class="fc" id="L262">        sb.append(VOC.charAt(RND.nextInt(VOC.length())));</span>
+<span class="fc" id="L264">        sb.append(VOC.charAt(RND.nextInt(VOC.length())));</span>
       }
     }
 
-<span class="fc" id="L266">    return sb.toString();</span>
+<span class="fc" id="L268">    return sb.toString();</span>
   }
 
   /**
    * @return a year since Linnéan times 1751 before now as a 4 character long string
    */
   public static String randomSpeciesYear() {
-<span class="nc" id="L273">    int maxYear = Calendar.getInstance().get(Calendar.YEAR);</span>
-<span class="nc" id="L274">    return String.valueOf(LINNEAN_YEAR + RND.nextInt(maxYear - LINNEAN_YEAR + 1));</span>
+<span class="nc" id="L275">    int maxYear = Calendar.getInstance().get(Calendar.YEAR);</span>
+<span class="nc" id="L276">    return String.valueOf(LINNEAN_YEAR + RND.nextInt(maxYear - LINNEAN_YEAR + 1));</span>
   }
 
   /**
@@ -283,11 +285,11 @@ public final class StringUtils {
    */
   public static Integer parseInteger(String x) {
     try {
-<span class="nc" id="L286">      return Integer.valueOf(x);</span>
-<span class="nc" id="L287">    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L288">      return Integer.valueOf(x);</span>
+<span class="nc" id="L289">    } catch (NumberFormatException e) {</span>
 
     }
-<span class="nc" id="L290">    return null;</span>
+<span class="nc" id="L292">    return null;</span>
   }
 
   /**
@@ -298,14 +300,14 @@ public final class StringUtils {
    * @return the parsed integer or null
    */
   public static Boolean parseBoolean(String x) {
-<span class="nc" id="L301">    x = org.apache.commons.lang3.StringUtils.trimToEmpty(x).toLowerCase();</span>
-<span class="nc bnc" id="L302" title="All 10 branches missed.">    if (x.equals(&quot;true&quot;) || x.equals(&quot;t&quot;) || x.equals(&quot;1&quot;) || x.equals(&quot;yes&quot;) || x.equals(&quot;y&quot;)) {</span>
-<span class="nc" id="L303">      return true;</span>
+<span class="nc" id="L303">    x = org.apache.commons.lang3.StringUtils.trimToEmpty(x).toLowerCase();</span>
+<span class="nc bnc" id="L304" title="All 10 branches missed.">    if (x.equals(&quot;true&quot;) || x.equals(&quot;t&quot;) || x.equals(&quot;1&quot;) || x.equals(&quot;yes&quot;) || x.equals(&quot;y&quot;)) {</span>
+<span class="nc" id="L305">      return true;</span>
     }
-<span class="nc bnc" id="L305" title="All 10 branches missed.">    if (x.equals(&quot;false&quot;) || x.equals(&quot;f&quot;) || x.equals(&quot;0&quot;) || x.equals(&quot;no&quot;) || x.equals(&quot;n&quot;)) {</span>
-<span class="nc" id="L306">      return false;</span>
+<span class="nc bnc" id="L307" title="All 10 branches missed.">    if (x.equals(&quot;false&quot;) || x.equals(&quot;f&quot;) || x.equals(&quot;0&quot;) || x.equals(&quot;no&quot;) || x.equals(&quot;n&quot;)) {</span>
+<span class="nc" id="L308">      return false;</span>
     }
-<span class="nc" id="L308">    return null;</span>
+<span class="nc" id="L310">    return null;</span>
   }
 
   /**
@@ -330,8 +332,8 @@ public final class StringUtils {
    * @return the unescaped string
    */
   public static String unescapeUnicodeChars(String text) {
-<span class="nc bnc" id="L333" title="All 2 branches missed.">    if (text == null) {</span>
-<span class="nc" id="L334">      return null;</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">    if (text == null) {</span>
+<span class="nc" id="L336">      return null;</span>
     }
     // replace unicode, hexadecimal or octal character encodings by iterating over the chars once
     //
@@ -340,73 +342,77 @@ public final class StringUtils {
     //
     // octal escape
     // \nnn
-    // The octal value nnn, where nnn stands for 1 to 3 digits between ‘0’ and ‘7’. For example, the code for the ASCII
+    // The octal value nnn, where nnn stands for 1 to 3 digits between ‘0’ and ‘7’. For example, the
+    // code for the ASCII
     // ESC (escape) character is ‘\033’.
     //
     // hexadecimal escape
     // \xhh...
-    // The hexadecimal value hh, where hh stands for a sequence of hexadecimal digits (‘0’–‘9’, and either ‘A’–‘F’ or
+    // The hexadecimal value hh, where hh stands for a sequence of hexadecimal digits (‘0’–‘9’, and
+    // either ‘A’–‘F’ or
     // ‘a’–‘f’).
-    // Like the same construct in ISO C, the escape sequence continues until the first nonhexadecimal digit is seen.
-    // However, using more than two hexadecimal digits produces undefined results. (The ‘\x’ escape sequence is not allowed
+    // Like the same construct in ISO C, the escape sequence continues until the first
+    // nonhexadecimal digit is seen.
+    // However, using more than two hexadecimal digits produces undefined results. (The ‘\x’ escape
+    // sequence is not allowed
     // in POSIX awk.)
-<span class="nc" id="L353">    int i = 0, len = text.length();</span>
+<span class="nc" id="L359">    int i = 0, len = text.length();</span>
     char c;
-<span class="nc" id="L355">    StringBuffer sb = new StringBuffer(len);</span>
-<span class="nc bnc" id="L356" title="All 2 branches missed.">    while (i &lt; len) {</span>
-<span class="nc" id="L357">      c = text.charAt(i++);</span>
-<span class="nc bnc" id="L358" title="All 2 branches missed.">      if (c == '\\') {</span>
-<span class="nc bnc" id="L359" title="All 2 branches missed.">        if (i &lt; len) {</span>
-<span class="nc" id="L360">          c = text.charAt(i++);</span>
+<span class="nc" id="L361">    StringBuffer sb = new StringBuffer(len);</span>
+<span class="nc bnc" id="L362" title="All 2 branches missed.">    while (i &lt; len) {</span>
+<span class="nc" id="L363">      c = text.charAt(i++);</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">      if (c == '\\') {</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">        if (i &lt; len) {</span>
+<span class="nc" id="L366">          c = text.charAt(i++);</span>
           try {
-<span class="nc bnc" id="L362" title="All 4 branches missed.">            if (c == 'u' &amp;&amp; text.length() &gt;= i + 4) {</span>
+<span class="nc bnc" id="L368" title="All 4 branches missed.">            if (c == 'u' &amp;&amp; text.length() &gt;= i + 4) {</span>
               // make sure we have only hexadecimals
-<span class="nc" id="L364">              String hex = text.substring(i, i + 4);</span>
-<span class="nc bnc" id="L365" title="All 2 branches missed.">              if (HEX.matcher(hex).find()) {</span>
-<span class="nc" id="L366">                c = (char) Integer.parseInt(hex, 16);</span>
-<span class="nc" id="L367">                i += 4;</span>
+<span class="nc" id="L370">              String hex = text.substring(i, i + 4);</span>
+<span class="nc bnc" id="L371" title="All 2 branches missed.">              if (HEX.matcher(hex).find()) {</span>
+<span class="nc" id="L372">                c = (char) Integer.parseInt(hex, 16);</span>
+<span class="nc" id="L373">                i += 4;</span>
               } else {
-<span class="nc" id="L369">                throw new NumberFormatException(&quot;No hex value: &quot; + hex);</span>
+<span class="nc" id="L375">                throw new NumberFormatException(&quot;No hex value: &quot; + hex);</span>
               }
-<span class="nc bnc" id="L371" title="All 4 branches missed.">            } else if (c == 'n' &amp;&amp; text.length() &gt;= i + 2) {</span>
+<span class="nc bnc" id="L377" title="All 4 branches missed.">            } else if (c == 'n' &amp;&amp; text.length() &gt;= i + 2) {</span>
               // make sure we have only 0-7 digits
-<span class="nc" id="L373">              String oct = text.substring(i, i + 2);</span>
-<span class="nc bnc" id="L374" title="All 2 branches missed.">              if (OCT.matcher(oct).find()) {</span>
-<span class="nc" id="L375">                c = (char) Integer.parseInt(oct, 8);</span>
-<span class="nc" id="L376">                i += 2;</span>
+<span class="nc" id="L379">              String oct = text.substring(i, i + 2);</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">              if (OCT.matcher(oct).find()) {</span>
+<span class="nc" id="L381">                c = (char) Integer.parseInt(oct, 8);</span>
+<span class="nc" id="L382">                i += 2;</span>
               } else {
-<span class="nc" id="L378">                throw new NumberFormatException(&quot;No octal value: &quot; + oct);</span>
+<span class="nc" id="L384">                throw new NumberFormatException(&quot;No octal value: &quot; + oct);</span>
               }
-<span class="nc bnc" id="L380" title="All 4 branches missed.">            } else if (c == 'x' &amp;&amp; text.length() &gt;= i + 2) {</span>
+<span class="nc bnc" id="L386" title="All 4 branches missed.">            } else if (c == 'x' &amp;&amp; text.length() &gt;= i + 2) {</span>
               // make sure we have only hexadecimals
-<span class="nc" id="L382">              String hex = text.substring(i, i + 2);</span>
-<span class="nc bnc" id="L383" title="All 2 branches missed.">              if (HEX.matcher(hex).find()) {</span>
-<span class="nc" id="L384">                c = (char) Integer.parseInt(hex, 16);</span>
-<span class="nc" id="L385">                i += 2;</span>
+<span class="nc" id="L388">              String hex = text.substring(i, i + 2);</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">              if (HEX.matcher(hex).find()) {</span>
+<span class="nc" id="L390">                c = (char) Integer.parseInt(hex, 16);</span>
+<span class="nc" id="L391">                i += 2;</span>
               } else {
-<span class="nc" id="L387">                throw new NumberFormatException(&quot;No hex value: &quot; + hex);</span>
+<span class="nc" id="L393">                throw new NumberFormatException(&quot;No hex value: &quot; + hex);</span>
               }
-<span class="nc bnc" id="L389" title="All 6 branches missed.">            } else if (c == 'r' || c == 'n' || c == 't') {</span>
+<span class="nc bnc" id="L395" title="All 6 branches missed.">            } else if (c == 'r' || c == 'n' || c == 't') {</span>
               // escaped newline or tab. Replace with simple space
-<span class="nc" id="L391">              c = ' ';</span>
+<span class="nc" id="L397">              c = ' ';</span>
             } else {
-<span class="nc" id="L393">              throw new NumberFormatException(&quot;No char escape&quot;);</span>
+<span class="nc" id="L399">              throw new NumberFormatException(&quot;No char escape&quot;);</span>
             }
-<span class="nc" id="L395">          } catch (NumberFormatException e) {</span>
+<span class="nc" id="L401">          } catch (NumberFormatException e) {</span>
             // keep original characters including \ if escape sequence was invalid
             // but replace \n with space instead
-<span class="nc bnc" id="L398" title="All 2 branches missed.">            if (c == 'n') {</span>
-<span class="nc" id="L399">              c = ' ';</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">            if (c == 'n') {</span>
+<span class="nc" id="L405">              c = ' ';</span>
             } else {
-<span class="nc" id="L401">              c = '\\';</span>
-<span class="nc" id="L402">              i--;</span>
+<span class="nc" id="L407">              c = '\\';</span>
+<span class="nc" id="L408">              i--;</span>
             }
-<span class="nc" id="L404">          }</span>
+<span class="nc" id="L410">          }</span>
         }
       } // fall through: \ escapes itself, quotes any character but u
-<span class="nc" id="L407">      sb.append(c);</span>
+<span class="nc" id="L413">      sb.append(c);</span>
     }
-<span class="nc" id="L409">    return sb.toString();</span>
+<span class="nc" id="L415">    return sb.toString();</span>
   }
 
   /**
@@ -414,22 +420,27 @@ public final class StringUtils {
    * E.g. Ã¼ is the German Umlaut ü and indicates we have encoded utf8 text still.
    */
   public static String decodeUtf8Garbage(String text) {
-<span class="fc" id="L417">    Pattern UTF8_TEST = Pattern.compile(&quot;(Ã¤|Ã¼|Ã¶|Ã\u0084|Ã\u009C|Ã\u0096|&quot; + // äüöÄÜÖ</span>
-        &quot;Ã±|Ã¸|Ã§|Ã®|Ã´|Ã»|Ã\u0091|Ã\u0098|Ã\u0087|Ã\u008E|Ã\u0094|Ã\u009B&quot;  + // ñøçîôûÑØÇÎÔÛ
-        &quot;Ã¡|Ã©|Ã³|Ãº|Ã\u00AD|Ã\u0081|Ã\u0089|Ã\u0093|Ã\u009A|Ã\u008D)&quot;         // áéóúíÁÉÓÚÍ
-        , Pattern.CASE_INSENSITIVE);
-<span class="fc bfc" id="L421" title="All 4 branches covered.">    if (text != null &amp;&amp; UTF8_TEST.matcher(text).find()) {</span>
+<span class="fc" id="L423">    Pattern UTF8_TEST =</span>
+<span class="fc" id="L424">        Pattern.compile(</span>
+            &quot;(Ã¤|Ã¼|Ã¶|Ã\u0084|Ã\u009C|Ã\u0096|&quot;
+                + // äüöÄÜÖ
+                &quot;Ã±|Ã¸|Ã§|Ã®|Ã´|Ã»|Ã\u0091|Ã\u0098|Ã\u0087|Ã\u008E|Ã\u0094|Ã\u009B&quot;
+                + // ñøçîôûÑØÇÎÔÛ
+                &quot;Ã¡|Ã©|Ã³|Ãº|Ã\u00AD|Ã\u0081|Ã\u0089|Ã\u0093|Ã\u009A|Ã\u008D)&quot; // áéóúíÁÉÓÚÍ
+            ,
+            Pattern.CASE_INSENSITIVE);
+<span class="fc bfc" id="L432" title="All 4 branches covered.">    if (text != null &amp;&amp; UTF8_TEST.matcher(text).find()) {</span>
       // typical utf8 combinations found. Try to decode from latin1 to utf8
-<span class="fc" id="L423">      byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);</span>
-<span class="fc" id="L424">      final CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();</span>
-<span class="fc" id="L425">      ByteBuffer buffer = ByteBuffer.wrap(bytes);</span>
+<span class="fc" id="L434">      byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);</span>
+<span class="fc" id="L435">      final CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();</span>
+<span class="fc" id="L436">      ByteBuffer buffer = ByteBuffer.wrap(bytes);</span>
       try {
-<span class="fc" id="L427">        return utf8Decoder.decode(buffer).toString();</span>
-<span class="nc" id="L428">      } catch (CharacterCodingException e) {</span>
+<span class="fc" id="L438">        return utf8Decoder.decode(buffer).toString();</span>
+<span class="nc" id="L439">      } catch (CharacterCodingException e) {</span>
         // maybe wasnt a good idea, return original
       }
     }
-<span class="fc" id="L432">    return text;</span>
+<span class="fc" id="L443">    return text;</span>
   }
 
   /**
@@ -439,10 +450,10 @@ public final class StringUtils {
    * @return
    */
   public static String joinIfNotNull(String delimiter, Object... values) {
-<span class="nc" id="L442">    return Arrays.stream(values)</span>
-<span class="nc" id="L443">        .filter(Objects::nonNull)</span>
-<span class="nc" id="L444">        .map(Object::toString)</span>
-<span class="nc" id="L445">        .collect(Collectors.joining(delimiter));</span>
+<span class="nc" id="L453">    return Arrays.stream(values)</span>
+<span class="nc" id="L454">        .filter(Objects::nonNull)</span>
+<span class="nc" id="L455">        .map(Object::toString)</span>
+<span class="nc" id="L456">        .collect(Collectors.joining(delimiter));</span>
   }
 
   /**
@@ -453,22 +464,22 @@ public final class StringUtils {
    * @return new map with keys and values upper cased.
    */
   public static Map&lt;String, String&gt; upper(Map&lt;String, String&gt; map) {
-<span class="nc" id="L456">    Map&lt;String, String&gt; upperMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L457" title="All 2 branches missed.">    for (String k : map.keySet()) {</span>
-<span class="nc" id="L458">      String v = map.get(k);</span>
-<span class="nc bnc" id="L459" title="All 2 branches missed.">      if (v != null) {</span>
-<span class="nc" id="L460">        v = v.trim().toUpperCase();</span>
+<span class="nc" id="L467">    Map&lt;String, String&gt; upperMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">    for (String k : map.keySet()) {</span>
+<span class="nc" id="L469">      String v = map.get(k);</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">      if (v != null) {</span>
+<span class="nc" id="L471">        v = v.trim().toUpperCase();</span>
       }
-<span class="nc" id="L462">      upperMap.put(k.toUpperCase(), v);</span>
-<span class="nc" id="L463">    }</span>
-<span class="nc" id="L464">    return upperMap;</span>
+<span class="nc" id="L473">      upperMap.put(k.toUpperCase(), v);</span>
+<span class="nc" id="L474">    }</span>
+<span class="nc" id="L475">    return upperMap;</span>
   }
 
   /**
    * Returns an empty string or the trimmed lower case version of any input, but never NULL.
    */
   public static String emptyLowerCase(String str) {
-<span class="nc" id="L471">    return org.apache.commons.lang3.StringUtils.trimToEmpty(str).toLowerCase();</span>
+<span class="nc" id="L482">    return org.apache.commons.lang3.StringUtils.trimToEmpty(str).toLowerCase();</span>
   }
 
   /**
@@ -477,10 +488,10 @@ public final class StringUtils {
    * @return teh full stack trace as a String
    */
   public static String getStackTrace(Throwable aThrowable) {
-<span class="nc" id="L480">    final Writer result = new StringWriter();</span>
-<span class="nc" id="L481">    final PrintWriter printWriter = new PrintWriter(result);</span>
-<span class="nc" id="L482">    aThrowable.printStackTrace(printWriter);</span>
-<span class="nc" id="L483">    return result.toString();</span>
+<span class="nc" id="L491">    final Writer result = new StringWriter();</span>
+<span class="nc" id="L492">    final PrintWriter printWriter = new PrintWriter(result);</span>
+<span class="nc" id="L493">    aThrowable.printStackTrace(printWriter);</span>
+<span class="nc" id="L494">    return result.toString();</span>
   }
 
   /**
@@ -491,7 +502,7 @@ public final class StringUtils {
    * @return trimmed String
    */
   public static String trim(String str) {
-<span class="fc" id="L494">    return org.apache.commons.lang3.StringUtils.strip(str, WHITESPACES_LIST);</span>
+<span class="fc" id="L505">    return org.apache.commons.lang3.StringUtils.strip(str, WHITESPACES_LIST);</span>
   }
 
   /**
@@ -501,21 +512,21 @@ public final class StringUtils {
    * @return String without whitespaces
    */
   public static String deleteWhitespace(final String str) {
-<span class="pc bpc" id="L504" title="1 of 2 branches missed.">    if (org.apache.commons.lang3.StringUtils.isEmpty(str)) {</span>
-<span class="nc" id="L505">      return str;</span>
-    }
-<span class="fc" id="L507">    final int sz = str.length();</span>
-<span class="fc" id="L508">    final char[] chs = new char[sz];</span>
-<span class="fc" id="L509">    int count = 0;</span>
-<span class="fc bfc" id="L510" title="All 2 branches covered.">    for (int i = 0; i &lt; sz; i++) {</span>
-<span class="fc bfc" id="L511" title="All 2 branches covered.">      if (org.apache.commons.lang3.StringUtils.containsNone(WHITESPACES_LIST, str.charAt(i))) {</span>
-<span class="fc" id="L512">        chs[count++] = str.charAt(i);</span>
-      }
-    }
-<span class="pc bpc" id="L515" title="1 of 2 branches missed.">    if (count == sz) {</span>
+<span class="pc bpc" id="L515" title="1 of 2 branches missed.">    if (org.apache.commons.lang3.StringUtils.isEmpty(str)) {</span>
 <span class="nc" id="L516">      return str;</span>
     }
-<span class="fc" id="L518">    return new String(chs, 0, count);</span>
+<span class="fc" id="L518">    final int sz = str.length();</span>
+<span class="fc" id="L519">    final char[] chs = new char[sz];</span>
+<span class="fc" id="L520">    int count = 0;</span>
+<span class="fc bfc" id="L521" title="All 2 branches covered.">    for (int i = 0; i &lt; sz; i++) {</span>
+<span class="fc bfc" id="L522" title="All 2 branches covered.">      if (org.apache.commons.lang3.StringUtils.containsNone(WHITESPACES_LIST, str.charAt(i))) {</span>
+<span class="fc" id="L523">        chs[count++] = str.charAt(i);</span>
+      }
+    }
+<span class="pc bpc" id="L526" title="1 of 2 branches missed.">    if (count == sz) {</span>
+<span class="nc" id="L527">      return str;</span>
+    }
+<span class="fc" id="L529">    return new String(chs, 0, count);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

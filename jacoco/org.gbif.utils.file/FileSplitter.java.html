@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileSplitter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file</a> &gt; <span class="el_source">FileSplitter.java</span></div><h1>FileSplitter.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,38 +34,39 @@ import org.slf4j.LoggerFactory;
  */
 public class FileSplitter {
 
-<span class="nc" id="L39">  private static final Logger LOG = LoggerFactory.getLogger(FileSplitter.class);</span>
+<span class="nc" id="L37">  private static final Logger LOG = LoggerFactory.getLogger(FileSplitter.class);</span>
   public static final String SEPARATOR = &quot;_&quot;;
   public static final int READ_AHEAD_BYTES = 256;
 
-  // for the file, gives the Byte markers for reading lines, such that the lines read will approximately
+  // for the file, gives the Byte markers for reading lines, such that the lines read will
+  // approximately
   // equate be the chunk size (slightly more as it reads to the end of the row)
   public static List&lt;Long&gt; scanToChunk(File from, long chunkSizeBytes) throws IOException {
-<span class="nc" id="L46">    List&lt;Long&gt; chunkBytes = new ArrayList&lt;Long&gt;();</span>
-<span class="nc" id="L47">    FileInputStream fis = new FileInputStream(from);</span>
-<span class="nc" id="L48">    FileChannel fcin = fis.getChannel();</span>
+<span class="nc" id="L45">    List&lt;Long&gt; chunkBytes = new ArrayList&lt;Long&gt;();</span>
+<span class="nc" id="L46">    FileInputStream fis = new FileInputStream(from);</span>
+<span class="nc" id="L47">    FileChannel fcin = fis.getChannel();</span>
 
-<span class="nc" id="L50">    long byteCount = chunkSizeBytes;</span>
+<span class="nc" id="L49">    long byteCount = chunkSizeBytes;</span>
 
     // now we need to read and transfer to the end of the line...
-<span class="nc" id="L53">    ByteBuffer bb = ByteBuffer.allocate(READ_AHEAD_BYTES);</span>
+<span class="nc" id="L52">    ByteBuffer bb = ByteBuffer.allocate(READ_AHEAD_BYTES);</span>
 
-<span class="nc bnc" id="L55" title="All 2 branches missed.">    while (byteCount &lt; fcin.size()) {</span>
-<span class="nc" id="L56">      fcin.read(bb, byteCount);</span>
-<span class="nc" id="L57">      int i = 0;</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">      for (i = 0; i &lt; bb.limit(); i++) {</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if ((char) bb.get(i) == '\n') {</span>
-<span class="nc" id="L60">          i++;</span>
-<span class="nc" id="L61">          break;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">    while (byteCount &lt; fcin.size()) {</span>
+<span class="nc" id="L55">      fcin.read(bb, byteCount);</span>
+<span class="nc" id="L56">      int i = 0;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">      for (i = 0; i &lt; bb.limit(); i++) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if ((char) bb.get(i) == '\n') {</span>
+<span class="nc" id="L59">          i++;</span>
+<span class="nc" id="L60">          break;</span>
         }
       }
       // bb.rewind();
-<span class="nc" id="L65">      chunkBytes.add(i + byteCount);</span>
-<span class="nc" id="L66">      byteCount += chunkSizeBytes;</span>
-<span class="nc" id="L67">    }</span>
-<span class="nc" id="L68">    fcin.close();</span>
-<span class="nc" id="L69">    fis.close();</span>
-<span class="nc" id="L70">    return chunkBytes;</span>
+<span class="nc" id="L64">      chunkBytes.add(i + byteCount);</span>
+<span class="nc" id="L65">      byteCount += chunkSizeBytes;</span>
+<span class="nc" id="L66">    }</span>
+<span class="nc" id="L67">    fcin.close();</span>
+<span class="nc" id="L68">    fis.close();</span>
+<span class="nc" id="L69">    return chunkBytes;</span>
   }
 
   /**
@@ -77,28 +76,29 @@ public class FileSplitter {
    * - pumaConcolor_part_2.txt
    * Returns the files parts
    */
-  public static List&lt;File&gt; split(File from, File targetDirectory, String suffix, long chunkSizeBytes)
-    throws IOException {
-<span class="nc" id="L82">    List&lt;File&gt; files = new ArrayList&lt;File&gt;();</span>
-<span class="nc" id="L83">    FileInputStream fis = new FileInputStream(from);</span>
-<span class="nc" id="L84">    FileChannel fcin = fis.getChannel();</span>
+  public static List&lt;File&gt; split(
+      File from, File targetDirectory, String suffix, long chunkSizeBytes) throws IOException {
+<span class="nc" id="L81">    List&lt;File&gt; files = new ArrayList&lt;File&gt;();</span>
+<span class="nc" id="L82">    FileInputStream fis = new FileInputStream(from);</span>
+<span class="nc" id="L83">    FileChannel fcin = fis.getChannel();</span>
 
-<span class="nc" id="L86">    String filePartNamePrefix = &quot;&quot;;</span>
-<span class="nc" id="L87">    String filePartNameSuffix = &quot;&quot;;</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">    if (from.getName().contains(&quot;.&quot;)) {</span>
-<span class="nc" id="L89">      filePartNamePrefix = from.getName().substring(0, from.getName().indexOf(&quot;.&quot;));</span>
-<span class="nc" id="L90">      filePartNameSuffix = from.getName().substring(from.getName().indexOf(&quot;.&quot;));</span>
+<span class="nc" id="L85">    String filePartNamePrefix = &quot;&quot;;</span>
+<span class="nc" id="L86">    String filePartNameSuffix = &quot;&quot;;</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (from.getName().contains(&quot;.&quot;)) {</span>
+<span class="nc" id="L88">      filePartNamePrefix = from.getName().substring(0, from.getName().indexOf(&quot;.&quot;));</span>
+<span class="nc" id="L89">      filePartNameSuffix = from.getName().substring(from.getName().indexOf(&quot;.&quot;));</span>
     } else {
-<span class="nc" id="L92">      filePartNamePrefix = from.getName();</span>
+<span class="nc" id="L91">      filePartNamePrefix = from.getName();</span>
     }
 
-<span class="nc" id="L95">    long byteCount = 0;</span>
-<span class="nc" id="L96">    int filePartCount = 0;</span>
+<span class="nc" id="L94">    long byteCount = 0;</span>
+<span class="nc" id="L95">    int filePartCount = 0;</span>
 
-<span class="nc bnc" id="L98" title="All 2 branches missed.">    while (byteCount &lt; fcin.size()) {</span>
-<span class="nc" id="L99">      long time = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">    while (byteCount &lt; fcin.size()) {</span>
+<span class="nc" id="L98">      long time = System.currentTimeMillis();</span>
       // create the output file
-<span class="nc" id="L101">      String fileName = filePartNamePrefix + SEPARATOR + suffix + SEPARATOR + filePartCount + filePartNameSuffix;</span>
+<span class="nc" id="L100">      String fileName =</span>
+          filePartNamePrefix + SEPARATOR + suffix + SEPARATOR + filePartCount + filePartNameSuffix;
 <span class="nc" id="L102">      File to = new File(targetDirectory, fileName);</span>
 <span class="nc" id="L103">      files.add(to);</span>
 
@@ -126,8 +126,13 @@ public class FileSplitter {
 <span class="nc" id="L126">      fcout.close();</span>
 <span class="nc" id="L127">      fos.close();</span>
 <span class="nc" id="L128">      filePartCount++;</span>
-<span class="nc" id="L129">      LOG.debug(&quot;Filepart[&quot; + fileName + &quot;] created in &quot; + (1 + System.currentTimeMillis() - time) / 1000 + &quot; secs&quot;);</span>
-<span class="nc" id="L130">    }</span>
+<span class="nc" id="L129">      LOG.debug(</span>
+          &quot;Filepart[&quot;
+              + fileName
+              + &quot;] created in &quot;
+<span class="nc" id="L133">              + (1 + System.currentTimeMillis() - time) / 1000</span>
+              + &quot; secs&quot;);
+<span class="nc" id="L135">    }</span>
 
     // TODO - have tested but need to test thoroughly...
     // what if the file was smaller than 32 meg?
@@ -135,14 +140,13 @@ public class FileSplitter {
     // did the joins line up properly?
     // what if the read ahead line did not get to the end of the line?
 
-<span class="nc" id="L138">    fcin.close();</span>
-<span class="nc" id="L139">    fis.close();</span>
-<span class="nc" id="L140">    return files;</span>
+<span class="nc" id="L143">    fcin.close();</span>
+<span class="nc" id="L144">    fis.close();</span>
+<span class="nc" id="L145">    return files;</span>
   }
 
-<span class="nc" id="L143">  private FileSplitter() {</span>
-<span class="nc" id="L144">    throw new UnsupportedOperationException(&quot;Can't initialize class&quot;);</span>
+<span class="nc" id="L148">  private FileSplitter() {</span>
+<span class="nc" id="L149">    throw new UnsupportedOperationException(&quot;Can't initialize class&quot;);</span>
   }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

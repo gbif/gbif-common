@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExecutorUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.concurrent</a> &gt; <span class="el_source">ExecutorUtils.java</span></div><h1>ExecutorUtils.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,16 +22,16 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-<span class="nc" id="L27">public class ExecutorUtils {</span>
-<span class="fc" id="L28">  private static final Logger LOG = LoggerFactory.getLogger(ExecutorUtils.class);</span>
+<span class="nc" id="L25">public class ExecutorUtils {</span>
+<span class="fc" id="L26">  private static final Logger LOG = LoggerFactory.getLogger(ExecutorUtils.class);</span>
 
   /**
    * Shuts down an executor and waits up to 1 hour for the already submitted jobs to finish.
    * @param exec
    */
   public static void stop(ExecutorService exec) {
-<span class="nc" id="L35">    stop(exec, 1, TimeUnit.HOURS);</span>
-<span class="nc" id="L36">  }</span>
+<span class="nc" id="L33">    stop(exec, 1, TimeUnit.HOURS);</span>
+<span class="nc" id="L34">  }</span>
 
   /**
    * Shuts down an executor and waits for the job to finish until the given timeout is reached
@@ -43,19 +41,19 @@ import org.slf4j.LoggerFactory;
    * @param unit
    */
   public static void stop(ExecutorService exec, int timeout, TimeUnit unit) {
-<span class="fc" id="L46">    LOG.debug(&quot;Shutting down executor service {}&quot;, exec);</span>
-<span class="fc" id="L47">    exec.shutdown(); // Disable new tasks from being submitted</span>
+<span class="fc" id="L44">    LOG.debug(&quot;Shutting down executor service {}&quot;, exec);</span>
+<span class="fc" id="L45">    exec.shutdown(); // Disable new tasks from being submitted</span>
     try {
-<span class="fc bfc" id="L49" title="All 2 branches covered.">      if (!exec.awaitTermination(timeout, unit)) {</span>
-<span class="fc" id="L50">        LOG.warn(&quot;Forcing shut down of executor service, pending tasks will be lost! {}&quot;, exec);</span>
-<span class="fc" id="L51">        exec.shutdownNow();</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">      if (!exec.awaitTermination(timeout, unit)) {</span>
+<span class="fc" id="L48">        LOG.warn(&quot;Forcing shut down of executor service, pending tasks will be lost! {}&quot;, exec);</span>
+<span class="fc" id="L49">        exec.shutdownNow();</span>
       }
-<span class="nc" id="L53">    } catch (InterruptedException ie) {</span>
-<span class="nc" id="L54">      LOG.warn(&quot;Forcing shut down of executor service, pending tasks will be lost! {}&quot;, exec);</span>
-<span class="nc" id="L55">      exec.shutdownNow();</span>
+<span class="nc" id="L51">    } catch (InterruptedException ie) {</span>
+<span class="nc" id="L52">      LOG.warn(&quot;Forcing shut down of executor service, pending tasks will be lost! {}&quot;, exec);</span>
+<span class="nc" id="L53">      exec.shutdownNow();</span>
       // Preserve interrupt status
-<span class="nc" id="L57">      Thread.currentThread().interrupt();</span>
-<span class="fc" id="L58">    }</span>
-<span class="fc" id="L59">  }</span>
+<span class="nc" id="L55">      Thread.currentThread().interrupt();</span>
+<span class="fc" id="L56">    }</span>
+<span class="fc" id="L57">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

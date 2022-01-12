@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompactHashSet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.collection</a> &gt; <span class="el_source">CompactHashSet.java</span></div><h1>CompactHashSet.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,7 +36,7 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
   private class CompactHashIterator implements Iterator&lt;T&gt; {
 
     private int index;
-<span class="nc" id="L41">    private int lastReturned = -1;</span>
+<span class="nc" id="L39">    private int lastReturned = -1;</span>
 
     /**
      * The modCount value that the iterator believes that the backing
@@ -47,31 +45,33 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
      */
     private int expectedModCount;
 
-<span class="nc" id="L50">    CompactHashIterator() {</span>
-<span class="nc bnc" id="L51" title="All 6 branches missed.">      for (index = 0; index &lt; objects.length &amp;&amp; (objects[index] == null || objects[index] == deletedObject); index++) {</span>
-      }
-<span class="nc" id="L53">      expectedModCount = modCount;</span>
-<span class="nc" id="L54">    }</span>
+<span class="nc" id="L48">    CompactHashIterator() {</span>
+<span class="nc" id="L49">      for (index = 0;</span>
+<span class="nc bnc" id="L50" title="All 6 branches missed.">          index &lt; objects.length &amp;&amp; (objects[index] == null || objects[index] == deletedObject);</span>
+<span class="nc" id="L51">          index++) {}</span>
+<span class="nc" id="L52">      expectedModCount = modCount;</span>
+<span class="nc" id="L53">    }</span>
 
     @Override
     public boolean hasNext() {
-<span class="nc bnc" id="L58" title="All 2 branches missed.">      return index &lt; objects.length;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">      return index &lt; objects.length;</span>
     }
 
     @Override
     public T next() {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">      if (modCount != expectedModCount) {</span>
-<span class="nc" id="L64">        throw new ConcurrentModificationException();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">      if (modCount != expectedModCount) {</span>
+<span class="nc" id="L63">        throw new ConcurrentModificationException();</span>
       }
-<span class="nc" id="L66">      int length = objects.length;</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">      if (index &gt;= length) {</span>
-<span class="nc" id="L68">        lastReturned = -2;</span>
-<span class="nc" id="L69">        throw new NoSuchElementException();</span>
+<span class="nc" id="L65">      int length = objects.length;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">      if (index &gt;= length) {</span>
+<span class="nc" id="L67">        lastReturned = -2;</span>
+<span class="nc" id="L68">        throw new NoSuchElementException();</span>
       }
 
-<span class="nc" id="L72">      lastReturned = index;</span>
-<span class="nc bnc" id="L73" title="All 6 branches missed.">      for (index += 1; index &lt; length &amp;&amp; (objects[index] == null || objects[index] == deletedObject); index++) {</span>
-      }
+<span class="nc" id="L71">      lastReturned = index;</span>
+<span class="nc" id="L72">      for (index += 1;</span>
+<span class="nc bnc" id="L73" title="All 6 branches missed.">          index &lt; length &amp;&amp; (objects[index] == null || objects[index] == deletedObject);</span>
+<span class="nc" id="L74">          index++) {}</span>
 <span class="nc bnc" id="L75" title="All 2 branches missed.">      if (objects[lastReturned] == nullObject) {</span>
 <span class="nc" id="L76">        return null;</span>
       } else {
@@ -111,6 +111,7 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
    * delete an object in the collision chain.
    */
 <span class="nc" id="L113">  protected static final Object deletedObject = new Object();</span>
+
   protected int elements;
   protected int freecells;
   protected Object[] objects;
@@ -120,12 +121,12 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
   /**
    * Constructs a new, empty set.
    */
-<span class="nc" id="L123">  public CompactHashSet() {</span>
-<span class="nc" id="L124">    objects = new Object[INITIAL_SIZE];</span>
-<span class="nc" id="L125">    elements = 0;</span>
-<span class="nc" id="L126">    freecells = objects.length;</span>
-<span class="nc" id="L127">    modCount = 0;</span>
-<span class="nc" id="L128">  }</span>
+<span class="nc" id="L124">  public CompactHashSet() {</span>
+<span class="nc" id="L125">    objects = new Object[INITIAL_SIZE];</span>
+<span class="nc" id="L126">    elements = 0;</span>
+<span class="nc" id="L127">    freecells = objects.length;</span>
+<span class="nc" id="L128">    modCount = 0;</span>
+<span class="nc" id="L129">  }</span>
 
   /**
    * Constructs a new set containing the elements in the specified
@@ -134,23 +135,23 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
    * @param c the collection whose elements are to be placed into this set.
    */
   public CompactHashSet(Collection c) {
-<span class="nc" id="L137">    this(c.size());</span>
-<span class="nc" id="L138">    addAll(c);</span>
-<span class="nc" id="L139">  }</span>
+<span class="nc" id="L138">    this(c.size());</span>
+<span class="nc" id="L139">    addAll(c);</span>
+<span class="nc" id="L140">  }</span>
 
   // ===== SET IMPLEMENTATION =============================================
 
   /**
    * Constructs a new, empty set.
    */
-<span class="nc" id="L146">  public CompactHashSet(int size) {</span>
+<span class="nc" id="L147">  public CompactHashSet(int size) {</span>
     // NOTE: If array size is 0, we get a
     // &quot;java.lang.ArithmeticException: / by zero&quot; in add(Object).
-<span class="nc bnc" id="L149" title="All 2 branches missed.">    objects = new Object[size == 0 ? 1 : size];</span>
-<span class="nc" id="L150">    elements = 0;</span>
-<span class="nc" id="L151">    freecells = objects.length;</span>
-<span class="nc" id="L152">    modCount = 0;</span>
-<span class="nc" id="L153">  }</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">    objects = new Object[size == 0 ? 1 : size];</span>
+<span class="nc" id="L151">    elements = 0;</span>
+<span class="nc" id="L152">    freecells = objects.length;</span>
+<span class="nc" id="L153">    modCount = 0;</span>
+<span class="nc" id="L154">  }</span>
 
   /**
    * Adds the specified element to this set if it is not already
@@ -163,55 +164,56 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
    */
   @Override
   public boolean add(T x) {
-<span class="nc" id="L166">    Object o = x;</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">    if (o == null) {</span>
-<span class="nc" id="L168">      o = nullObject;</span>
+<span class="nc" id="L167">    Object o = x;</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">    if (o == null) {</span>
+<span class="nc" id="L169">      o = nullObject;</span>
     }
 
-<span class="nc" id="L171">    int hash = o.hashCode();</span>
-<span class="nc" id="L172">    int index = (hash &amp; 0x7FFFFFFF) % objects.length;</span>
-<span class="nc" id="L173">    int offset = 1;</span>
-<span class="nc" id="L174">    int deletedix = -1;</span>
+<span class="nc" id="L172">    int hash = o.hashCode();</span>
+<span class="nc" id="L173">    int index = (hash &amp; 0x7FFFFFFF) % objects.length;</span>
+<span class="nc" id="L174">    int offset = 1;</span>
+<span class="nc" id="L175">    int deletedix = -1;</span>
 
     // search for the object (continue while !null and !this object)
-<span class="nc bnc" id="L177" title="All 6 branches missed.">    while (objects[index] != null &amp;&amp; !(objects[index].hashCode() == hash &amp;&amp; objects[index].equals(o))) {</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">    while (objects[index] != null</span>
+<span class="nc bnc" id="L179" title="All 4 branches missed.">        &amp;&amp; !(objects[index].hashCode() == hash &amp;&amp; objects[index].equals(o))) {</span>
 
       // if there's a deleted object here we can put this object here,
       // provided it's not in here somewhere else already
-<span class="nc bnc" id="L181" title="All 2 branches missed.">      if (objects[index] == deletedObject) {</span>
-<span class="nc" id="L182">        deletedix = index;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">      if (objects[index] == deletedObject) {</span>
+<span class="nc" id="L184">        deletedix = index;</span>
       }
 
-<span class="nc" id="L185">      index = ((index + offset) &amp; 0x7FFFFFFF) % objects.length;</span>
-<span class="nc" id="L186">      offset = offset * 2 + 1;</span>
+<span class="nc" id="L187">      index = ((index + offset) &amp; 0x7FFFFFFF) % objects.length;</span>
+<span class="nc" id="L188">      offset = offset * 2 + 1;</span>
 
-<span class="nc bnc" id="L188" title="All 2 branches missed.">      if (offset == -1) {</span>
-<span class="nc" id="L189">        offset = 2;</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">      if (offset == -1) {</span>
+<span class="nc" id="L191">        offset = 2;</span>
       }
     }
 
-<span class="nc bnc" id="L193" title="All 2 branches missed.">    if (objects[index] == null) { // wasn't present already</span>
-<span class="nc bnc" id="L194" title="All 2 branches missed.">      if (deletedix != -1) {</span>
-<span class="nc" id="L195">        index = deletedix;</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">    if (objects[index] == null) { // wasn't present already</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">      if (deletedix != -1) {</span>
+<span class="nc" id="L197">        index = deletedix;</span>
       } else {
-<span class="nc" id="L197">        freecells--;</span>
+<span class="nc" id="L199">        freecells--;</span>
       }
 
-<span class="nc" id="L200">      modCount++;</span>
-<span class="nc" id="L201">      elements++;</span>
-<span class="nc" id="L202">      objects[index] = o;</span>
+<span class="nc" id="L202">      modCount++;</span>
+<span class="nc" id="L203">      elements++;</span>
+<span class="nc" id="L204">      objects[index] = o;</span>
 
       // rehash with same capacity
-<span class="nc bnc" id="L205" title="All 2 branches missed.">      if (1 - (freecells / (double) objects.length) &gt; LOAD_FACTOR) {</span>
-<span class="nc" id="L206">        rehash(objects.length);</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">      if (1 - (freecells / (double) objects.length) &gt; LOAD_FACTOR) {</span>
+<span class="nc" id="L208">        rehash(objects.length);</span>
         // rehash with increased capacity
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (1 - (freecells / (double) objects.length) &gt; LOAD_FACTOR) {</span>
-<span class="nc" id="L209">          rehash(objects.length * 2 + 1);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (1 - (freecells / (double) objects.length) &gt; LOAD_FACTOR) {</span>
+<span class="nc" id="L211">          rehash(objects.length * 2 + 1);</span>
         }
       }
-<span class="nc" id="L212">      return true;</span>
+<span class="nc" id="L214">      return true;</span>
     } else {
-<span class="nc" id="L214">      return false;</span>
+<span class="nc" id="L216">      return false;</span>
     }
   }
 
@@ -220,13 +222,13 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
    */
   @Override
   public void clear() {
-<span class="nc" id="L223">    elements = 0;</span>
-<span class="nc bnc" id="L224" title="All 2 branches missed.">    for (int ix = 0; ix &lt; objects.length; ix++) {</span>
-<span class="nc" id="L225">      objects[ix] = null;</span>
+<span class="nc" id="L225">    elements = 0;</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">    for (int ix = 0; ix &lt; objects.length; ix++) {</span>
+<span class="nc" id="L227">      objects[ix] = null;</span>
     }
-<span class="nc" id="L227">    freecells = objects.length;</span>
-<span class="nc" id="L228">    modCount++;</span>
-<span class="nc" id="L229">  }</span>
+<span class="nc" id="L229">    freecells = objects.length;</span>
+<span class="nc" id="L230">    modCount++;</span>
+<span class="nc" id="L231">  }</span>
 
   /**
    * Returns &lt;tt&gt;true&lt;/tt&gt; if this set contains the specified element.
@@ -237,46 +239,47 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
    */
   @Override
   public boolean contains(Object o) {
-<span class="nc bnc" id="L240" title="All 2 branches missed.">    if (o == null) {</span>
-<span class="nc" id="L241">      o = nullObject;</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">    if (o == null) {</span>
+<span class="nc" id="L243">      o = nullObject;</span>
     }
 
-<span class="nc" id="L244">    int hash = o.hashCode();</span>
-<span class="nc" id="L245">    int index = (hash &amp; 0x7FFFFFFF) % objects.length;</span>
-<span class="nc" id="L246">    int offset = 1;</span>
+<span class="nc" id="L246">    int hash = o.hashCode();</span>
+<span class="nc" id="L247">    int index = (hash &amp; 0x7FFFFFFF) % objects.length;</span>
+<span class="nc" id="L248">    int offset = 1;</span>
 
     // search for the object (continue while !null and !this object)
-<span class="nc bnc" id="L249" title="All 6 branches missed.">    while (objects[index] != null &amp;&amp; !(objects[index].hashCode() == hash &amp;&amp; objects[index].equals(o))) {</span>
-<span class="nc" id="L250">      index = ((index + offset) &amp; 0x7FFFFFFF) % objects.length;</span>
-<span class="nc" id="L251">      offset = offset * 2 + 1;</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">    while (objects[index] != null</span>
+<span class="nc bnc" id="L252" title="All 4 branches missed.">        &amp;&amp; !(objects[index].hashCode() == hash &amp;&amp; objects[index].equals(o))) {</span>
+<span class="nc" id="L253">      index = ((index + offset) &amp; 0x7FFFFFFF) % objects.length;</span>
+<span class="nc" id="L254">      offset = offset * 2 + 1;</span>
 
-<span class="nc bnc" id="L253" title="All 2 branches missed.">      if (offset == -1) {</span>
-<span class="nc" id="L254">        offset = 2;</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">      if (offset == -1) {</span>
+<span class="nc" id="L257">        offset = 2;</span>
       }
     }
 
-<span class="nc bnc" id="L258" title="All 2 branches missed.">    return objects[index] != null;</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">    return objects[index] != null;</span>
   }
 
   /**
    * INTERNAL: Used for debugging only.
    */
   public void dump() {
-<span class="nc" id="L265">    System.out.println(&quot;Size: &quot; + objects.length);</span>
-<span class="nc" id="L266">    System.out.println(&quot;Elements: &quot; + elements);</span>
-<span class="nc" id="L267">    System.out.println(&quot;Free cells: &quot; + freecells);</span>
-<span class="nc" id="L268">    System.out.println();</span>
-<span class="nc bnc" id="L269" title="All 2 branches missed.">    for (int ix = 0; ix &lt; objects.length; ix++) {</span>
-<span class="nc" id="L270">      System.out.println(&quot;[&quot; + ix + &quot;]: &quot; + objects[ix]);</span>
+<span class="nc" id="L268">    System.out.println(&quot;Size: &quot; + objects.length);</span>
+<span class="nc" id="L269">    System.out.println(&quot;Elements: &quot; + elements);</span>
+<span class="nc" id="L270">    System.out.println(&quot;Free cells: &quot; + freecells);</span>
+<span class="nc" id="L271">    System.out.println();</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">    for (int ix = 0; ix &lt; objects.length; ix++) {</span>
+<span class="nc" id="L273">      System.out.println(&quot;[&quot; + ix + &quot;]: &quot; + objects[ix]);</span>
     }
-<span class="nc" id="L272">  }</span>
+<span class="nc" id="L275">  }</span>
 
   /**
    * Returns &lt;tt&gt;true&lt;/tt&gt; if this set contains no elements.
    */
   @Override
   public boolean isEmpty() {
-<span class="nc bnc" id="L279" title="All 2 branches missed.">    return elements == 0;</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">    return elements == 0;</span>
   }
 
   /**
@@ -289,76 +292,77 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
    */
   @Override
   public Iterator iterator() {
-<span class="nc" id="L292">    return new CompactHashIterator();</span>
+<span class="nc" id="L295">    return new CompactHashIterator();</span>
   }
 
   /**
    * INTERNAL: Rehashes the hashset to a bigger size.
    */
   protected void rehash(int newCapacity) {
-<span class="nc" id="L299">    int oldCapacity = objects.length;</span>
-<span class="nc" id="L300">    Object[] newObjects = new Object[newCapacity];</span>
+<span class="nc" id="L302">    int oldCapacity = objects.length;</span>
+<span class="nc" id="L303">    Object[] newObjects = new Object[newCapacity];</span>
 
-<span class="nc bnc" id="L302" title="All 2 branches missed.">    for (int ix = 0; ix &lt; oldCapacity; ix++) {</span>
-<span class="nc" id="L303">      Object o = objects[ix];</span>
-<span class="nc bnc" id="L304" title="All 4 branches missed.">      if (o == null || o == deletedObject) {</span>
-<span class="nc" id="L305">        continue;</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">    for (int ix = 0; ix &lt; oldCapacity; ix++) {</span>
+<span class="nc" id="L306">      Object o = objects[ix];</span>
+<span class="nc bnc" id="L307" title="All 4 branches missed.">      if (o == null || o == deletedObject) {</span>
+<span class="nc" id="L308">        continue;</span>
       }
 
-<span class="nc" id="L308">      int hash = o.hashCode();</span>
-<span class="nc" id="L309">      int index = (hash &amp; 0x7FFFFFFF) % newCapacity;</span>
-<span class="nc" id="L310">      int offset = 1;</span>
+<span class="nc" id="L311">      int hash = o.hashCode();</span>
+<span class="nc" id="L312">      int index = (hash &amp; 0x7FFFFFFF) % newCapacity;</span>
+<span class="nc" id="L313">      int offset = 1;</span>
 
       // search for the object
-<span class="nc bnc" id="L313" title="All 2 branches missed.">      while (newObjects[index] != null) { // no need to test for duplicates</span>
-<span class="nc" id="L314">        index = ((index + offset) &amp; 0x7FFFFFFF) % newCapacity;</span>
-<span class="nc" id="L315">        offset = offset * 2 + 1;</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">      while (newObjects[index] != null) { // no need to test for duplicates</span>
+<span class="nc" id="L317">        index = ((index + offset) &amp; 0x7FFFFFFF) % newCapacity;</span>
+<span class="nc" id="L318">        offset = offset * 2 + 1;</span>
 
-<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (offset == -1) {</span>
-<span class="nc" id="L318">          offset = 2;</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        if (offset == -1) {</span>
+<span class="nc" id="L321">          offset = 2;</span>
         }
       }
 
-<span class="nc" id="L322">      newObjects[index] = o;</span>
+<span class="nc" id="L325">      newObjects[index] = o;</span>
     }
 
-<span class="nc" id="L325">    objects = newObjects;</span>
-<span class="nc" id="L326">    freecells = objects.length - elements;</span>
-<span class="nc" id="L327">  }</span>
+<span class="nc" id="L328">    objects = newObjects;</span>
+<span class="nc" id="L329">    freecells = objects.length - elements;</span>
+<span class="nc" id="L330">  }</span>
 
   /**
    * Removes the specified element from the set.
    */
   @Override
   public boolean remove(Object o) {
-<span class="nc bnc" id="L334" title="All 2 branches missed.">    if (o == null) {</span>
-<span class="nc" id="L335">      o = nullObject;</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">    if (o == null) {</span>
+<span class="nc" id="L338">      o = nullObject;</span>
     }
 
-<span class="nc" id="L338">    int hash = o.hashCode();</span>
-<span class="nc" id="L339">    int index = (hash &amp; 0x7FFFFFFF) % objects.length;</span>
-<span class="nc" id="L340">    int offset = 1;</span>
+<span class="nc" id="L341">    int hash = o.hashCode();</span>
+<span class="nc" id="L342">    int index = (hash &amp; 0x7FFFFFFF) % objects.length;</span>
+<span class="nc" id="L343">    int offset = 1;</span>
 
     // search for the object (continue while !null and !this object)
-<span class="nc bnc" id="L343" title="All 6 branches missed.">    while (objects[index] != null &amp;&amp; !(objects[index].hashCode() == hash &amp;&amp; objects[index].equals(o))) {</span>
-<span class="nc" id="L344">      index = ((index + offset) &amp; 0x7FFFFFFF) % objects.length;</span>
-<span class="nc" id="L345">      offset = offset * 2 + 1;</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">    while (objects[index] != null</span>
+<span class="nc bnc" id="L347" title="All 4 branches missed.">        &amp;&amp; !(objects[index].hashCode() == hash &amp;&amp; objects[index].equals(o))) {</span>
+<span class="nc" id="L348">      index = ((index + offset) &amp; 0x7FFFFFFF) % objects.length;</span>
+<span class="nc" id="L349">      offset = offset * 2 + 1;</span>
 
-<span class="nc bnc" id="L347" title="All 2 branches missed.">      if (offset == -1) {</span>
-<span class="nc" id="L348">        offset = 2;</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">      if (offset == -1) {</span>
+<span class="nc" id="L352">        offset = 2;</span>
       }
     }
 
     // we found the right position, now do the removal
-<span class="nc bnc" id="L353" title="All 2 branches missed.">    if (objects[index] != null) {</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">    if (objects[index] != null) {</span>
       // we found the object
-<span class="nc" id="L355">      objects[index] = deletedObject;</span>
-<span class="nc" id="L356">      modCount++;</span>
-<span class="nc" id="L357">      elements--;</span>
-<span class="nc" id="L358">      return true;</span>
+<span class="nc" id="L359">      objects[index] = deletedObject;</span>
+<span class="nc" id="L360">      modCount++;</span>
+<span class="nc" id="L361">      elements--;</span>
+<span class="nc" id="L362">      return true;</span>
     } else {
       // we did not find the object
-<span class="nc" id="L361">      return false;</span>
+<span class="nc" id="L365">      return false;</span>
     }
   }
 
@@ -369,39 +373,38 @@ public class CompactHashSet&lt;T&gt; extends AbstractSet&lt;T&gt; {
    */
   @Override
   public int size() {
-<span class="nc" id="L372">    return elements;</span>
+<span class="nc" id="L376">    return elements;</span>
   }
 
   @Override
   public Object[] toArray() {
-<span class="nc" id="L377">    Object[] result = new Object[elements];</span>
-<span class="nc" id="L378">    Object[] objects = this.objects;</span>
-<span class="nc" id="L379">    int pos = 0;</span>
-<span class="nc bnc" id="L380" title="All 2 branches missed.">    for (Object object : objects) {</span>
-<span class="nc bnc" id="L381" title="All 4 branches missed.">      if (object != null &amp;&amp; object != deletedObject) {</span>
-<span class="nc bnc" id="L382" title="All 2 branches missed.">        result[pos++] = object == nullObject ? null : object;</span>
+<span class="nc" id="L381">    Object[] result = new Object[elements];</span>
+<span class="nc" id="L382">    Object[] objects = this.objects;</span>
+<span class="nc" id="L383">    int pos = 0;</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">    for (Object object : objects) {</span>
+<span class="nc bnc" id="L385" title="All 4 branches missed.">      if (object != null &amp;&amp; object != deletedObject) {</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        result[pos++] = object == nullObject ? null : object;</span>
       }
     }
-<span class="nc" id="L385">    return result;</span>
+<span class="nc" id="L389">    return result;</span>
   }
 
   // ===== ITERATOR IMPLEMENTATON =========================================
 
   @Override
   public Object[] toArray(Object[] a) {
-<span class="nc" id="L392">    int size = elements;</span>
-<span class="nc bnc" id="L393" title="All 2 branches missed.">    if (a.length &lt; size) {</span>
-<span class="nc" id="L394">      a = (Object[]) Array.newInstance(a.getClass().getComponentType(), size);</span>
+<span class="nc" id="L396">    int size = elements;</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">    if (a.length &lt; size) {</span>
+<span class="nc" id="L398">      a = (Object[]) Array.newInstance(a.getClass().getComponentType(), size);</span>
     }
-<span class="nc" id="L396">    Object[] objects = this.objects;</span>
-<span class="nc" id="L397">    int pos = 0;</span>
-<span class="nc bnc" id="L398" title="All 2 branches missed.">    for (Object object : objects) {</span>
-<span class="nc bnc" id="L399" title="All 4 branches missed.">      if (object != null &amp;&amp; object != deletedObject) {</span>
-<span class="nc bnc" id="L400" title="All 2 branches missed.">        a[pos++] = object == nullObject ? null : object;</span>
+<span class="nc" id="L400">    Object[] objects = this.objects;</span>
+<span class="nc" id="L401">    int pos = 0;</span>
+<span class="nc bnc" id="L402" title="All 2 branches missed.">    for (Object object : objects) {</span>
+<span class="nc bnc" id="L403" title="All 4 branches missed.">      if (object != null &amp;&amp; object != deletedObject) {</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        a[pos++] = object == nullObject ? null : object;</span>
       }
     }
-<span class="nc" id="L403">    return a;</span>
+<span class="nc" id="L407">    return a;</span>
   }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

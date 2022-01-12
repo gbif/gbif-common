@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CSVReaderFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">GBIF Common</a> &gt; <a href="index.source.html" class="el_package">org.gbif.utils.file.csv</a> &gt; <span class="el_source">CSVReaderFactory.java</span></div><h1>CSVReaderFactory.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,34 +30,34 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-<span class="nc" id="L35">public class CSVReaderFactory {</span>
+<span class="nc" id="L33">public class CSVReaderFactory {</span>
 
-<span class="fc" id="L37">  private static final Logger LOG = LoggerFactory.getLogger(CSVReaderFactory.class);</span>
-<span class="fc" id="L38">  private static final String[] POTENTIAL_DELIMITERS = {&quot;,&quot;, &quot;\t&quot;, &quot;;&quot;, &quot;|&quot;};</span>
+<span class="fc" id="L35">  private static final Logger LOG = LoggerFactory.getLogger(CSVReaderFactory.class);</span>
+<span class="fc" id="L36">  private static final String[] POTENTIAL_DELIMITERS = {&quot;,&quot;, &quot;\t&quot;, &quot;;&quot;, &quot;|&quot;};</span>
   private static final int ROWS_TO_INSPECT = 10;
 
   /**
    * Data about the CSV file
    */
-<span class="fc" id="L44">  public static class CSVMetadata {</span>
+<span class="fc" id="L42">  public static class CSVMetadata {</span>
     String delimiter;
     Character quotedBy;
 
     public String getDelimiter() {
-<span class="fc" id="L49">      return delimiter;</span>
+<span class="fc" id="L47">      return delimiter;</span>
     }
 
     public void setDelimiter(String delimiter) {
-<span class="fc" id="L53">      this.delimiter = delimiter;</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L51">      this.delimiter = delimiter;</span>
+<span class="fc" id="L52">    }</span>
 
     public Character getQuotedBy() {
-<span class="fc" id="L57">      return quotedBy;</span>
+<span class="fc" id="L55">      return quotedBy;</span>
     }
 
     public void setQuotedBy(Character quotedBy) {
-<span class="fc" id="L61">      this.quotedBy = quotedBy;</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L59">      this.quotedBy = quotedBy;</span>
+<span class="fc" id="L60">    }</span>
   }
 
   /**
@@ -72,7 +70,7 @@ import org.slf4j.LoggerFactory;
    * @throws IOException
    */
   public static CSVReader build(File source, String delimiter, boolean header) throws IOException {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">    return new CSVReader(source, detectEncoding(source), delimiter, null, header ? 1 : 0);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    return new CSVReader(source, detectEncoding(source), delimiter, null, header ? 1 : 0);</span>
   }
 
   /**
@@ -86,9 +84,10 @@ import org.slf4j.LoggerFactory;
    * @return
    * @throws IOException
    */
-  public static CSVReader build(File source, String encoding, String delimiter, Character quotes, Integer headerRows)
-          throws IOException {
-<span class="fc" id="L91">    return new CSVReader(source, encoding, delimiter, quotes, headerRows);</span>
+  public static CSVReader build(
+      File source, String encoding, String delimiter, Character quotes, Integer headerRows)
+      throws IOException {
+<span class="fc" id="L90">    return new CSVReader(source, encoding, delimiter, quotes, headerRows);</span>
   }
 
   /**
@@ -101,7 +100,8 @@ import org.slf4j.LoggerFactory;
    * @return
    * @throws IOException
    */
-  public static CSVReader build(File source, String encoding, String delimiter, Integer headerRows) throws IOException {
+  public static CSVReader build(File source, String encoding, String delimiter, Integer headerRows)
+      throws IOException {
 <span class="nc" id="L105">    return new CSVReader(source, encoding, delimiter, '&quot;', headerRows);</span>
   }
 
@@ -116,9 +116,10 @@ import org.slf4j.LoggerFactory;
    * @return
    * @throws IOException
    */
-  public static CSVReader build(InputStream stream, String encoding, String delimiter, Character quotes,
-                                Integer headerRows) throws IOException {
-<span class="nc" id="L121">    return new CSVReader(stream, encoding, delimiter, quotes, headerRows);</span>
+  public static CSVReader build(
+      InputStream stream, String encoding, String delimiter, Character quotes, Integer headerRows)
+      throws IOException {
+<span class="nc" id="L122">    return new CSVReader(stream, encoding, delimiter, quotes, headerRows);</span>
   }
 
   /**
@@ -130,9 +131,10 @@ import org.slf4j.LoggerFactory;
    * @throws IOException
    */
   public static CSVReader build(File source, Integer headerRows) throws IOException {
-<span class="fc" id="L133">    String encoding = detectEncoding(source);</span>
-<span class="fc" id="L134">    CSVMetadata csvMeta  = extractCsvMetadata(source, encoding);</span>
-<span class="fc" id="L135">    return new CSVReader(source, encoding, csvMeta.getDelimiter(), csvMeta.getQuotedBy(), headerRows);</span>
+<span class="fc" id="L134">    String encoding = detectEncoding(source);</span>
+<span class="fc" id="L135">    CSVMetadata csvMeta = extractCsvMetadata(source, encoding);</span>
+<span class="fc" id="L136">    return new CSVReader(</span>
+<span class="fc" id="L137">        source, encoding, csvMeta.getDelimiter(), csvMeta.getQuotedBy(), headerRows);</span>
   }
 
   /**
@@ -143,15 +145,16 @@ import org.slf4j.LoggerFactory;
    * @throws IOException
    */
   public static CSVReader build(File source) throws IOException {
-<span class="fc" id="L146">    return build(source, 1);</span>
+<span class="fc" id="L148">    return build(source, 1);</span>
   }
 
-  public static CSVReader buildTabReader(InputStream stream, String encoding, Integer headerRows) throws IOException {
-<span class="nc" id="L150">    return new CSVReader(stream, encoding, &quot;\t&quot;, null, headerRows);</span>
+  public static CSVReader buildTabReader(InputStream stream, String encoding, Integer headerRows)
+      throws IOException {
+<span class="nc" id="L153">    return new CSVReader(stream, encoding, &quot;\t&quot;, null, headerRows);</span>
   }
 
   public static CSVReader buildUtf8TabReader(InputStream stream) throws IOException {
-<span class="nc" id="L154">    return buildTabReader(stream, &quot;utf8&quot;, 0);</span>
+<span class="nc" id="L157">    return buildTabReader(stream, &quot;utf8&quot;, 0);</span>
   }
 
   /**
@@ -165,60 +168,62 @@ import org.slf4j.LoggerFactory;
    * @return
    * @throws UnknownDelimitersException
    */
-  public static CSVMetadata extractCsvMetadata(File source, String encoding) throws UnknownDelimitersException {
-<span class="fc" id="L169">    CSVMetadata csvMetadata = new CSVMetadata();</span>
+  public static CSVMetadata extractCsvMetadata(File source, String encoding)
+      throws UnknownDelimitersException {
+<span class="fc" id="L173">    CSVMetadata csvMetadata = new CSVMetadata();</span>
     // try csv, tab and then other popular delimiters
     // keep number of resulting columns for comparisons
-<span class="fc" id="L172">    int maxColumns = 0;</span>
+<span class="fc" id="L176">    int maxColumns = 0;</span>
 
-<span class="fc bfc" id="L174" title="All 2 branches covered.">    for (String delim : POTENTIAL_DELIMITERS) {</span>
-      // test with various quotes including a dynamic one if the first char in each field is consistently the same
-<span class="fc" id="L176">      List&lt;Character&gt; potentialQuotes = new ArrayList&lt;Character&gt;();</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">    for (String delim : POTENTIAL_DELIMITERS) {</span>
+      // test with various quotes including a dynamic one if the first char in each field is
+      // consistently the same
+<span class="fc" id="L181">      List&lt;Character&gt; potentialQuotes = new ArrayList&lt;Character&gt;();</span>
 
       CSVReader reader;
       try {
-<span class="fc" id="L180">        reader = build(source, encoding, delim, null, 1);</span>
-<span class="fc" id="L181">        Character firstChar = likelyQuoteChar(reader);</span>
-<span class="fc" id="L182">        reader.close();</span>
-<span class="fc bfc" id="L183" title="All 2 branches covered.">        if (firstChar != null) {</span>
-<span class="fc" id="L184">          potentialQuotes.add(firstChar);</span>
+<span class="fc" id="L185">        reader = build(source, encoding, delim, null, 1);</span>
+<span class="fc" id="L186">        Character firstChar = likelyQuoteChar(reader);</span>
+<span class="fc" id="L187">        reader.close();</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        if (firstChar != null) {</span>
+<span class="fc" id="L189">          potentialQuotes.add(firstChar);</span>
         }
-<span class="nc" id="L186">      } catch (IOException ignored) {</span>
-<span class="fc" id="L187">      }</span>
+<span class="nc" id="L191">      } catch (IOException ignored) {</span>
+<span class="fc" id="L192">      }</span>
       // prefer quotes for CSVs
-<span class="fc bfc" id="L189" title="All 2 branches covered.">      if (delim.equals(&quot;,&quot;)) {</span>
-<span class="fc" id="L190">        potentialQuotes.add('&quot;');</span>
-<span class="fc" id="L191">        potentialQuotes.add('\'');</span>
-<span class="fc" id="L192">        potentialQuotes.add(null);</span>
-      } else {
-<span class="fc" id="L194">        potentialQuotes.add(null);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">      if (delim.equals(&quot;,&quot;)) {</span>
 <span class="fc" id="L195">        potentialQuotes.add('&quot;');</span>
 <span class="fc" id="L196">        potentialQuotes.add('\'');</span>
+<span class="fc" id="L197">        potentialQuotes.add(null);</span>
+      } else {
+<span class="fc" id="L199">        potentialQuotes.add(null);</span>
+<span class="fc" id="L200">        potentialQuotes.add('&quot;');</span>
+<span class="fc" id="L201">        potentialQuotes.add('\'');</span>
       }
 
-<span class="fc bfc" id="L199" title="All 2 branches covered.">      for (Character quote : potentialQuotes) {</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">      for (Character quote : potentialQuotes) {</span>
         try {
-<span class="fc" id="L201">          reader = build(source, encoding, delim, quote, 0);</span>
-<span class="fc" id="L202">          int x = consistentRowSize(reader);</span>
+<span class="fc" id="L206">          reader = build(source, encoding, delim, quote, 0);</span>
+<span class="fc" id="L207">          int x = consistentRowSize(reader);</span>
           // try to find the delimiter and quote that will give us the maximum number of rows
-<span class="fc bfc" id="L204" title="All 2 branches covered.">          if (x &gt; maxColumns) {</span>
-<span class="fc" id="L205">            csvMetadata.setDelimiter(delim);</span>
-<span class="fc" id="L206">            csvMetadata.setQuotedBy(quote);</span>
-<span class="fc" id="L207">            maxColumns = x;</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">          if (x &gt; maxColumns) {</span>
+<span class="fc" id="L210">            csvMetadata.setDelimiter(delim);</span>
+<span class="fc" id="L211">            csvMetadata.setQuotedBy(quote);</span>
+<span class="fc" id="L212">            maxColumns = x;</span>
           }
-<span class="fc" id="L209">          reader.close();</span>
-<span class="nc" id="L210">        } catch (IOException ignored) {</span>
+<span class="fc" id="L214">          reader.close();</span>
+<span class="nc" id="L215">        } catch (IOException ignored) {</span>
           // swallow, maybe different delimiters work
           // if all fail we will throw an exception at the end
-<span class="fc" id="L213">        }</span>
-<span class="fc" id="L214">      }</span>
+<span class="fc" id="L218">        }</span>
+<span class="fc" id="L219">      }</span>
     }
 
-<span class="pc bpc" id="L217" title="1 of 2 branches missed.">    if (maxColumns &lt; 1) {</span>
-<span class="nc" id="L218">      throw new UnknownDelimitersException(&quot;Unable to detect field delimiter&quot;);</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">    if (maxColumns &lt; 1) {</span>
+<span class="nc" id="L223">      throw new UnknownDelimitersException(&quot;Unable to detect field delimiter&quot;);</span>
     }
 
-<span class="fc" id="L221">    return csvMetadata;</span>
+<span class="fc" id="L226">    return csvMetadata;</span>
   }
 
   /**
@@ -226,39 +231,39 @@ import org.slf4j.LoggerFactory;
    * differ by 1 at max.
    */
   private static int consistentRowSize(CSVReader reader) {
-<span class="fc" id="L229">    int rowNum = 0;</span>
-<span class="fc" id="L230">    int columns = 0;</span>
-<span class="fc" id="L231">    boolean plusMinusOne = false;</span>
-<span class="fc bfc" id="L232" title="All 4 branches covered.">    while (reader.hasNext() &amp;&amp; rowNum &lt; ROWS_TO_INSPECT) {</span>
-<span class="fc" id="L233">      String[] row = reader.next();</span>
-<span class="fc bfc" id="L234" title="All 2 branches covered.">      if (rowNum == 0) {</span>
-<span class="fc" id="L235">        columns = row.length;</span>
+<span class="fc" id="L234">    int rowNum = 0;</span>
+<span class="fc" id="L235">    int columns = 0;</span>
+<span class="fc" id="L236">    boolean plusMinusOne = false;</span>
+<span class="fc bfc" id="L237" title="All 4 branches covered.">    while (reader.hasNext() &amp;&amp; rowNum &lt; ROWS_TO_INSPECT) {</span>
+<span class="fc" id="L238">      String[] row = reader.next();</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">      if (rowNum == 0) {</span>
+<span class="fc" id="L240">        columns = row.length;</span>
       }
-<span class="fc bfc" id="L237" title="All 2 branches covered.">      if (Math.abs(columns - row.length) &gt; 1) {</span>
-<span class="fc" id="L238">        return -1;</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">      if (Math.abs(columns - row.length) &gt; 1) {</span>
+<span class="fc" id="L243">        return -1;</span>
       }
-<span class="fc bfc" id="L240" title="All 2 branches covered.">      if (columns != row.length) {</span>
-<span class="fc" id="L241">        plusMinusOne = true;</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">      if (columns != row.length) {</span>
+<span class="fc" id="L246">        plusMinusOne = true;</span>
       }
-<span class="fc" id="L243">      rowNum++;</span>
-<span class="fc" id="L244">    }</span>
-<span class="fc bfc" id="L245" title="All 2 branches covered.">    if (plusMinusOne) {</span>
-<span class="fc" id="L246">      return columns - 2;</span>
+<span class="fc" id="L248">      rowNum++;</span>
+<span class="fc" id="L249">    }</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">    if (plusMinusOne) {</span>
+<span class="fc" id="L251">      return columns - 2;</span>
     }
-<span class="fc" id="L248">    return columns;</span>
+<span class="fc" id="L253">    return columns;</span>
   }
 
   private static String detectEncoding(File source) throws UnknownCharsetException {
     Charset encoding;
     try {
-<span class="fc" id="L254">      encoding = CharsetDetection.detectEncoding(source, 16384);</span>
-<span class="pc bpc" id="L255" title="1 of 2 branches missed.">      if (encoding == null) {</span>
-<span class="nc" id="L256">        throw new UnknownCharsetException(&quot;Unable to detect the files character encoding&quot;);</span>
+<span class="fc" id="L259">      encoding = CharsetDetection.detectEncoding(source, 16384);</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">      if (encoding == null) {</span>
+<span class="nc" id="L261">        throw new UnknownCharsetException(&quot;Unable to detect the files character encoding&quot;);</span>
       }
-<span class="nc" id="L258">    } catch (IOException e) {</span>
-<span class="nc" id="L259">      throw new UnknownCharsetException(e);</span>
-<span class="fc" id="L260">    }</span>
-<span class="fc" id="L261">    return encoding.displayName();</span>
+<span class="nc" id="L263">    } catch (IOException e) {</span>
+<span class="nc" id="L264">      throw new UnknownCharsetException(e);</span>
+<span class="fc" id="L265">    }</span>
+<span class="fc" id="L266">    return encoding.displayName();</span>
   }
 
   /**
@@ -267,36 +272,35 @@ import org.slf4j.LoggerFactory;
    * @return the first character if consistent, otherwise null
    */
   private static Character likelyQuoteChar(CSVReader reader) {
-<span class="fc" id="L270">    Character quote = null;</span>
-<span class="fc" id="L271">    int line = 0;</span>
-<span class="fc bfc" id="L272" title="All 4 branches covered.">    while (reader.hasNext() &amp;&amp; line &lt; 10) {</span>
-<span class="fc" id="L273">      line++;</span>
-<span class="fc" id="L274">      String[] row = reader.next();</span>
-<span class="pc bpc" id="L275" title="1 of 2 branches missed.">      if (row != null) {</span>
-<span class="fc bfc" id="L276" title="All 2 branches covered.">        for (String col : row) {</span>
-<span class="pc bpc" id="L277" title="1 of 4 branches missed.">          if (col != null &amp;&amp; col.length() &gt; 0) {</span>
+<span class="fc" id="L275">    Character quote = null;</span>
+<span class="fc" id="L276">    int line = 0;</span>
+<span class="fc bfc" id="L277" title="All 4 branches covered.">    while (reader.hasNext() &amp;&amp; line &lt; 10) {</span>
+<span class="fc" id="L278">      line++;</span>
+<span class="fc" id="L279">      String[] row = reader.next();</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">      if (row != null) {</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">        for (String col : row) {</span>
+<span class="pc bpc" id="L282" title="1 of 4 branches missed.">          if (col != null &amp;&amp; col.length() &gt; 0) {</span>
             // same char at start &amp; end?
-<span class="fc bfc" id="L279" title="All 4 branches covered.">            if (col.length() &gt; 1 &amp;&amp; col.charAt(0) == col.charAt(col.length() - 1)) {</span>
+<span class="fc bfc" id="L284" title="All 4 branches covered.">            if (col.length() &gt; 1 &amp;&amp; col.charAt(0) == col.charAt(col.length() - 1)) {</span>
               // only consider non alphanumerics
-<span class="fc" id="L281">              char potQuote = col.charAt(0);</span>
-<span class="fc bfc" id="L282" title="All 2 branches covered.">              if (Character.isLetterOrDigit(potQuote)) {</span>
-<span class="fc" id="L283">                break;</span>
+<span class="fc" id="L286">              char potQuote = col.charAt(0);</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">              if (Character.isLetterOrDigit(potQuote)) {</span>
+<span class="fc" id="L288">                break;</span>
               }
-<span class="fc bfc" id="L285" title="All 2 branches covered.">              if (quote == null) {</span>
-<span class="fc" id="L286">                quote = potQuote;</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">              if (quote == null) {</span>
+<span class="fc" id="L291">                quote = potQuote;</span>
               } else {
-<span class="pc bpc" id="L288" title="1 of 2 branches missed.">                if (!quote.equals(potQuote)) {</span>
-<span class="nc" id="L289">                  quote = null;</span>
-<span class="nc" id="L290">                  break;</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">                if (!quote.equals(potQuote)) {</span>
+<span class="nc" id="L294">                  quote = null;</span>
+<span class="nc" id="L295">                  break;</span>
                 }
               }
             }
           }
         }
       }
-<span class="fc" id="L297">    }</span>
-<span class="fc" id="L298">    return quote;</span>
+<span class="fc" id="L302">    }</span>
+<span class="fc" id="L303">    return quote;</span>
   }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
