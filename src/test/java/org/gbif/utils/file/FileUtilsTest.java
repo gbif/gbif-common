@@ -34,7 +34,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,6 +49,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author markus
@@ -77,10 +80,10 @@ public class FileUtilsTest {
   @Test
   public void humanReadableByteCountTest() {
     assertEquals("11 B", FileUtils.humanReadableByteCount(11, true));
-    assertEquals("1.0 kB", FileUtils.humanReadableByteCount(1000, true));
-    assertEquals("1.0 MB", FileUtils.humanReadableByteCount(1000000, true));
-    assertEquals("1.0 GB", FileUtils.humanReadableByteCount(1000000000, true));
-    assertEquals("1.0 TB", FileUtils.humanReadableByteCount(1000000000000L, true));
+    assertEquals("1.0 kB", FileUtils.humanReadableByteCount(1_000, true));
+    assertEquals("1.0 MB", FileUtils.humanReadableByteCount(1_000_000, true));
+    assertEquals("1.0 GB", FileUtils.humanReadableByteCount(1_000_000_000, true));
+    assertEquals("1.0 TB", FileUtils.humanReadableByteCount(1_000_000_000_000L, true));
 
     assertEquals("11 B", FileUtils.humanReadableByteCount(11, false));
     assertEquals("1.0 KiB", FileUtils.humanReadableByteCount(1024, false));
@@ -92,26 +95,33 @@ public class FileUtilsTest {
   /**
    * tests deleting directory recursively.
    */
+  @Test
   public void testDeleteRecursive() throws IOException {
-    File topFile = File.createTempFile("top", ".tmp");
-    File middleFile = File.createTempFile("middle", ".tmp", topFile.getParentFile());
-    File downFile = File.createTempFile("down", ".tmp", middleFile.getParentFile());
+    File topDirectory = Files.createTempDirectory("top").toFile();
+    File middleDirectory = new File(topDirectory, "middle");
+    middleDirectory.mkdir();
+    File bottomDirectory = new File(middleDirectory, "bottom");
+    bottomDirectory.mkdir();
+    File bottomFile = new File(bottomDirectory, "bottom");
+    FileUtils.touch(bottomFile);
 
-    assertTrue(topFile.getParentFile().exists());
-    assertTrue(topFile.exists());
-    assertTrue(middleFile.getParentFile().exists());
-    assertTrue(middleFile.exists());
-    assertTrue(downFile.getParentFile().exists());
-    assertTrue(downFile.exists());
+    assertTrue(topDirectory.getParentFile().exists());
+    assertTrue(topDirectory.exists());
+    assertTrue(middleDirectory.getParentFile().exists());
+    assertTrue(middleDirectory.exists());
+    assertTrue(bottomDirectory.getParentFile().exists());
+    assertTrue(bottomDirectory.exists());
+    assertTrue(bottomFile.exists());
 
-    FileUtils.deleteDirectoryRecursively(topFile.getParentFile());
+    FileUtils.deleteDirectoryRecursively(topDirectory);
 
-    assertFalse(topFile.getParentFile().exists());
-    assertFalse(topFile.exists());
-    assertFalse(middleFile.getParentFile().exists());
-    assertFalse(middleFile.exists());
-    assertFalse(downFile.getParentFile().exists());
-    assertFalse(downFile.exists());
+    assertTrue(topDirectory.getParentFile().exists());
+    assertFalse(topDirectory.exists());
+    assertFalse(middleDirectory.getParentFile().exists());
+    assertFalse(middleDirectory.exists());
+    assertFalse(bottomDirectory.getParentFile().exists());
+    assertFalse(bottomDirectory.exists());
+    assertFalse(bottomFile.exists());
   }
 
   @Test
@@ -423,6 +433,44 @@ public class FileUtilsTest {
       // last line (largest ID)
       else if (line == 8) {
         assertTrue(row.startsWith("120320038"));
+      }
+    }
+  }
+
+  @Test
+  public void testMultiFileSort() throws IOException {
+    final int IDCOLUMN = 0;
+    File source1 = FileUtils.getClasspathFile("sorting/multi/VernacularNames-adai.csv");
+    File source2 = FileUtils.getClasspathFile("sorting/multi/VernacularNames-choctaw.csv");
+    File source3 = FileUtils.getClasspathFile("sorting/multi/VernacularNames-nahya.csv");
+    List<File> sources = Arrays.asList(source1, source2, source3);
+    File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
+    sorted.deleteOnExit();
+    FileUtils futils = new FileUtils();
+    futils.sort(sources, sorted, ENCODING, IDCOLUMN, ",", '"', "\n", 1);
+
+    // read file
+    BufferedReader br =
+      new BufferedReader(
+        new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    int line = 0;
+    while (true) {
+      line++;
+      String row = br.readLine();
+      if (row == null) {
+        break;
+      }
+
+      if (line == 1) {
+        assertTrue(row.startsWith("id,vernacularName,language"));
+      } else if (line == 2) {
+        assertTrue(row.startsWith("122860,xoyamet,und,\"\",\"\",,nahya,,2013-05-16T08:27:53Z"));
+      } else if (line == 3) {
+        assertTrue(row.startsWith("49662,heohè,und,\"\",\"\",,Adai,Ben,2021-01-26T16:07:11Z"));
+      } else if (line == 4) {
+        assertTrue(row.startsWith("50897,Umbi,und,\"\",\"\",,Choctaw,Ben,2021-01-13T02:14:34Z"));
+      } else {
+        fail("Too many lines.");
       }
     }
   }

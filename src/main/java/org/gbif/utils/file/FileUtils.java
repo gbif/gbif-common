@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URISyntaxException;
@@ -36,6 +37,8 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,7 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Vector;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
@@ -600,7 +605,35 @@ public final class FileUtils {
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    */
   public void sort(
-      File input,
+    File input,
+    File sorted,
+    String encoding,
+    int column,
+    String columnDelimiter,
+    Character enclosedBy,
+    String newlineDelimiter,
+    int ignoreHeaderLines)
+    throws IOException {
+    sort(Collections.singletonList(input), sorted, encoding, column, columnDelimiter, enclosedBy, newlineDelimiter, ignoreHeaderLines);
+  }
+
+  /**
+   * Sorts the input file into the output file using the supplied delimited line parameters.
+   *
+   * This method is not reliable when the sort field may contain Unicode codepoints outside the Basic Multilingual Plane,
+   * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
+   * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
+   *
+   * @param inputs To sort
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param column the column that keeps the values to sort on
+   * @param columnDelimiter the delimiter that separates columns in a row
+   * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
+   * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
+   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
+   */
+  public void sort(
+      List<File> inputs,
       File sorted,
       String encoding,
       int column,
@@ -616,7 +649,7 @@ public final class FileUtils {
       lineComparator = new LineComparator(column, columnDelimiter, enclosedBy);
     }
     sort(
-        input,
+        inputs,
         sorted,
         encoding,
         column,
@@ -660,7 +693,42 @@ public final class FileUtils {
       Comparator<String> lineComparator,
       boolean ignoreCase)
       throws IOException {
-    LOG.debug("Sorting " + input.getAbsolutePath() + " as new file " + sorted.getAbsolutePath());
+    sort(Collections.singletonList(input), sorted, encoding, column, columnDelimiter, enclosedBy, newlineDelimiter, ignoreHeaderLines, lineComparator, ignoreCase);
+  }
+
+  /**
+   * Sorts the input file into the output file using the supplied delimited line parameters.
+   *
+   * This method is not reliable when the sort field may contain Unicode codepoints outside the Basic Multilingual Plane,
+   * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
+   * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
+   *
+   * TODO: This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
+   * This could be improved to allow synchronizing against the destination file, rather than for all sorts.
+   *
+   * @param inputs To sort
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param column the column that keeps the values to sort on
+   * @param columnDelimiter the delimiter that separates columns in a row
+   * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
+   * @param newlineDelimiter the chars used for new lines, usually \n, \r\n or \r
+   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
+   * @param lineComparator used to sort the output
+   * @param ignoreCase ignore case order, this parameter couldn't have any effect if the LineComparator is used
+   */
+  public void sort(
+    List<File> inputs,
+    File sorted,
+    String encoding,
+    int column,
+    String columnDelimiter,
+    Character enclosedBy,
+    String newlineDelimiter,
+    int ignoreHeaderLines,
+    Comparator<String> lineComparator,
+    boolean ignoreCase)
+    throws IOException {
+    LOG.debug("Sorting file(s) {} as new file {}", inputs.stream().map(File::getAbsolutePath), sorted.getAbsolutePath());
     if (encoding == null) {
       LOG.warn("No encoding specified, assume UTF-8");
       encoding = FileUtils.UTF8;
@@ -674,16 +742,16 @@ public final class FileUtils {
       }
       // if the id is in the first column, first try sorting via shell as its the fastest we can get
       if (!sortInGnu(
-          input,
-          sorted,
-          encoding,
-          ignoreHeaderLines,
-          column,
-          columnDelimiter,
-          newlineDelimiter,
-          ignoreCase)) {
+        inputs,
+        sorted,
+        encoding,
+        ignoreHeaderLines,
+        column,
+        columnDelimiter,
+        newlineDelimiter,
+        ignoreCase)) {
         LOG.debug("No GNU sort available, using native Java sorting");
-        sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);
+        sortInJava(inputs, sorted, encoding, lineComparator, ignoreHeaderLines);
       }
     }
   }
@@ -697,45 +765,70 @@ public final class FileUtils {
    * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
    */
   public void sortInJava(
-      File input,
+    File input,
+    File sorted,
+    String encoding,
+    Comparator<String> lineComparator,
+    int ignoreHeaderLines)
+    throws IOException {
+    sortInJava(Collections.singletonList(input), sorted, encoding, lineComparator, ignoreHeaderLines);
+  }
+
+  /**
+   * Sorts the input file into the output file using the supplied lineComparator.
+   *
+   * @param inputs To sort
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param lineComparator To use during comparison
+   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
+   */
+  public void sortInJava(
+      List<File> inputs,
       File sorted,
       String encoding,
       Comparator<String> lineComparator,
       int ignoreHeaderLines)
       throws IOException {
-    LOG.debug("Sorting File[" + input.getAbsolutePath() + ']');
+    LOG.debug("Sorting file(s) {}", inputs.stream().map(File::getAbsolutePath));
     long start = System.currentTimeMillis();
+
     List<File> sortFiles = new LinkedList<>();
-    BufferedReader br =
-        new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
     List<String> headerLines = new LinkedList<>();
-    try {
-      String line = br.readLine();
-      int fileCount = 0;
+    for (File input : inputs) {
+      BufferedReader br =
+        new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
+      int skipHeaderLines = ignoreHeaderLines;
+      try {
+        String line = br.readLine();
+        int fileCount = 0;
 
-      List<String> linesToSort = new LinkedList<>();
-      while (line != null) {
-        if (ignoreHeaderLines > 0) {
-          headerLines.add(line);
-          ignoreHeaderLines--;
-        } else {
-          linesToSort.add(line);
+        List<String> linesToSort = new LinkedList<>();
+        while (line != null) {
+          if (skipHeaderLines > 0) {
+            // Only add the header lines for the first file
+            if (headerLines.size() < ignoreHeaderLines) {
+              headerLines.add(line);
+            }
+            skipHeaderLines--;
+          } else {
+            linesToSort.add(line);
 
-          // if buffer is full, then sort and write to file
-          if (linesToSort.size() == linesPerMemorySort) {
-            sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));
-            linesToSort = new LinkedList<>();
-            fileCount++;
+            // if buffer is full, then sort and write to file
+            if (linesToSort.size() == linesPerMemorySort) {
+              sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));
+              linesToSort = new LinkedList<>();
+              fileCount++;
+            }
           }
+          line = br.readLine();
         }
-        line = br.readLine();
+        // catch the last lot
+        if (!linesToSort.isEmpty()) {
+          sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));
+        }
+      } finally {
+        br.close();
       }
-      // catch the last lot
-      if (!linesToSort.isEmpty()) {
-        sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));
-      }
-    } finally {
-      br.close();
     }
     LOG.debug(
         sortFiles.size()
@@ -752,14 +845,10 @@ public final class FileUtils {
     }
     mergedSortedFiles(sortFiles, sortedFileWriter, lineComparator);
 
-    LOG.debug(
-        "File "
-            + input.getAbsolutePath()
-            + " sorted successfully using "
-            + sortFiles.size()
-            + " parts to do sorting in "
-            + (System.currentTimeMillis() - start) / 1000
-            + " secs");
+    LOG.debug("Fils(s) {} sorted successfully using {} parts to do sorting in {}s",
+      inputs.stream().map(File::getAbsolutePath),
+      sortFiles.size(),
+      (System.currentTimeMillis() - start) / 1000);
   }
 
   /**
@@ -889,7 +978,7 @@ public final class FileUtils {
    * </pre>
    */
   protected boolean sortInGnu(
-      File input,
+      List<File> inputs,
       File sorted,
       String encoding,
       int ignoreHeaderLines,
@@ -935,13 +1024,14 @@ public final class FileUtils {
               " %s -k%d,%d -t'%s'",
               ignoreCase ? "--ignore-case" : "", column + 1, column + 1, columnDelimiter);
 
+      String fileList = inputs.stream().map(File::getAbsolutePath).collect(Collectors.joining(" "));
       if (ignoreHeaderLines > 0) {
         // copy header lines
         command =
             "head -n "
                 + ignoreHeaderLines
                 + ' '
-                + input.getAbsolutePath()
+                + inputs.get(0).getAbsolutePath()
                 + " > "
                 + sorted.getAbsolutePath();
         LOG.debug("Issue external command: {}", command);
@@ -956,10 +1046,10 @@ public final class FileUtils {
 
         // do the sorting ignoring the header rows
         command =
-            "sed "
+            "sed --separate "
                 + ignoreHeaderLines
                 + "d "
-                + input.getAbsolutePath()
+                + fileList
                 + " | "
                 + "sort "
                 + sortArgs
@@ -968,7 +1058,7 @@ public final class FileUtils {
       } else {
         // do sorting directly, we don't have header rows
         command =
-            "sort " + sortArgs + " -o " + sorted.getAbsolutePath() + ' ' + input.getAbsolutePath();
+            "sort " + sortArgs + " -o " + sorted.getAbsolutePath() + ' ' + fileList;
       }
 
       LOG.debug("Issue external command: {}", command);
