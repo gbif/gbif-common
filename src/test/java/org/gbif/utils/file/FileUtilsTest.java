@@ -13,19 +13,6 @@
  */
 package org.gbif.utils.file;
 
-/***************************************************************************
- * Copyright 2010 Global Biodiversity Information Facility Secretariat
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ***************************************************************************/
-
 import org.gbif.utils.text.LineComparator;
 
 import java.io.BufferedReader;
@@ -36,7 +23,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -371,7 +357,7 @@ public class FileUtilsTest {
     File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
     sorted.deleteOnExit();
     FileUtils futils = new FileUtils();
-    futils.sort(source, sorted, ENCODING, 19, ",", '"', "\n", 1);
+    futils.sort(source, sorted, ENCODING, 0, ",", '"', "\n", 1);
 
     // read file
     BufferedReader br =
@@ -388,7 +374,8 @@ public class FileUtilsTest {
         assertEquals("catalogNumber", row.substring(0, 13));
       } else {
         // Catalog number ends in 30951 to 30961.
-        assertEquals("ZMA.COL.P." + line, row.substring(0, 15));
+        assertEquals("ZMA.COL.P." + line,
+          row.replace("\"", "").replace(",", ".").substring(0, 15));
       }
       line++;
     }
@@ -437,6 +424,9 @@ public class FileUtilsTest {
     }
   }
 
+  /**
+   * Test sorting multiple fils into a single file. First column, so GNU sort.
+   */
   @Test
   public void testMultiFileSort() throws IOException {
     final int IDCOLUMN = 0;
@@ -469,6 +459,47 @@ public class FileUtilsTest {
         assertTrue(row.startsWith("49662,heohè,und,\"\",\"\",,Adai,Ben,2021-01-26T16:07:11Z"));
       } else if (line == 4) {
         assertTrue(row.startsWith("50897,Umbi,und,\"\",\"\",,Choctaw,Ben,2021-01-13T02:14:34Z"));
+      } else {
+        fail("Too many lines.");
+      }
+    }
+  }
+
+  /**
+   * Test sorting multiple fils into a single file. Second column, so Java sort.
+   */
+  @Test
+  public void testMultiFileSort2ndColumn() throws IOException {
+    final int IDCOLUMN = 1;
+    File source1 = FileUtils.getClasspathFile("sorting/multi/VernacularNames-adai.csv");
+    File source2 = FileUtils.getClasspathFile("sorting/multi/VernacularNames-choctaw.csv");
+    File source3 = FileUtils.getClasspathFile("sorting/multi/VernacularNames-nahya.csv");
+    List<File> sources = Arrays.asList(source1, source2, source3);
+    File sorted = File.createTempFile("gbif-common-file-sort", "sorted.txt");
+    sorted.deleteOnExit();
+    FileUtils futils = new FileUtils();
+    futils.sort(sources, sorted, ENCODING, IDCOLUMN, ",", '"', "\n", 1);
+
+    // read file
+    BufferedReader br =
+      new BufferedReader(
+        new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+    int line = 0;
+    while (true) {
+      line++;
+      String row = br.readLine();
+      if (row == null) {
+        break;
+      }
+
+      if (line == 1) {
+        assertTrue(row.startsWith("id,vernacularName,language"));
+      } else if (line == 2) {
+        assertTrue(row.startsWith("50897,Umbi,und,\"\",\"\",,Choctaw,Ben,2021-01-13T02:14:34Z"));
+      } else if (line == 3) {
+        assertTrue(row.startsWith("49662,heohè,und,\"\",\"\",,Adai,Ben,2021-01-26T16:07:11Z"));
+      } else if (line == 4) {
+        assertTrue(row.startsWith("122860,xoyamet,und,\"\",\"\",,nahya,,2013-05-16T08:27:53Z"));
       } else {
         fail("Too many lines.");
       }

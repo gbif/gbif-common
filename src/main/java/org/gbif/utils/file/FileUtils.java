@@ -748,6 +748,7 @@ public final class FileUtils {
         ignoreHeaderLines,
         column,
         columnDelimiter,
+        enclosedBy,
         newlineDelimiter,
         ignoreCase)) {
         LOG.debug("No GNU sort available, using native Java sorting");
@@ -921,14 +922,29 @@ public final class FileUtils {
 
     try {
       String command = "sort -k1,1 -t',' --ignore-case /dev/null";
-      LOG.debug("Testing capability of GNU sort with command: {}", command);
+      LOG.debug("Testing capability of 'sort' with command: {}", command);
 
       Process process = new ProcessBuilder("/bin/sh", "-c", command).start();
       int exitValue = process.waitFor();
 
       if (exitValue == 0) {
         LOG.debug("GNU sort is capable");
-        gnuSortAvailable = true;
+
+        command = "sed --separate 1d /dev/null";
+        LOG.debug("Testing capability of 'sed' with command: {}", command);
+
+        process = new ProcessBuilder("/bin/sh", "-c", command).start();
+        exitValue = process.waitFor();
+
+        if (exitValue == 0) {
+          LOG.debug("GNU sed is capable");
+          gnuSortAvailable = true;
+        } else {
+          LOG.warn(
+            "GNU sed does not exist or is too old, and will not be used.  Sorting large files will be slow.",
+            new InputStreamUtils().readEntireStream(process.getErrorStream()).replace('\n', ' '));
+          gnuSortAvailable = false;
+        }
       } else {
         LOG.warn(
             "GNU sort does not exist or is too old, and will not be used.  Sorting large files will be slow.",
@@ -937,7 +953,7 @@ public final class FileUtils {
       }
     } catch (Exception e) {
       LOG.warn(
-          "GNU sort does not exist or is too old, and will not be used.  Sorting large files will be slow.",
+          "GNU sort/sed does not exist or is too old, and will not be used.  Sorting large files will be slow.",
           e);
       gnuSortAvailable = false;
     }
@@ -984,20 +1000,28 @@ public final class FileUtils {
       int ignoreHeaderLines,
       int column,
       String columnDelimiter,
+      Character enclosedBy,
       String lineDelimiter,
       boolean ignoreCase)
       throws IOException {
     String command;
     // GNU sort is checked for use when:
     // • line delimiter is \n
+    // • no enclosed by/quote character is in use
     // • column delimiter is set and we're not using the first column
     // • sort version is sufficient to include start and end column (-k 1,1).
     // Use the --debug option to sort if working on this code.
-    if (lineDelimiter == null
-        || !lineDelimiter.contains("\n")
-        || (columnDelimiter != null && column > 0)
-        || !gnuSortAvailable()) {
-      LOG.debug("Cannot use GNU sort on this file");
+    if (lineDelimiter == null || !lineDelimiter.contains("\n")) {
+      LOG.debug("Cannot use GNU sort on this file: line delimiter does not contain newline.");
+      return false;
+    } else if (columnDelimiter != null && column > 0) {
+      LOG.debug("Cannot use GNU sort on this file: sort column is not the first.");
+      return false;
+    } else if (enclosedBy != null) {
+      LOG.debug("Cannot use GNU sort on this file: enclosed by character set.");
+      return false;
+    } else if (!gnuSortAvailable()) {
+      LOG.debug("Cannot use GNU sort on this file: command unavailable.");
       return false;
     }
 
