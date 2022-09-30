@@ -664,7 +664,7 @@ public final class FileUtils {
    * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
    * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
    *
-   * TODO: This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
+   * This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
    * This could be improved to allow synchronizing against the destination file, rather than for all sorts.
    *
    * @param input To sort
@@ -699,7 +699,7 @@ public final class FileUtils {
    * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
    * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
    *
-   * TODO: This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
+   * This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
    * This could be improved to allow synchronizing against the destination file, rather than for all sorts.
    *
    * @param inputs To sort
@@ -986,10 +986,10 @@ public final class FileUtils {
       boolean ignoreCase)
       throws IOException {
     String command;
-    // GNU sort is checked for use when:
+    // GNU sort is available for use when:
     // • line delimiter is \n
     // • no enclosed by/quote character is in use
-    // • column delimiter is set and we're not using the first column
+    // • sorting is using the first column
     // • sort version is sufficient to include start and end column (-k 1,1).
     // Use the --debug option to sort if working on this code.
     if (lineDelimiter == null || !lineDelimiter.contains("\n")) {

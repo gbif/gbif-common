@@ -49,7 +49,7 @@ public class TabularFileNormalizer {
 
   /**
    * Normalizes the provided tabular "file" (provided as {@link Reader} to let the caller deal with charset).
-   * Normalization includes: striping of Control Characters (see {@link #CONTROL_CHAR_REGEX}),
+   * Normalization includes: stripping of Control Characters (see {@link #CONTROL_CHAR_REGEX}),
    * usage of \n as end-line-character, ensuring there is an end-of-line character on the last line and
    * removing empty (completely empty) lines.
    * The normalized content will have unnecessary quotes removed.
