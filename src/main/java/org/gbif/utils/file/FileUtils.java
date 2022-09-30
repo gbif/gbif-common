@@ -13,13 +13,8 @@
  */
 package org.gbif.utils.file;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.utils.collection.CompactHashSet;
 import org.gbif.utils.text.LineComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -51,6 +46,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Collection of file utils.
@@ -610,7 +611,15 @@ public final class FileUtils {
       String newlineDelimiter,
       int ignoreHeaderLines)
       throws IOException {
-      sort(Collections.singletonList(input), sorted, encoding, column, columnDelimiter, enclosedBy, newlineDelimiter, ignoreHeaderLines);
+    sort(
+        Collections.singletonList(input),
+        sorted,
+        encoding,
+        column,
+        columnDelimiter,
+        enclosedBy,
+        newlineDelimiter,
+        ignoreHeaderLines);
   }
 
   /**
@@ -689,7 +698,17 @@ public final class FileUtils {
       Comparator<String> lineComparator,
       boolean ignoreCase)
       throws IOException {
-    sort(Collections.singletonList(input), sorted, encoding, column, columnDelimiter, enclosedBy, newlineDelimiter, ignoreHeaderLines, lineComparator, ignoreCase);
+    sort(
+        Collections.singletonList(input),
+        sorted,
+        encoding,
+        column,
+        columnDelimiter,
+        enclosedBy,
+        newlineDelimiter,
+        ignoreHeaderLines,
+        lineComparator,
+        ignoreCase);
   }
 
   /**
@@ -724,7 +743,10 @@ public final class FileUtils {
       Comparator<String> lineComparator,
       boolean ignoreCase)
       throws IOException {
-    LOG.debug("Sorting file(s) {} as new file {}", inputs.stream().map(File::getAbsolutePath), sorted.getAbsolutePath());
+    LOG.debug(
+        "Sorting file(s) {} as new file {}",
+        inputs.stream().map(File::getAbsolutePath),
+        sorted.getAbsolutePath());
     if (encoding == null) {
       LOG.warn("No encoding specified, assume UTF-8");
       encoding = FileUtils.UTF8;
@@ -768,7 +790,8 @@ public final class FileUtils {
       Comparator<String> lineComparator,
       int ignoreHeaderLines)
       throws IOException {
-    sortInJava(Collections.singletonList(input), sorted, encoding, lineComparator, ignoreHeaderLines);
+    sortInJava(
+        Collections.singletonList(input), sorted, encoding, lineComparator, ignoreHeaderLines);
   }
 
   /**
@@ -793,7 +816,7 @@ public final class FileUtils {
     List<String> headerLines = new LinkedList<>();
     for (File input : inputs) {
       BufferedReader br =
-        new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
+          new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
       int skipHeaderLines = ignoreHeaderLines;
       try {
         String line = br.readLine();
@@ -842,10 +865,11 @@ public final class FileUtils {
     }
     mergedSortedFiles(sortFiles, sortedFileWriter, lineComparator);
 
-    LOG.debug("Fils(s) {} sorted successfully using {} parts to do sorting in {}s",
-      inputs.stream().map(File::getAbsolutePath),
-      sortFiles.size(),
-      (System.currentTimeMillis() - start) / 1000);
+    LOG.debug(
+        "Fils(s) {} sorted successfully using {} parts to do sorting in {}s",
+        inputs.stream().map(File::getAbsolutePath),
+        sortFiles.size(),
+        (System.currentTimeMillis() - start) / 1000);
   }
 
   /**
@@ -1052,7 +1076,7 @@ public final class FileUtils {
         // do the sorting ignoring the header rows
         command =
             "tail -q -n +"
-                + (ignoreHeaderLines+1)
+                + (ignoreHeaderLines + 1)
                 + " "
                 + fileList
                 + " | "
@@ -1062,8 +1086,7 @@ public final class FileUtils {
                 + sorted.getAbsolutePath();
       } else {
         // do sorting directly, we don't have header rows
-        command =
-            "sort " + sortArgs + " -o " + sorted.getAbsolutePath() + ' ' + fileList;
+        command = "sort " + sortArgs + " -o " + sorted.getAbsolutePath() + ' ' + fileList;
       }
 
       LOG.debug("Issue external command: {}", command);

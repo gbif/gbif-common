@@ -374,8 +374,7 @@ public class FileUtilsTest {
         assertEquals("catalogNumber", row.substring(0, 13));
       } else {
         // Catalog number ends in 30951 to 30961.
-        assertEquals("ZMA.COL.P." + line,
-          row.replace("\"", "").replace(",", ".").substring(0, 15));
+        assertEquals("ZMA.COL.P." + line, row.replace("\"", "").replace(",", ".").substring(0, 15));
       }
       line++;
     }
@@ -441,8 +440,8 @@ public class FileUtilsTest {
 
     // read file
     BufferedReader br =
-      new BufferedReader(
-        new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -478,8 +477,8 @@ public class FileUtilsTest {
 
     // read file
     BufferedReader br =
-      new BufferedReader(
-        new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
@@ -519,8 +518,8 @@ public class FileUtilsTest {
 
     // read file
     BufferedReader br =
-      new BufferedReader(
-        new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(sorted), StandardCharsets.UTF_8));
     int line = 0;
     while (true) {
       line++;
