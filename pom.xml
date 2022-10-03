@@ -23,7 +23,7 @@
     <jsr305.version>3.0.2</jsr305.version>
 
     <!--Jackson libraries will be shaded-->
-    <jackson.version>2.11.3</jackson.version>
+    <jackson.version>2.12.6.1</jackson.version>
 
     <junit.version>5.6.3</junit.version>
     <logback.version>1.2.3</logback.version>
