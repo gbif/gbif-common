@@ -36,6 +36,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
@@ -56,43 +58,43 @@ import org.slf4j.LoggerFactory;
  * &lt;br&gt;
  * This class has only been tested for use with a UTF-8 system encoding.
  */
-<span class="fc" id="L59">public final class FileUtils {</span>
+<span class="fc" id="L61">public final class FileUtils {</span>
 
-<span class="fc" id="L61">  private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);</span>
+<span class="fc" id="L63">  private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);</span>
 
-<span class="fc" id="L63">  public static final String UTF8 = StandardCharsets.UTF_8.name();</span>
-<span class="fc" id="L64">  public static final Pattern TAB_DELIMITED = Pattern.compile(&quot;\t&quot;);</span>
-<span class="fc" id="L65">  private static int linesPerMemorySort = 100000;</span>
-<span class="fc" id="L66">  private static Boolean gnuSortAvailable = null;</span>
-<span class="fc" id="L67">  private static final Object sortLock = new Object();</span>
+<span class="fc" id="L65">  public static final String UTF8 = StandardCharsets.UTF_8.name();</span>
+<span class="fc" id="L66">  public static final Pattern TAB_DELIMITED = Pattern.compile(&quot;\t&quot;);</span>
+<span class="fc" id="L67">  private static int linesPerMemorySort = 100000;</span>
+<span class="fc" id="L68">  private static Boolean gnuSortAvailable = null;</span>
+<span class="fc" id="L69">  private static final Object sortLock = new Object();</span>
 
   static {
     /* Warn when the software is not run in a Unicode environment.  This library has not been
      * tested to run in a non-Unicode environment, and may cause data corruption.
      */
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (Charset.defaultCharset().equals(StandardCharsets.US_ASCII)) {</span>
-<span class="nc" id="L74">      System.err.println(</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">    if (Charset.defaultCharset().equals(StandardCharsets.US_ASCII)) {</span>
+<span class="nc" id="L76">      System.err.println(</span>
           &quot;The default character set is US ASCII.  It is strongly recommended to &quot;
               + &quot;run this software in a Unicode environment.&quot;);
     }
-<span class="fc" id="L78">  }</span>
+<span class="fc" id="L80">  }</span>
 
   public static String classpath2Filepath(String path) {
-<span class="nc" id="L81">    return new File(ClassLoader.getSystemResource(path).getFile()).getAbsolutePath();</span>
+<span class="nc" id="L83">    return new File(ClassLoader.getSystemResource(path).getFile()).getAbsolutePath();</span>
   }
 
   public static InputStream classpathStream(String path) throws IOException {
-<span class="fc" id="L85">    InputStream in = null;</span>
+<span class="fc" id="L87">    InputStream in = null;</span>
     // relative path. Use classpath instead
-<span class="fc" id="L87">    URL url = FileUtils.class.getClassLoader().getResource(path);</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">    if (url != null) {</span>
-<span class="fc" id="L89">      in = url.openStream();</span>
+<span class="fc" id="L89">    URL url = FileUtils.class.getClassLoader().getResource(path);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">    if (url != null) {</span>
+<span class="fc" id="L91">      in = url.openStream();</span>
     }
-<span class="fc" id="L91">    return in;</span>
+<span class="fc" id="L93">    return in;</span>
   }
 
   public static Set&lt;String&gt; columnsToSet(InputStream source, int... column) throws IOException {
-<span class="nc" id="L95">    return columnsToSet(source, new CompactHashSet&lt;String&gt;(), column);</span>
+<span class="nc" id="L97">    return columnsToSet(source, new CompactHashSet&lt;String&gt;(), column);</span>
   }
 
   /**
@@ -106,48 +108,48 @@ import org.slf4j.LoggerFactory;
    */
   public static Set&lt;String&gt; columnsToSet(InputStream source, Set&lt;String&gt; resultSet, int... column)
       throws IOException {
-<span class="nc" id="L109">    LineIterator lines = getLineIterator(source);</span>
-<span class="nc" id="L110">    int maxCols = 0;</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">    for (int c : column) {</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">      if (c &gt; maxCols) {</span>
-<span class="nc" id="L113">        maxCols = c;</span>
+<span class="nc" id="L111">    LineIterator lines = getLineIterator(source);</span>
+<span class="nc" id="L112">    int maxCols = 0;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">    for (int c : column) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">      if (c &gt; maxCols) {</span>
+<span class="nc" id="L115">        maxCols = c;</span>
       }
     }
-<span class="nc bnc" id="L116" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
-<span class="nc" id="L117">      String line = lines.nextLine().trim();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
+<span class="nc" id="L119">      String line = lines.nextLine().trim();</span>
       // ignore comments
-<span class="nc bnc" id="L119" title="All 2 branches missed.">      if (!ignore(line)) {</span>
-<span class="nc" id="L120">        String[] parts = TAB_DELIMITED.split(line);</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (maxCols &lt;= parts.length) {</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">          for (int c : column) {</span>
-<span class="nc" id="L123">            String cell = parts[c].trim();</span>
-<span class="nc" id="L124">            resultSet.add(cell);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">      if (!ignore(line)) {</span>
+<span class="nc" id="L122">        String[] parts = TAB_DELIMITED.split(line);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (maxCols &lt;= parts.length) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">          for (int c : column) {</span>
+<span class="nc" id="L125">            String cell = parts[c].trim();</span>
+<span class="nc" id="L126">            resultSet.add(cell);</span>
           }
         }
       }
-<span class="nc" id="L128">    }</span>
-<span class="nc" id="L129">    return resultSet;</span>
+<span class="nc" id="L130">    }</span>
+<span class="nc" id="L131">    return resultSet;</span>
   }
 
   public static void copyStreams(InputStream in, OutputStream out) throws IOException {
     // write the file to the file specified
     int bytesRead;
-<span class="nc" id="L135">    byte[] buffer = new byte[8192];</span>
+<span class="nc" id="L137">    byte[] buffer = new byte[8192];</span>
 
-<span class="nc bnc" id="L137" title="All 2 branches missed.">    while ((bytesRead = in.read(buffer, 0, 8192)) != -1) {</span>
-<span class="nc" id="L138">      out.write(buffer, 0, bytesRead);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">    while ((bytesRead = in.read(buffer, 0, 8192)) != -1) {</span>
+<span class="nc" id="L140">      out.write(buffer, 0, bytesRead);</span>
     }
 
-<span class="nc" id="L141">    out.close();</span>
-<span class="nc" id="L142">    in.close();</span>
-<span class="nc" id="L143">  }</span>
+<span class="nc" id="L143">    out.close();</span>
+<span class="nc" id="L144">    in.close();</span>
+<span class="nc" id="L145">  }</span>
 
   public static void copyStreamToFile(InputStream in, File out) throws IOException {
-<span class="nc" id="L146">    copyStreams(in, new FileOutputStream(out));</span>
-<span class="nc" id="L147">  }</span>
+<span class="nc" id="L148">    copyStreams(in, new FileOutputStream(out));</span>
+<span class="nc" id="L149">  }</span>
 
   public static File createTempDir() throws IOException {
-<span class="fc" id="L150">    return createTempDir(&quot;gbif-futil&quot;, &quot;.tmp&quot;);</span>
+<span class="fc" id="L152">    return createTempDir(&quot;gbif-futil&quot;, &quot;.tmp&quot;);</span>
   }
 
   /**
@@ -156,14 +158,14 @@ import org.slf4j.LoggerFactory;
    *        &quot;.tmp&quot; will be used
    */
   public static File createTempDir(String prefix, String suffix) throws IOException {
-<span class="fc" id="L159">    File dir = File.createTempFile(prefix, suffix);</span>
-<span class="pc bpc" id="L160" title="1 of 2 branches missed.">    if (!dir.delete()) {</span>
-<span class="nc" id="L161">      throw new IOException(&quot;Could not delete temp file: &quot; + dir.getAbsolutePath());</span>
+<span class="fc" id="L161">    File dir = File.createTempFile(prefix, suffix);</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">    if (!dir.delete()) {</span>
+<span class="nc" id="L163">      throw new IOException(&quot;Could not delete temp file: &quot; + dir.getAbsolutePath());</span>
     }
-<span class="pc bpc" id="L163" title="1 of 2 branches missed.">    if (!dir.mkdir()) {</span>
-<span class="nc" id="L164">      throw new IOException(&quot;Could not create temp directory: &quot; + dir.getAbsolutePath());</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">    if (!dir.mkdir()) {</span>
+<span class="nc" id="L166">      throw new IOException(&quot;Could not create temp directory: &quot; + dir.getAbsolutePath());</span>
     }
-<span class="fc" id="L166">    return dir;</span>
+<span class="fc" id="L168">    return dir;</span>
   }
 
   /**
@@ -172,17 +174,17 @@ import org.slf4j.LoggerFactory;
    * @param directory directory to delete recursively
    */
   public static void deleteDirectoryRecursively(File directory) {
-<span class="nc" id="L175">    File[] list = directory.listFiles();</span>
-<span class="nc bnc" id="L176" title="All 2 branches missed.">    for (File file : list) {</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">      if (file.isDirectory()) {</span>
-<span class="nc" id="L178">        deleteDirectoryRecursively(file);</span>
-<span class="nc" id="L179">        file.delete();</span>
+<span class="fc" id="L177">    File[] list = directory.listFiles();</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">    for (File file : list) {</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">      if (file.isDirectory()) {</span>
+<span class="fc" id="L180">        deleteDirectoryRecursively(file);</span>
+<span class="fc" id="L181">        file.delete();</span>
       } else {
-<span class="nc" id="L181">        file.delete();</span>
+<span class="fc" id="L183">        file.delete();</span>
       }
     }
-<span class="nc" id="L184">    directory.delete();</span>
-<span class="nc" id="L185">  }</span>
+<span class="fc" id="L186">    directory.delete();</span>
+<span class="fc" id="L187">  }</span>
 
   /**
    * Escapes a filename so it is a valid filename on all systems, replacing /. .. \t\r\n.
@@ -190,38 +192,38 @@ import org.slf4j.LoggerFactory;
    * @param filename to be escaped
    */
   public static String escapeFilename(String filename) {
-<span class="nc" id="L193">    return filename.replaceAll(&quot;[\\s./&amp;]&quot;, &quot;_&quot;);</span>
+<span class="nc" id="L195">    return filename.replaceAll(&quot;[\\s./&amp;]&quot;, &quot;_&quot;);</span>
   }
 
   public static File getClasspathFile(String path) {
-<span class="fc" id="L197">    return new File(ClassLoader.getSystemResource(path).getFile());</span>
+<span class="fc" id="L199">    return new File(ClassLoader.getSystemResource(path).getFile());</span>
   }
 
   public static InputStream getInputStream(File source) throws FileNotFoundException {
-<span class="fc" id="L201">    return new FileInputStream(source);</span>
+<span class="fc" id="L203">    return new FileInputStream(source);</span>
   }
 
   public static BufferedReader getInputStreamReader(InputStream input)
       throws FileNotFoundException {
-<span class="nc" id="L206">    return getInputStreamReader(input, UTF8);</span>
+<span class="nc" id="L208">    return getInputStreamReader(input, UTF8);</span>
   }
 
   public static BufferedReader getInputStreamReader(InputStream input, String encoding)
       throws FileNotFoundException {
-<span class="nc" id="L211">    BufferedReader reader = null;</span>
+<span class="nc" id="L213">    BufferedReader reader = null;</span>
     try {
-<span class="nc" id="L213">      reader = new BufferedReader(new InputStreamReader(input, encoding));</span>
-<span class="nc" id="L214">    } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L215">      LOG.warn(&quot;Caught Exception&quot;, e);</span>
-<span class="nc" id="L216">    }</span>
-<span class="nc" id="L217">    return reader;</span>
+<span class="nc" id="L215">      reader = new BufferedReader(new InputStreamReader(input, encoding));</span>
+<span class="nc" id="L216">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L217">      LOG.warn(&quot;Caught Exception&quot;, e);</span>
+<span class="nc" id="L218">    }</span>
+<span class="nc" id="L219">    return reader;</span>
   }
 
   /**
    * @param source the source input stream encoded in UTF-8
    */
   public static LineIterator getLineIterator(InputStream source) {
-<span class="nc" id="L224">    return getLineIterator(source, UTF8);</span>
+<span class="nc" id="L226">    return getLineIterator(source, UTF8);</span>
   }
 
   /**
@@ -230,20 +232,20 @@ import org.slf4j.LoggerFactory;
    */
   public static LineIterator getLineIterator(InputStream source, String encoding) {
     try {
-<span class="nc" id="L233">      return new LineIterator(new BufferedReader(new InputStreamReader(source, encoding)));</span>
-<span class="nc" id="L234">    } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L235">      throw new IllegalArgumentException(&quot;Unsupported encoding&quot; + encoding, e);</span>
+<span class="nc" id="L235">      return new LineIterator(new BufferedReader(new InputStreamReader(source, encoding)));</span>
+<span class="nc" id="L236">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L237">      throw new IllegalArgumentException(&quot;Unsupported encoding&quot; + encoding, e);</span>
     }
   }
 
   public static BufferedReader getUtf8Reader(File file) throws FileNotFoundException {
-<span class="nc" id="L240">    BufferedReader reader = null;</span>
+<span class="nc" id="L242">    BufferedReader reader = null;</span>
     try {
-<span class="nc" id="L242">      reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), UTF8));</span>
-<span class="nc" id="L243">    } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L244">      LOG.warn(&quot;Caught Exception&quot;, e);</span>
-<span class="nc" id="L245">    }</span>
-<span class="nc" id="L246">    return reader;</span>
+<span class="nc" id="L244">      reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), UTF8));</span>
+<span class="nc" id="L245">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L246">      LOG.warn(&quot;Caught Exception&quot;, e);</span>
+<span class="nc" id="L247">    }</span>
+<span class="nc" id="L248">    return reader;</span>
   }
 
   /**
@@ -251,30 +253,30 @@ import org.slf4j.LoggerFactory;
    * Support both SI and byte format.
    */
   public static String humanReadableByteCount(long bytes, boolean si) {
-<span class="fc bfc" id="L254" title="All 2 branches covered.">    int unit = si ? 1000 : 1024;</span>
-<span class="fc bfc" id="L255" title="All 2 branches covered.">    if (bytes &lt; unit) {</span>
-<span class="fc" id="L256">      return bytes + &quot; B&quot;;</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">    int unit = si ? 1000 : 1024;</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">    if (bytes &lt; unit) {</span>
+<span class="fc" id="L258">      return bytes + &quot; B&quot;;</span>
     }
-<span class="fc" id="L258">    int exp = (int) (Math.log(bytes) / Math.log(unit));</span>
-<span class="fc bfc" id="L259" title="All 4 branches covered.">    String pre = (si ? &quot;kMGTPE&quot; : &quot;KMGTPE&quot;).charAt(exp - 1) + (si ? &quot;&quot; : &quot;i&quot;);</span>
-<span class="fc" id="L260">    return String.format(&quot;%.1f %sB&quot;, bytes / Math.pow(unit, exp), pre);</span>
+<span class="fc" id="L260">    int exp = (int) (Math.log(bytes) / Math.log(unit));</span>
+<span class="fc bfc" id="L261" title="All 4 branches covered.">    String pre = (si ? &quot;kMGTPE&quot; : &quot;KMGTPE&quot;).charAt(exp - 1) + (si ? &quot;&quot; : &quot;i&quot;);</span>
+<span class="fc" id="L262">    return String.format(&quot;%.1f %sB&quot;, bytes / Math.pow(unit, exp), pre);</span>
   }
 
   public static boolean isCompressedFile(File source) {
-<span class="nc" id="L264">    String suffix = source.getName().substring(source.getName().lastIndexOf('.') + 1);</span>
-<span class="nc bnc" id="L265" title="All 2 branches missed.">    return suffix != null</span>
-<span class="nc bnc" id="L266" title="All 2 branches missed.">        &amp;&amp; suffix.length() &gt; 0</span>
-<span class="nc bnc" id="L267" title="All 2 branches missed.">        &amp;&amp; (&quot;zip&quot;.equalsIgnoreCase(suffix)</span>
-<span class="nc bnc" id="L268" title="All 2 branches missed.">            || &quot;tgz&quot;.equalsIgnoreCase(suffix)</span>
-<span class="nc bnc" id="L269" title="All 2 branches missed.">            || &quot;gz&quot;.equalsIgnoreCase(suffix));</span>
+<span class="nc" id="L266">    String suffix = source.getName().substring(source.getName().lastIndexOf('.') + 1);</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">    return suffix != null</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        &amp;&amp; suffix.length() &gt; 0</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        &amp;&amp; (&quot;zip&quot;.equalsIgnoreCase(suffix)</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">            || &quot;tgz&quot;.equalsIgnoreCase(suffix)</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            || &quot;gz&quot;.equalsIgnoreCase(suffix));</span>
   }
 
   /**
    * Reads a complete file into a byte buffer.
    */
   public static ByteBuffer readByteBuffer(File file) throws IOException {
-<span class="fc" id="L276">    byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(file);</span>
-<span class="fc" id="L277">    return ByteBuffer.wrap(content);</span>
+<span class="fc" id="L278">    byte[] content = org.apache.commons.io.FileUtils.readFileToByteArray(file);</span>
+<span class="fc" id="L279">    return ByteBuffer.wrap(content);</span>
   }
 
   /**
@@ -283,19 +285,19 @@ import org.slf4j.LoggerFactory;
    * @param bufferSize the number of bytes to read from the file
    */
   public static ByteBuffer readByteBuffer(File file, int bufferSize) throws IOException {
-<span class="fc" id="L286">    ByteBuffer bbuf = ByteBuffer.allocate(bufferSize);</span>
-<span class="fc" id="L287">    BufferedInputStream f = new BufferedInputStream(new FileInputStream(file), bufferSize);</span>
+<span class="fc" id="L288">    ByteBuffer bbuf = ByteBuffer.allocate(bufferSize);</span>
+<span class="fc" id="L289">    BufferedInputStream f = new BufferedInputStream(new FileInputStream(file), bufferSize);</span>
 
     int b;
-<span class="fc bfc" id="L290" title="All 2 branches covered.">    while ((b = f.read()) != -1) {</span>
-<span class="fc bfc" id="L291" title="All 2 branches covered.">      if (!bbuf.hasRemaining()) {</span>
-<span class="fc" id="L292">        break;</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">    while ((b = f.read()) != -1) {</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">      if (!bbuf.hasRemaining()) {</span>
+<span class="fc" id="L294">        break;</span>
       }
-<span class="fc" id="L294">      bbuf.put((byte) b);</span>
+<span class="fc" id="L296">      bbuf.put((byte) b);</span>
     }
-<span class="fc" id="L296">    f.close();</span>
+<span class="fc" id="L298">    f.close();</span>
 
-<span class="fc" id="L298">    return bbuf;</span>
+<span class="fc" id="L300">    return bbuf;</span>
   }
 
   /**
@@ -304,18 +306,18 @@ import org.slf4j.LoggerFactory;
    *        memory available a higher value increases performance.
    */
   public static void setLinesPerMemorySort(int linesPerMemorySort) {
-<span class="nc" id="L307">    FileUtils.linesPerMemorySort = linesPerMemorySort;</span>
-<span class="nc" id="L308">  }</span>
+<span class="nc" id="L309">    FileUtils.linesPerMemorySort = linesPerMemorySort;</span>
+<span class="nc" id="L310">  }</span>
 
   public static Writer startNewUtf8File(File file) throws IOException {
-<span class="nc" id="L311">    touch(file);</span>
-<span class="nc" id="L312">    return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), UTF8));</span>
+<span class="nc" id="L313">    touch(file);</span>
+<span class="nc" id="L314">    return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), UTF8));</span>
   }
 
   public static Writer startNewUtf8XmlFile(File file) throws IOException {
-<span class="nc" id="L316">    Writer writer = startNewUtf8File(file);</span>
-<span class="nc" id="L317">    writer.write(&quot;&lt;?xml version='1.0' encoding='utf-8'?&gt;\n&quot;);</span>
-<span class="nc" id="L318">    return writer;</span>
+<span class="nc" id="L318">    Writer writer = startNewUtf8File(file);</span>
+<span class="nc" id="L319">    writer.write(&quot;&lt;?xml version='1.0' encoding='utf-8'?&gt;\n&quot;);</span>
+<span class="nc" id="L320">    return writer;</span>
   }
 
   /**
@@ -324,7 +326,7 @@ import org.slf4j.LoggerFactory;
    * @return list of rows
    */
   public static LinkedList&lt;String&gt; streamToList(InputStream source) throws IOException {
-<span class="fc" id="L327">    return streamToList(source, FileUtils.UTF8);</span>
+<span class="fc" id="L329">    return streamToList(source, FileUtils.UTF8);</span>
   }
 
   /**
@@ -336,43 +338,43 @@ import org.slf4j.LoggerFactory;
    */
   public static List&lt;String&gt; streamToList(InputStream source, List&lt;String&gt; resultList)
       throws IOException {
-<span class="nc" id="L339">    LineIterator lines = getLineIterator(source);</span>
-<span class="nc bnc" id="L340" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
-<span class="nc" id="L341">      String line = lines.nextLine().trim();</span>
+<span class="nc" id="L341">    LineIterator lines = getLineIterator(source);</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
+<span class="nc" id="L343">      String line = lines.nextLine().trim();</span>
       // ignore comments
-<span class="nc bnc" id="L343" title="All 2 branches missed.">      if (!ignore(line)) {</span>
-<span class="nc" id="L344">        resultList.add(line);</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">      if (!ignore(line)) {</span>
+<span class="nc" id="L346">        resultList.add(line);</span>
       }
-<span class="nc" id="L346">    }</span>
-<span class="nc" id="L347">    return resultList;</span>
+<span class="nc" id="L348">    }</span>
+<span class="nc" id="L349">    return resultList;</span>
   }
 
   public static LinkedList&lt;String&gt; streamToList(InputStream source, String encoding)
       throws IOException {
-<span class="fc" id="L352">    LinkedList&lt;String&gt; resultList = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L354">    LinkedList&lt;String&gt; resultList = new LinkedList&lt;&gt;();</span>
     try {
-<span class="fc" id="L354">      LineIterator lines =</span>
+<span class="fc" id="L356">      LineIterator lines =</span>
           new LineIterator(new BufferedReader(new InputStreamReader(source, encoding)));
-<span class="fc bfc" id="L356" title="All 2 branches covered.">      while (lines.hasNext()) {</span>
-<span class="fc" id="L357">        String line = lines.nextLine();</span>
-<span class="fc" id="L358">        resultList.add(line);</span>
-<span class="fc" id="L359">      }</span>
-<span class="nc" id="L360">    } catch (UnsupportedEncodingException e) {</span>
-<span class="nc" id="L361">      throw new IllegalArgumentException(&quot;Unsupported encoding &quot; + encoding, e);</span>
-<span class="fc" id="L362">    }</span>
-<span class="fc" id="L363">    return resultList;</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">      while (lines.hasNext()) {</span>
+<span class="fc" id="L359">        String line = lines.nextLine();</span>
+<span class="fc" id="L360">        resultList.add(line);</span>
+<span class="fc" id="L361">      }</span>
+<span class="nc" id="L362">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L363">      throw new IllegalArgumentException(&quot;Unsupported encoding &quot; + encoding, e);</span>
+<span class="fc" id="L364">    }</span>
+<span class="fc" id="L365">    return resultList;</span>
   }
 
   /**
    * Reads a utf8 encoded inut stream, splits
    */
   public static Map&lt;String, String&gt; streamToMap(InputStream source) throws IOException {
-<span class="nc" id="L370">    return streamToMap(source, new HashMap&lt;&gt;());</span>
+<span class="nc" id="L372">    return streamToMap(source, new HashMap&lt;&gt;());</span>
   }
 
   public static Map&lt;String, String&gt; streamToMap(
       InputStream source, int key, int value, boolean trimToNull) throws IOException {
-<span class="nc" id="L375">    return streamToMap(source, new HashMap&lt;&gt;(), key, value, trimToNull);</span>
+<span class="nc" id="L377">    return streamToMap(source, new HashMap&lt;&gt;(), key, value, trimToNull);</span>
   }
 
   /**
@@ -383,17 +385,17 @@ import org.slf4j.LoggerFactory;
    */
   public static Map&lt;String, String&gt; streamToMap(InputStream source, Map&lt;String, String&gt; result)
       throws IOException {
-<span class="nc" id="L386">    LineIterator lines = getLineIterator(source);</span>
-<span class="nc" id="L387">    Integer row = 0;</span>
-<span class="nc bnc" id="L388" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
-<span class="nc" id="L389">      row++;</span>
-<span class="nc" id="L390">      String line = lines.nextLine().trim();</span>
+<span class="nc" id="L388">    LineIterator lines = getLineIterator(source);</span>
+<span class="nc" id="L389">    Integer row = 0;</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
+<span class="nc" id="L391">      row++;</span>
+<span class="nc" id="L392">      String line = lines.nextLine().trim();</span>
       // ignore comments
-<span class="nc bnc" id="L392" title="All 2 branches missed.">      if (!ignore(line)) {</span>
-<span class="nc" id="L393">        result.put(line, row.toString());</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">      if (!ignore(line)) {</span>
+<span class="nc" id="L395">        result.put(line, row.toString());</span>
       }
-<span class="nc" id="L395">    }</span>
-<span class="nc" id="L396">    return result;</span>
+<span class="nc" id="L397">    }</span>
+<span class="nc" id="L398">    return result;</span>
   }
 
   /**
@@ -407,27 +409,27 @@ import org.slf4j.LoggerFactory;
   public static Map&lt;String, String&gt; streamToMap(
       InputStream source, Map&lt;String, String&gt; result, int key, int value, boolean trimToNull)
       throws IOException {
-<span class="nc" id="L410">    LineIterator lines = getLineIterator(source);</span>
-<span class="nc bnc" id="L411" title="All 2 branches missed.">    int maxCols = key &gt; value ? key : value + 1;</span>
-<span class="nc bnc" id="L412" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
-<span class="nc" id="L413">      String line = lines.nextLine();</span>
+<span class="nc" id="L412">    LineIterator lines = getLineIterator(source);</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">    int maxCols = key &gt; value ? key : value + 1;</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
+<span class="nc" id="L415">      String line = lines.nextLine();</span>
       // ignore comments
-<span class="nc bnc" id="L415" title="All 2 branches missed.">      if (!ignore(line)) {</span>
-<span class="nc" id="L416">        String[] parts = TAB_DELIMITED.split(line);</span>
-<span class="nc bnc" id="L417" title="All 2 branches missed.">        if (maxCols &lt;= parts.length) {</span>
-<span class="nc bnc" id="L418" title="All 2 branches missed.">          if (trimToNull) {</span>
-<span class="nc" id="L419">            result.put(StringUtils.trimToNull(parts[key]), StringUtils.trimToNull(parts[value]));</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">      if (!ignore(line)) {</span>
+<span class="nc" id="L418">        String[] parts = TAB_DELIMITED.split(line);</span>
+<span class="nc bnc" id="L419" title="All 2 branches missed.">        if (maxCols &lt;= parts.length) {</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">          if (trimToNull) {</span>
+<span class="nc" id="L421">            result.put(StringUtils.trimToNull(parts[key]), StringUtils.trimToNull(parts[value]));</span>
           } else {
-<span class="nc" id="L421">            result.put(parts[key], parts[value]);</span>
+<span class="nc" id="L423">            result.put(parts[key], parts[value]);</span>
           }
         }
       }
-<span class="nc" id="L425">    }</span>
-<span class="nc" id="L426">    return result;</span>
+<span class="nc" id="L427">    }</span>
+<span class="nc" id="L428">    return result;</span>
   }
 
   public static Set&lt;String&gt; streamToSet(InputStream source) throws IOException {
-<span class="nc" id="L430">    return streamToSet(source, new CompactHashSet&lt;&gt;());</span>
+<span class="nc" id="L432">    return streamToSet(source, new CompactHashSet&lt;&gt;());</span>
   }
 
   /**
@@ -439,34 +441,34 @@ import org.slf4j.LoggerFactory;
    */
   public static Set&lt;String&gt; streamToSet(InputStream source, Set&lt;String&gt; resultSet)
       throws IOException {
-<span class="nc" id="L442">    LineIterator lines = getLineIterator(source);</span>
-<span class="nc bnc" id="L443" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
-<span class="nc" id="L444">      String line = lines.nextLine().trim();</span>
+<span class="nc" id="L444">    LineIterator lines = getLineIterator(source);</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">    while (lines.hasNext()) {</span>
+<span class="nc" id="L446">      String line = lines.nextLine().trim();</span>
       // ignore comments
-<span class="nc bnc" id="L446" title="All 2 branches missed.">      if (!ignore(line)) {</span>
-<span class="nc" id="L447">        resultSet.add(line);</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">      if (!ignore(line)) {</span>
+<span class="nc" id="L449">        resultSet.add(line);</span>
       }
-<span class="nc" id="L449">    }</span>
-<span class="nc" id="L450">    return resultSet;</span>
+<span class="nc" id="L451">    }</span>
+<span class="nc" id="L452">    return resultSet;</span>
   }
 
   public static String toFilePath(URL url) {
     String protocol =
-<span class="pc bpc" id="L455" title="1 of 4 branches missed.">        url.getProtocol() == null || &quot;http&quot;.equalsIgnoreCase(url.getProtocol())</span>
-<span class="fc" id="L456">            ? &quot;&quot;</span>
-<span class="fc" id="L457">            : &quot;/__&quot; + url.getProtocol() + &quot;__&quot;;</span>
-<span class="pc bpc" id="L458" title="1 of 2 branches missed.">    String domain = url.getAuthority() == null ? &quot;__domainless&quot; : url.getAuthority();</span>
-<span class="fc" id="L459">    return domain + protocol + url.getFile();</span>
+<span class="pc bpc" id="L457" title="1 of 4 branches missed.">        url.getProtocol() == null || &quot;http&quot;.equalsIgnoreCase(url.getProtocol())</span>
+<span class="fc" id="L458">            ? &quot;&quot;</span>
+<span class="fc" id="L459">            : &quot;/__&quot; + url.getProtocol() + &quot;__&quot;;</span>
+<span class="pc bpc" id="L460" title="1 of 2 branches missed.">    String domain = url.getAuthority() == null ? &quot;__domainless&quot; : url.getAuthority();</span>
+<span class="fc" id="L461">    return domain + protocol + url.getFile();</span>
   }
 
   public static File url2file(URL url) {
-<span class="nc" id="L463">    File f = null;</span>
+<span class="nc" id="L465">    File f = null;</span>
     try {
-<span class="nc" id="L465">      f = new File(url.toURI());</span>
-<span class="nc" id="L466">    } catch (URISyntaxException e) {</span>
-<span class="nc" id="L467">      f = new File(url.getPath());</span>
-<span class="nc" id="L468">    }</span>
-<span class="nc" id="L469">    return f;</span>
+<span class="nc" id="L467">      f = new File(url.toURI());</span>
+<span class="nc" id="L468">    } catch (URISyntaxException e) {</span>
+<span class="nc" id="L469">      f = new File(url.getPath());</span>
+<span class="nc" id="L470">    }</span>
+<span class="nc" id="L471">    return f;</span>
   }
 
   /**
@@ -477,20 +479,20 @@ import org.slf4j.LoggerFactory;
    * @return The index of the lowest value, or -1 if they are all null
    */
   static int lowestValueIndex(List&lt;String&gt; values, Comparator&lt;String&gt; comparator) {
-<span class="fc" id="L480">    int index = 0;</span>
-<span class="fc" id="L481">    String lowestValue = null;</span>
-<span class="fc bfc" id="L482" title="All 2 branches covered.">    for (int i = 0; i &lt; values.size(); i++) {</span>
-<span class="fc" id="L483">      String value = values.get(i);</span>
-<span class="pc bpc" id="L484" title="1 of 2 branches missed.">      if (lowestValue == null) {</span>
-<span class="fc" id="L485">        lowestValue = value;</span>
-<span class="fc" id="L486">        index = i;</span>
-<span class="nc bnc" id="L487" title="All 2 branches missed.">      } else if (comparator.compare(lowestValue, value) &gt; 0) {</span>
-<span class="nc" id="L488">        lowestValue = value;</span>
-<span class="nc" id="L489">        index = i;</span>
+<span class="fc" id="L482">    int index = 0;</span>
+<span class="fc" id="L483">    String lowestValue = null;</span>
+<span class="fc bfc" id="L484" title="All 2 branches covered.">    for (int i = 0; i &lt; values.size(); i++) {</span>
+<span class="fc" id="L485">      String value = values.get(i);</span>
+<span class="fc bfc" id="L486" title="All 2 branches covered.">      if (lowestValue == null) {</span>
+<span class="fc" id="L487">        lowestValue = value;</span>
+<span class="fc" id="L488">        index = i;</span>
+<span class="fc bfc" id="L489" title="All 2 branches covered.">      } else if (comparator.compare(lowestValue, value) &gt; 0) {</span>
+<span class="fc" id="L490">        lowestValue = value;</span>
+<span class="fc" id="L491">        index = i;</span>
       }
     }
 
-<span class="fc bfc" id="L493" title="All 2 branches covered.">    return lowestValue == null ? -1 : index;</span>
+<span class="fc bfc" id="L495" title="All 2 branches covered.">    return lowestValue == null ? -1 : index;</span>
   }
 
   /**
@@ -502,20 +504,20 @@ import org.slf4j.LoggerFactory;
    * @return The proposed name
    */
   private static File getChunkFile(File original, int index) {
-<span class="fc" id="L505">    return new File(</span>
-<span class="fc" id="L506">        original.getParentFile(),</span>
-<span class="fc" id="L507">        FilenameUtils.getBaseName(original.getName())</span>
+<span class="fc" id="L507">    return new File(</span>
+<span class="fc" id="L508">        original.getParentFile(),</span>
+<span class="fc" id="L509">        FilenameUtils.getBaseName(original.getName())</span>
             + '_'
             + index
-<span class="fc" id="L510">            + getFileExtension(original.getName()));</span>
+<span class="fc" id="L512">            + getFileExtension(original.getName()));</span>
   }
 
   private static boolean ignore(String line) {
-<span class="nc bnc" id="L514" title="All 4 branches missed.">    return StringUtils.trimToNull(line) == null || line.startsWith(&quot;#&quot;);</span>
+<span class="nc bnc" id="L516" title="All 4 branches missed.">    return StringUtils.trimToNull(line) == null || line.startsWith(&quot;#&quot;);</span>
   }
 
   public int getLinesPerMemorySort() {
-<span class="nc" id="L518">    return linesPerMemorySort;</span>
+<span class="nc" id="L520">    return linesPerMemorySort;</span>
   }
 
   /**
@@ -530,59 +532,59 @@ import org.slf4j.LoggerFactory;
   public void mergedSortedFiles(
       List&lt;File&gt; sortFiles, OutputStreamWriter sortedFileWriter, Comparator&lt;String&gt; lineComparator)
       throws IOException {
-<span class="fc" id="L533">    List&lt;BufferedReader&gt; partReaders = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L535">    List&lt;BufferedReader&gt; partReaders = new LinkedList&lt;&gt;();</span>
     try {
-<span class="fc" id="L535">      List&lt;String&gt; partReaderLine = new LinkedList&lt;&gt;();</span>
-<span class="fc bfc" id="L536" title="All 2 branches covered.">      for (File f : sortFiles) {</span>
+<span class="fc" id="L537">      List&lt;String&gt; partReaderLine = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L538" title="All 2 branches covered.">      for (File f : sortFiles) {</span>
         // Use UTF-8 sort order.
-<span class="fc" id="L538">        partReaders.add(</span>
+<span class="fc" id="L540">        partReaders.add(</span>
             new BufferedReader(
                 new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)));
-<span class="fc" id="L541">      }</span>
-<span class="fc" id="L542">      boolean moreData = false;</span>
+<span class="fc" id="L543">      }</span>
+<span class="fc" id="L544">      boolean moreData = false;</span>
       // load first line in
-<span class="fc bfc" id="L544" title="All 2 branches covered.">      for (BufferedReader partReader : partReaders) {</span>
-<span class="fc" id="L545">        String partLine = partReader.readLine();</span>
-<span class="pc bpc" id="L546" title="1 of 2 branches missed.">        if (partLine != null) {</span>
-<span class="fc" id="L547">          moreData = true;</span>
+<span class="fc bfc" id="L546" title="All 2 branches covered.">      for (BufferedReader partReader : partReaders) {</span>
+<span class="fc" id="L547">        String partLine = partReader.readLine();</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">        if (partLine != null) {</span>
+<span class="fc" id="L549">          moreData = true;</span>
         }
         // we still add the &quot;null&quot; to keep the partReaders and partLineReader indexes in sync -
         // ALWAYS
-<span class="fc" id="L551">        partReaderLine.add(partLine);</span>
-<span class="fc" id="L552">      }</span>
+<span class="fc" id="L553">        partReaderLine.add(partLine);</span>
+<span class="fc" id="L554">      }</span>
       // keep going until all readers are exhausted
-<span class="fc bfc" id="L554" title="All 2 branches covered.">      while (moreData) {</span>
-<span class="fc" id="L555">        int index = lowestValueIndex(partReaderLine, lineComparator);</span>
-<span class="fc bfc" id="L556" title="All 2 branches covered.">        if (index &gt;= 0) {</span>
-<span class="fc" id="L557">          sortedFileWriter.write(partReaderLine.get(index));</span>
-<span class="fc" id="L558">          sortedFileWriter.write(&quot;\n&quot;);</span>
-<span class="fc" id="L559">          BufferedReader r = partReaders.get(index);</span>
-<span class="fc" id="L560">          String partLine = r.readLine();</span>
+<span class="fc bfc" id="L556" title="All 2 branches covered.">      while (moreData) {</span>
+<span class="fc" id="L557">        int index = lowestValueIndex(partReaderLine, lineComparator);</span>
+<span class="fc bfc" id="L558" title="All 2 branches covered.">        if (index &gt;= 0) {</span>
+<span class="fc" id="L559">          sortedFileWriter.write(partReaderLine.get(index));</span>
+<span class="fc" id="L560">          sortedFileWriter.write(&quot;\n&quot;);</span>
+<span class="fc" id="L561">          BufferedReader r = partReaders.get(index);</span>
+<span class="fc" id="L562">          String partLine = r.readLine();</span>
           // TODO: Synchronization on local variable?
-<span class="fc" id="L562">          synchronized (partReaderLine) {</span>
-<span class="fc" id="L563">            partReaderLine.add(index, partLine);</span>
-<span class="fc" id="L564">            partReaderLine.remove(index + 1);</span>
-<span class="fc" id="L565">          }</span>
-<span class="fc" id="L566">        } else {</span>
-<span class="fc" id="L567">          moreData = false;</span>
+<span class="fc" id="L564">          synchronized (partReaderLine) {</span>
+<span class="fc" id="L565">            partReaderLine.add(index, partLine);</span>
+<span class="fc" id="L566">            partReaderLine.remove(index + 1);</span>
+<span class="fc" id="L567">          }</span>
+<span class="fc" id="L568">        } else {</span>
+<span class="fc" id="L569">          moreData = false;</span>
         }
-<span class="fc" id="L569">      }</span>
+<span class="fc" id="L571">      }</span>
     } finally {
-<span class="fc bfc" id="L571" title="All 2 branches covered.">      for (BufferedReader b : partReaders) {</span>
+<span class="fc bfc" id="L573" title="All 2 branches covered.">      for (BufferedReader b : partReaders) {</span>
         try {
-<span class="fc" id="L573">          b.close();</span>
-<span class="nc" id="L574">        } catch (RuntimeException e) {</span>
-<span class="fc" id="L575">        }</span>
-<span class="fc" id="L576">      }</span>
+<span class="fc" id="L575">          b.close();</span>
+<span class="nc" id="L576">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L577">        }</span>
+<span class="fc" id="L578">      }</span>
       // I assume it periodically flushes anyway, so only need to do once at end...
-<span class="fc" id="L578">      sortedFileWriter.flush();</span>
-<span class="fc" id="L579">      sortedFileWriter.close();</span>
+<span class="fc" id="L580">      sortedFileWriter.flush();</span>
+<span class="fc" id="L581">      sortedFileWriter.close();</span>
       // delete (intermediary) sort chunk files, only the sorted file remains
-<span class="fc bfc" id="L581" title="All 2 branches covered.">      for (File f : sortFiles) {</span>
-<span class="fc" id="L582">        f.delete();</span>
-<span class="fc" id="L583">      }</span>
+<span class="fc bfc" id="L583" title="All 2 branches covered.">      for (File f : sortFiles) {</span>
+<span class="fc" id="L584">        f.delete();</span>
+<span class="fc" id="L585">      }</span>
     }
-<span class="fc" id="L585">  }</span>
+<span class="fc" id="L587">  }</span>
 
   /**
    * Sorts the input file into the output file using the supplied delimited line parameters.
@@ -609,14 +611,50 @@ import org.slf4j.LoggerFactory;
       String newlineDelimiter,
       int ignoreHeaderLines)
       throws IOException {
+<span class="fc" id="L614">    sort(</span>
+<span class="fc" id="L615">        Collections.singletonList(input),</span>
+        sorted,
+        encoding,
+        column,
+        columnDelimiter,
+        enclosedBy,
+        newlineDelimiter,
+        ignoreHeaderLines);
+<span class="fc" id="L623">  }</span>
+
+  /**
+   * Sorts the input file into the output file using the supplied delimited line parameters.
+   *
+   * This method is not reliable when the sort field may contain Unicode codepoints outside the Basic Multilingual Plane,
+   * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
+   * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
+   *
+   * @param inputs To sort
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param column the column that keeps the values to sort on
+   * @param columnDelimiter the delimiter that separates columns in a row
+   * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
+   * @param newlineDelimiter the chars used for new lines, usually \n, \n\r or \r
+   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
+   */
+  public void sort(
+      List&lt;File&gt; inputs,
+      File sorted,
+      String encoding,
+      int column,
+      String columnDelimiter,
+      Character enclosedBy,
+      String newlineDelimiter,
+      int ignoreHeaderLines)
+      throws IOException {
     Comparator&lt;String&gt; lineComparator;
-<span class="fc bfc" id="L613" title="All 2 branches covered.">    if (enclosedBy == null) {</span>
-<span class="fc" id="L614">      lineComparator = new LineComparator(column, columnDelimiter);</span>
+<span class="fc bfc" id="L651" title="All 2 branches covered.">    if (enclosedBy == null) {</span>
+<span class="fc" id="L652">      lineComparator = new LineComparator(column, columnDelimiter);</span>
     } else {
-<span class="fc" id="L616">      lineComparator = new LineComparator(column, columnDelimiter, enclosedBy);</span>
+<span class="fc" id="L654">      lineComparator = new LineComparator(column, columnDelimiter, enclosedBy);</span>
     }
-<span class="fc" id="L618">    sort(</span>
-        input,
+<span class="fc" id="L656">    sort(</span>
+        inputs,
         sorted,
         encoding,
         column,
@@ -626,7 +664,7 @@ import org.slf4j.LoggerFactory;
         ignoreHeaderLines,
         lineComparator,
         false);
-<span class="fc" id="L629">  }</span>
+<span class="fc" id="L667">  }</span>
 
   /**
    * Sorts the input file into the output file using the supplied delimited line parameters.
@@ -635,7 +673,7 @@ import org.slf4j.LoggerFactory;
    * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
    * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
    *
-   * TODO: This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
+   * This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
    * This could be improved to allow synchronizing against the destination file, rather than for all sorts.
    *
    * @param input To sort
@@ -660,33 +698,82 @@ import org.slf4j.LoggerFactory;
       Comparator&lt;String&gt; lineComparator,
       boolean ignoreCase)
       throws IOException {
-<span class="fc" id="L663">    LOG.debug(&quot;Sorting &quot; + input.getAbsolutePath() + &quot; as new file &quot; + sorted.getAbsolutePath());</span>
-<span class="pc bpc" id="L664" title="1 of 2 branches missed.">    if (encoding == null) {</span>
-<span class="nc" id="L665">      LOG.warn(&quot;No encoding specified, assume UTF-8&quot;);</span>
-<span class="nc" id="L666">      encoding = FileUtils.UTF8;</span>
+<span class="nc" id="L701">    sort(</span>
+<span class="nc" id="L702">        Collections.singletonList(input),</span>
+        sorted,
+        encoding,
+        column,
+        columnDelimiter,
+        enclosedBy,
+        newlineDelimiter,
+        ignoreHeaderLines,
+        lineComparator,
+        ignoreCase);
+<span class="nc" id="L712">  }</span>
+
+  /**
+   * Sorts the input file into the output file using the supplied delimited line parameters.
+   *
+   * This method is not reliable when the sort field may contain Unicode codepoints outside the Basic Multilingual Plane,
+   * i.e. above \uFFFF. In that case, the sort order differs from Java's String sort order.  This should not be a problem
+   * for most usage; the Supplementary Multilingual Planes contain ancient scripts, emojis, arrows and so on.
+   *
+   * This method is globally synchronized, in case multiple sorts are attempted to the same file simultaneously.
+   * This could be improved to allow synchronizing against the destination file, rather than for all sorts.
+   *
+   * @param inputs To sort
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param column the column that keeps the values to sort on
+   * @param columnDelimiter the delimiter that separates columns in a row
+   * @param enclosedBy optional column enclosing character, e.g. a double quote for CSVs
+   * @param newlineDelimiter the chars used for new lines, usually \n, \r\n or \r
+   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
+   * @param lineComparator used to sort the output
+   * @param ignoreCase ignore case order, this parameter couldn't have any effect if the LineComparator is used
+   */
+  public void sort(
+      List&lt;File&gt; inputs,
+      File sorted,
+      String encoding,
+      int column,
+      String columnDelimiter,
+      Character enclosedBy,
+      String newlineDelimiter,
+      int ignoreHeaderLines,
+      Comparator&lt;String&gt; lineComparator,
+      boolean ignoreCase)
+      throws IOException {
+<span class="fc" id="L746">    LOG.debug(</span>
+        &quot;Sorting file(s) {} as new file {}&quot;,
+<span class="fc" id="L748">        inputs.stream().map(File::getAbsolutePath),</span>
+<span class="fc" id="L749">        sorted.getAbsolutePath());</span>
+<span class="pc bpc" id="L750" title="1 of 2 branches missed.">    if (encoding == null) {</span>
+<span class="nc" id="L751">      LOG.warn(&quot;No encoding specified, assume UTF-8&quot;);</span>
+<span class="nc" id="L752">      encoding = FileUtils.UTF8;</span>
     }
-<span class="fc" id="L668">    synchronized (sortLock) {</span>
-<span class="pc bpc" id="L669" title="1 of 2 branches missed.">      if (sorted.exists()) {</span>
+<span class="fc" id="L754">    synchronized (sortLock) {</span>
+<span class="pc bpc" id="L755" title="1 of 2 branches missed.">      if (sorted.exists()) {</span>
         // Delete a file, which will allow processes with it open to continue reading it.
         // The GNU sort truncates and appends, which would mean a partial read otherwise.
-<span class="fc" id="L672">        LOG.warn(&quot;Deleting existed sorted file {}&quot;, sorted.getAbsoluteFile());</span>
-<span class="fc" id="L673">        sorted.delete();</span>
+<span class="fc" id="L758">        LOG.warn(&quot;Deleting existed sorted file {}&quot;, sorted.getAbsoluteFile());</span>
+<span class="fc" id="L759">        sorted.delete();</span>
       }
       // if the id is in the first column, first try sorting via shell as its the fastest we can get
-<span class="fc bfc" id="L676" title="All 2 branches covered.">      if (!sortInGnu(</span>
-          input,
+<span class="fc bfc" id="L762" title="All 2 branches covered.">      if (!sortInGnu(</span>
+          inputs,
           sorted,
           encoding,
           ignoreHeaderLines,
           column,
           columnDelimiter,
+          enclosedBy,
           newlineDelimiter,
           ignoreCase)) {
-<span class="fc" id="L685">        LOG.debug(&quot;No GNU sort available, using native Java sorting&quot;);</span>
-<span class="fc" id="L686">        sortInJava(input, sorted, encoding, lineComparator, ignoreHeaderLines);</span>
+<span class="fc" id="L772">        LOG.debug(&quot;No GNU sort available, using native Java sorting&quot;);</span>
+<span class="fc" id="L773">        sortInJava(inputs, sorted, encoding, lineComparator, ignoreHeaderLines);</span>
       }
-<span class="fc" id="L688">    }</span>
-<span class="fc" id="L689">  }</span>
+<span class="fc" id="L775">    }</span>
+<span class="fc" id="L776">  }</span>
 
   /**
    * Sorts the input file into the output file using the supplied lineComparator.
@@ -703,64 +790,87 @@ import org.slf4j.LoggerFactory;
       Comparator&lt;String&gt; lineComparator,
       int ignoreHeaderLines)
       throws IOException {
-<span class="fc" id="L706">    LOG.debug(&quot;Sorting File[&quot; + input.getAbsolutePath() + ']');</span>
-<span class="fc" id="L707">    long start = System.currentTimeMillis();</span>
-<span class="fc" id="L708">    List&lt;File&gt; sortFiles = new LinkedList&lt;&gt;();</span>
-<span class="fc" id="L709">    BufferedReader br =</span>
-        new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
-<span class="fc" id="L711">    List&lt;String&gt; headerLines = new LinkedList&lt;&gt;();</span>
-    try {
-<span class="fc" id="L713">      String line = br.readLine();</span>
-<span class="fc" id="L714">      int fileCount = 0;</span>
+<span class="fc" id="L793">    sortInJava(</span>
+<span class="fc" id="L794">        Collections.singletonList(input), sorted, encoding, lineComparator, ignoreHeaderLines);</span>
+<span class="fc" id="L795">  }</span>
 
-<span class="fc" id="L716">      List&lt;String&gt; linesToSort = new LinkedList&lt;&gt;();</span>
-<span class="fc bfc" id="L717" title="All 2 branches covered.">      while (line != null) {</span>
-<span class="fc bfc" id="L718" title="All 2 branches covered.">        if (ignoreHeaderLines &gt; 0) {</span>
-<span class="fc" id="L719">          headerLines.add(line);</span>
-<span class="fc" id="L720">          ignoreHeaderLines--;</span>
-        } else {
-<span class="fc" id="L722">          linesToSort.add(line);</span>
+  /**
+   * Sorts the input file into the output file using the supplied lineComparator.
+   *
+   * @param inputs To sort
+   * @param sorted The sorted version of the input excluding ignored header lines (see ignoreHeaderLines)
+   * @param lineComparator To use during comparison
+   * @param ignoreHeaderLines number of beginning lines to ignore, e.g. headers
+   */
+  public void sortInJava(
+      List&lt;File&gt; inputs,
+      File sorted,
+      String encoding,
+      Comparator&lt;String&gt; lineComparator,
+      int ignoreHeaderLines)
+      throws IOException {
+<span class="fc" id="L812">    LOG.debug(&quot;Sorting file(s) {}&quot;, inputs.stream().map(File::getAbsolutePath));</span>
+<span class="fc" id="L813">    long start = System.currentTimeMillis();</span>
 
-          // if buffer is full, then sort and write to file
-<span class="pc bpc" id="L725" title="1 of 2 branches missed.">          if (linesToSort.size() == linesPerMemorySort) {</span>
-<span class="nc" id="L726">            sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));</span>
-<span class="nc" id="L727">            linesToSort = new LinkedList&lt;&gt;();</span>
-<span class="nc" id="L728">            fileCount++;</span>
+<span class="fc" id="L815">    List&lt;File&gt; sortFiles = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L816">    List&lt;String&gt; headerLines = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L817" title="All 2 branches covered.">    for (File input : inputs) {</span>
+<span class="fc" id="L818">      BufferedReader br =</span>
+          new BufferedReader(new InputStreamReader(new FileInputStream(input), encoding));
+<span class="fc" id="L820">      int skipHeaderLines = ignoreHeaderLines;</span>
+      try {
+<span class="fc" id="L822">        String line = br.readLine();</span>
+<span class="fc" id="L823">        int fileCount = 0;</span>
+
+<span class="fc" id="L825">        List&lt;String&gt; linesToSort = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L826" title="All 2 branches covered.">        while (line != null) {</span>
+<span class="fc bfc" id="L827" title="All 2 branches covered.">          if (skipHeaderLines &gt; 0) {</span>
+            // Only add the header lines for the first file
+<span class="fc bfc" id="L829" title="All 2 branches covered.">            if (headerLines.size() &lt; ignoreHeaderLines) {</span>
+<span class="fc" id="L830">              headerLines.add(line);</span>
+            }
+<span class="fc" id="L832">            skipHeaderLines--;</span>
+          } else {
+<span class="fc" id="L834">            linesToSort.add(line);</span>
+
+            // if buffer is full, then sort and write to file
+<span class="pc bpc" id="L837" title="1 of 2 branches missed.">            if (linesToSort.size() == linesPerMemorySort) {</span>
+<span class="nc" id="L838">              sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));</span>
+<span class="nc" id="L839">              linesToSort = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L840">              fileCount++;</span>
+            }
           }
+<span class="fc" id="L843">          line = br.readLine();</span>
         }
-<span class="fc" id="L731">        line = br.readLine();</span>
+        // catch the last lot
+<span class="pc bpc" id="L846" title="1 of 2 branches missed.">        if (!linesToSort.isEmpty()) {</span>
+<span class="fc" id="L847">          sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));</span>
+        }
+      } finally {
+<span class="fc" id="L850">        br.close();</span>
       }
-      // catch the last lot
-<span class="pc bpc" id="L734" title="1 of 2 branches missed.">      if (!linesToSort.isEmpty()) {</span>
-<span class="fc" id="L735">        sortFiles.add(sortAndWrite(input, encoding, lineComparator, fileCount, linesToSort));</span>
-      }
-    } finally {
-<span class="fc" id="L738">      br.close();</span>
-    }
-<span class="fc" id="L740">    LOG.debug(</span>
-<span class="fc" id="L741">        sortFiles.size()</span>
+<span class="fc" id="L852">    }</span>
+<span class="fc" id="L853">    LOG.debug(</span>
+<span class="fc" id="L854">        sortFiles.size()</span>
             + &quot; sorted file chunks created in &quot;
-<span class="fc" id="L743">            + (System.currentTimeMillis() - start) / 1000</span>
+<span class="fc" id="L856">            + (System.currentTimeMillis() - start) / 1000</span>
             + &quot; secs&quot;);
 
     // now merge the sorted files into one single sorted file
-<span class="fc" id="L747">    FileWriter sortedFileWriter = new FileWriter(sorted);</span>
+<span class="fc" id="L860">    FileWriter sortedFileWriter = new FileWriter(sorted);</span>
     // first write the old header lines if existing
-<span class="fc bfc" id="L749" title="All 2 branches covered.">    for (String h : headerLines) {</span>
-<span class="fc" id="L750">      sortedFileWriter.write(h);</span>
-<span class="fc" id="L751">      sortedFileWriter.write(&quot;\n&quot;);</span>
-<span class="fc" id="L752">    }</span>
-<span class="fc" id="L753">    mergedSortedFiles(sortFiles, sortedFileWriter, lineComparator);</span>
+<span class="fc bfc" id="L862" title="All 2 branches covered.">    for (String h : headerLines) {</span>
+<span class="fc" id="L863">      sortedFileWriter.write(h);</span>
+<span class="fc" id="L864">      sortedFileWriter.write(&quot;\n&quot;);</span>
+<span class="fc" id="L865">    }</span>
+<span class="fc" id="L866">    mergedSortedFiles(sortFiles, sortedFileWriter, lineComparator);</span>
 
-<span class="fc" id="L755">    LOG.debug(</span>
-        &quot;File &quot;
-<span class="fc" id="L757">            + input.getAbsolutePath()</span>
-            + &quot; sorted successfully using &quot;
-<span class="fc" id="L759">            + sortFiles.size()</span>
-            + &quot; parts to do sorting in &quot;
-<span class="fc" id="L761">            + (System.currentTimeMillis() - start) / 1000</span>
-            + &quot; secs&quot;);
-<span class="fc" id="L763">  }</span>
+<span class="fc" id="L868">    LOG.debug(</span>
+        &quot;Fils(s) {} sorted successfully using {} parts to do sorting in {}s&quot;,
+<span class="fc" id="L870">        inputs.stream().map(File::getAbsolutePath),</span>
+<span class="fc" id="L871">        sortFiles.size(),</span>
+<span class="fc" id="L872">        (System.currentTimeMillis() - start) / 1000);</span>
+<span class="fc" id="L873">  }</span>
 
   /**
    * Splits the supplied file into files of set line size and with a suffix.
@@ -771,52 +881,52 @@ import org.slf4j.LoggerFactory;
    * @return The split files
    */
   public List&lt;File&gt; split(File input, int linesPerOutput, String extension) throws IOException {
-<span class="nc" id="L774">    LOG.debug(&quot;Splitting File[&quot; + input.getAbsolutePath() + ']');</span>
-<span class="nc" id="L775">    long timer = System.currentTimeMillis();</span>
-<span class="nc" id="L776">    List&lt;File&gt; splitFiles = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L884">    LOG.debug(&quot;Splitting File[&quot; + input.getAbsolutePath() + ']');</span>
+<span class="nc" id="L885">    long timer = System.currentTimeMillis();</span>
+<span class="nc" id="L886">    List&lt;File&gt; splitFiles = new LinkedList&lt;&gt;();</span>
     // Use ISO-8859-1 as a binary-safe encoding.
-<span class="nc" id="L778">    BufferedReader br =</span>
+<span class="nc" id="L888">    BufferedReader br =</span>
         new BufferedReader(
             new InputStreamReader(new FileInputStream(input), StandardCharsets.ISO_8859_1));
-<span class="nc" id="L781">    String line = br.readLine();</span>
-<span class="nc" id="L782">    int fileCount = 0;</span>
-<span class="nc" id="L783">    File splitFile = getChunkFile(input, fileCount);</span>
-<span class="nc" id="L784">    fileCount++;</span>
-<span class="nc" id="L785">    splitFiles.add(splitFile);</span>
-<span class="nc" id="L786">    OutputStreamWriter fw =</span>
+<span class="nc" id="L891">    String line = br.readLine();</span>
+<span class="nc" id="L892">    int fileCount = 0;</span>
+<span class="nc" id="L893">    File splitFile = getChunkFile(input, fileCount);</span>
+<span class="nc" id="L894">    fileCount++;</span>
+<span class="nc" id="L895">    splitFiles.add(splitFile);</span>
+<span class="nc" id="L896">    OutputStreamWriter fw =</span>
         new OutputStreamWriter(new FileOutputStream(splitFile), StandardCharsets.ISO_8859_1);
     try {
-<span class="nc" id="L789">      int lineCount = 0;</span>
-<span class="nc bnc" id="L790" title="All 2 branches missed.">      while (line != null) {</span>
-<span class="nc bnc" id="L791" title="All 2 branches missed.">        if (lineCount == linesPerOutput) {</span>
-<span class="nc" id="L792">          fw.flush();</span>
-<span class="nc" id="L793">          fw.close();</span>
-<span class="nc" id="L794">          splitFile = getChunkFile(input, fileCount);</span>
-<span class="nc" id="L795">          splitFiles.add(splitFile);</span>
+<span class="nc" id="L899">      int lineCount = 0;</span>
+<span class="nc bnc" id="L900" title="All 2 branches missed.">      while (line != null) {</span>
+<span class="nc bnc" id="L901" title="All 2 branches missed.">        if (lineCount == linesPerOutput) {</span>
+<span class="nc" id="L902">          fw.flush();</span>
+<span class="nc" id="L903">          fw.close();</span>
+<span class="nc" id="L904">          splitFile = getChunkFile(input, fileCount);</span>
+<span class="nc" id="L905">          splitFiles.add(splitFile);</span>
           // is ok to reuse, as last one is closed, and this will always get closed - see finally
           // below
-<span class="nc" id="L798">          fw = new OutputStreamWriter(new FileOutputStream(splitFile), StandardCharsets.ISO_8859_1);</span>
-<span class="nc" id="L799">          fileCount++;</span>
-<span class="nc" id="L800">          lineCount = 0;</span>
+<span class="nc" id="L908">          fw = new OutputStreamWriter(new FileOutputStream(splitFile), StandardCharsets.ISO_8859_1);</span>
+<span class="nc" id="L909">          fileCount++;</span>
+<span class="nc" id="L910">          lineCount = 0;</span>
         }
-<span class="nc" id="L802">        fw.write(line);</span>
-<span class="nc" id="L803">        fw.write(&quot;\n&quot;);</span>
-<span class="nc" id="L804">        line = br.readLine();</span>
-<span class="nc" id="L805">        lineCount++;</span>
+<span class="nc" id="L912">        fw.write(line);</span>
+<span class="nc" id="L913">        fw.write(&quot;\n&quot;);</span>
+<span class="nc" id="L914">        line = br.readLine();</span>
+<span class="nc" id="L915">        lineCount++;</span>
       }
-<span class="nc" id="L807">      fw.flush();</span>
+<span class="nc" id="L917">      fw.flush();</span>
     } finally {
-<span class="nc" id="L809">      fw.close();</span>
+<span class="nc" id="L919">      fw.close();</span>
     }
-<span class="nc" id="L811">    LOG.debug(</span>
+<span class="nc" id="L921">    LOG.debug(</span>
         &quot;File[&quot;
-<span class="nc" id="L813">            + input.getAbsolutePath()</span>
+<span class="nc" id="L923">            + input.getAbsolutePath()</span>
             + &quot;] split successfully into[&quot;
-<span class="nc" id="L815">            + splitFiles.size()</span>
+<span class="nc" id="L925">            + splitFiles.size()</span>
             + &quot;] parts in secs[&quot;
-<span class="nc" id="L817">            + (1 + System.currentTimeMillis() - timer) / 1000</span>
+<span class="nc" id="L927">            + (1 + System.currentTimeMillis() - timer) / 1000</span>
             + &quot;]&quot;);
-<span class="nc" id="L819">    return splitFiles;</span>
+<span class="nc" id="L929">    return splitFiles;</span>
   }
 
   /**
@@ -826,34 +936,34 @@ import org.slf4j.LoggerFactory;
    * Mac OS only includes an old version of GNU sort, and will fail this test.
    */
   private boolean gnuSortAvailable() {
-<span class="fc bfc" id="L829" title="All 2 branches covered.">    if (gnuSortAvailable != null) {</span>
-<span class="fc" id="L830">      return gnuSortAvailable;</span>
+<span class="fc bfc" id="L939" title="All 2 branches covered.">    if (gnuSortAvailable != null) {</span>
+<span class="fc" id="L940">      return gnuSortAvailable;</span>
     }
 
     try {
-<span class="fc" id="L834">      String command = &quot;sort -k1,1 -t',' --ignore-case /dev/null&quot;;</span>
-<span class="fc" id="L835">      LOG.debug(&quot;Testing capability of GNU sort with command: {}&quot;, command);</span>
+<span class="fc" id="L944">      String command = &quot;sort -k1,1 -t',' --ignore-case /dev/null&quot;;</span>
+<span class="fc" id="L945">      LOG.debug(&quot;Testing capability of 'sort' with command: {}&quot;, command);</span>
 
-<span class="fc" id="L837">      Process process = new ProcessBuilder(&quot;/bin/sh&quot;, &quot;-c&quot;, command).start();</span>
-<span class="fc" id="L838">      int exitValue = process.waitFor();</span>
+<span class="fc" id="L947">      Process process = new ProcessBuilder(&quot;/bin/sh&quot;, &quot;-c&quot;, command).start();</span>
+<span class="fc" id="L948">      int exitValue = process.waitFor();</span>
 
-<span class="pc bpc" id="L840" title="1 of 2 branches missed.">      if (exitValue == 0) {</span>
-<span class="fc" id="L841">        LOG.debug(&quot;GNU sort is capable&quot;);</span>
-<span class="fc" id="L842">        gnuSortAvailable = true;</span>
+<span class="pc bpc" id="L950" title="1 of 2 branches missed.">      if (exitValue == 0) {</span>
+<span class="fc" id="L951">        LOG.debug(&quot;GNU sort is capable&quot;);</span>
+<span class="fc" id="L952">        gnuSortAvailable = true;</span>
       } else {
-<span class="nc" id="L844">        LOG.warn(</span>
+<span class="nc" id="L954">        LOG.warn(</span>
             &quot;GNU sort does not exist or is too old, and will not be used.  Sorting large files will be slow.&quot;,
-<span class="nc" id="L846">            new InputStreamUtils().readEntireStream(process.getErrorStream()).replace('\n', ' '));</span>
-<span class="nc" id="L847">        gnuSortAvailable = false;</span>
+<span class="nc" id="L956">            new InputStreamUtils().readEntireStream(process.getErrorStream()).replace('\n', ' '));</span>
+<span class="nc" id="L957">        gnuSortAvailable = false;</span>
       }
-<span class="nc" id="L849">    } catch (Exception e) {</span>
-<span class="nc" id="L850">      LOG.warn(</span>
+<span class="nc" id="L959">    } catch (Exception e) {</span>
+<span class="nc" id="L960">      LOG.warn(</span>
           &quot;GNU sort does not exist or is too old, and will not be used.  Sorting large files will be slow.&quot;,
           e);
-<span class="nc" id="L853">      gnuSortAvailable = false;</span>
-<span class="fc" id="L854">    }</span>
+<span class="nc" id="L963">      gnuSortAvailable = false;</span>
+<span class="fc" id="L964">    }</span>
 
-<span class="fc" id="L856">    return gnuSortAvailable;</span>
+<span class="fc" id="L966">    return gnuSortAvailable;</span>
   }
 
   /**
@@ -889,107 +999,115 @@ import org.slf4j.LoggerFactory;
    * &lt;/pre&gt;
    */
   protected boolean sortInGnu(
-      File input,
+      List&lt;File&gt; inputs,
       File sorted,
       String encoding,
       int ignoreHeaderLines,
       int column,
       String columnDelimiter,
+      Character enclosedBy,
       String lineDelimiter,
       boolean ignoreCase)
       throws IOException {
     String command;
-    // GNU sort is checked for use when:
+    // GNU sort is available for use when:
     // • line delimiter is \n
-    // • column delimiter is set and we're not using the first column
+    // • no enclosed by/quote character is in use
+    // • sorting is using the first column
     // • sort version is sufficient to include start and end column (-k 1,1).
     // Use the --debug option to sort if working on this code.
-<span class="pc bpc" id="L907" title="1 of 2 branches missed.">    if (lineDelimiter == null</span>
-<span class="pc bpc" id="L908" title="1 of 6 branches missed.">        || !lineDelimiter.contains(&quot;\n&quot;)</span>
-        || (columnDelimiter != null &amp;&amp; column &gt; 0)
-<span class="pc bpc" id="L910" title="1 of 2 branches missed.">        || !gnuSortAvailable()) {</span>
-<span class="fc" id="L911">      LOG.debug(&quot;Cannot use GNU sort on this file&quot;);</span>
-<span class="fc" id="L912">      return false;</span>
+<span class="pc bpc" id="L1019" title="1 of 4 branches missed.">    if (lineDelimiter == null || !lineDelimiter.contains(&quot;\n&quot;)) {</span>
+<span class="fc" id="L1020">      LOG.debug(&quot;Cannot use GNU sort on this file: line delimiter does not contain newline.&quot;);</span>
+<span class="fc" id="L1021">      return false;</span>
+<span class="pc bpc" id="L1022" title="1 of 4 branches missed.">    } else if (columnDelimiter != null &amp;&amp; column &gt; 0) {</span>
+<span class="fc" id="L1023">      LOG.debug(&quot;Cannot use GNU sort on this file: sort column is not the first.&quot;);</span>
+<span class="fc" id="L1024">      return false;</span>
+<span class="fc bfc" id="L1025" title="All 2 branches covered.">    } else if (enclosedBy != null) {</span>
+<span class="fc" id="L1026">      LOG.debug(&quot;Cannot use GNU sort on this file: enclosed by character set.&quot;);</span>
+<span class="fc" id="L1027">      return false;</span>
+<span class="pc bpc" id="L1028" title="1 of 2 branches missed.">    } else if (!gnuSortAvailable()) {</span>
+<span class="nc" id="L1029">      LOG.debug(&quot;Cannot use GNU sort on this file: command unavailable.&quot;);</span>
+<span class="nc" id="L1030">      return false;</span>
     }
 
     // keep header rows
-<span class="fc" id="L916">    boolean success = false;</span>
+<span class="fc" id="L1034">    boolean success = false;</span>
     try {
-<span class="fc" id="L918">      LinkedList&lt;String&gt; cmds = new LinkedList&lt;&gt;();</span>
-<span class="fc" id="L919">      cmds.add(&quot;/bin/sh&quot;);</span>
-<span class="fc" id="L920">      cmds.add(&quot;-c&quot;);</span>
-<span class="fc" id="L921">      cmds.add(&quot;&quot;);</span>
-<span class="fc" id="L922">      ProcessBuilder pb = new ProcessBuilder(cmds);</span>
-<span class="fc" id="L923">      Map&lt;String, String&gt; env = pb.environment();</span>
+<span class="fc" id="L1036">      LinkedList&lt;String&gt; cmds = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L1037">      cmds.add(&quot;/bin/sh&quot;);</span>
+<span class="fc" id="L1038">      cmds.add(&quot;-c&quot;);</span>
+<span class="fc" id="L1039">      cmds.add(&quot;&quot;);</span>
+<span class="fc" id="L1040">      ProcessBuilder pb = new ProcessBuilder(cmds);</span>
+<span class="fc" id="L1041">      Map&lt;String, String&gt; env = pb.environment();</span>
 
       // clear the environment, but keep specified temp working directory
-<span class="pc bpc" id="L926" title="1 of 2 branches missed.">      env.keySet().removeIf(key -&gt; !(key.equals(&quot;TMPDIR&quot;)));</span>
-<span class="pc bpc" id="L927" title="1 of 2 branches missed.">      if (System.getProperty(&quot;java.io.tmpdir&quot;) != null) {</span>
-<span class="fc" id="L928">        env.put(&quot;TMPDIR&quot;, System.getProperty(&quot;java.io.tmpdir&quot;));</span>
+<span class="pc bpc" id="L1044" title="1 of 2 branches missed.">      env.keySet().removeIf(key -&gt; !(key.equals(&quot;TMPDIR&quot;)));</span>
+<span class="pc bpc" id="L1045" title="1 of 2 branches missed.">      if (System.getProperty(&quot;java.io.tmpdir&quot;) != null) {</span>
+<span class="fc" id="L1046">        env.put(&quot;TMPDIR&quot;, System.getProperty(&quot;java.io.tmpdir&quot;));</span>
       }
       // make sure we use the C locale for sorting
-<span class="fc" id="L931">      env.put(&quot;LC_ALL&quot;, &quot;C&quot;);</span>
+<span class="fc" id="L1049">      env.put(&quot;LC_ALL&quot;, &quot;C&quot;);</span>
 
-<span class="fc" id="L933">      String sortArgs =</span>
-<span class="fc" id="L934">          String.format(</span>
+<span class="fc" id="L1051">      String sortArgs =</span>
+<span class="fc" id="L1052">          String.format(</span>
               &quot; %s -k%d,%d -t'%s'&quot;,
-<span class="pc bpc" id="L936" title="1 of 2 branches missed.">              ignoreCase ? &quot;--ignore-case&quot; : &quot;&quot;, column + 1, column + 1, columnDelimiter);</span>
+<span class="pc bpc" id="L1054" title="1 of 2 branches missed.">              ignoreCase ? &quot;--ignore-case&quot; : &quot;&quot;, column + 1, column + 1, columnDelimiter);</span>
 
-<span class="fc bfc" id="L938" title="All 2 branches covered.">      if (ignoreHeaderLines &gt; 0) {</span>
+<span class="fc" id="L1056">      String fileList = inputs.stream().map(File::getAbsolutePath).collect(Collectors.joining(&quot; &quot;));</span>
+<span class="fc bfc" id="L1057" title="All 2 branches covered.">      if (ignoreHeaderLines &gt; 0) {</span>
         // copy header lines
-<span class="fc" id="L940">        command =</span>
+<span class="fc" id="L1059">        command =</span>
             &quot;head -n &quot;
                 + ignoreHeaderLines
                 + ' '
-<span class="fc" id="L944">                + input.getAbsolutePath()</span>
+<span class="fc" id="L1063">                + inputs.get(0).getAbsolutePath()</span>
                 + &quot; &gt; &quot;
-<span class="fc" id="L946">                + sorted.getAbsolutePath();</span>
-<span class="fc" id="L947">        LOG.debug(&quot;Issue external command: {}&quot;, command);</span>
-<span class="fc" id="L948">        cmds.removeLast();</span>
-<span class="fc" id="L949">        cmds.add(command);</span>
-<span class="fc" id="L950">        Process process = pb.start();</span>
-<span class="fc" id="L951">        int exitValue = process.waitFor();</span>
-<span class="pc bpc" id="L952" title="1 of 2 branches missed.">        if (exitValue != 0) {</span>
-<span class="nc" id="L953">          LOG.warn(&quot;Error sorting file (copying header lines) with GNU head&quot;);</span>
-<span class="nc" id="L954">          return false;</span>
+<span class="fc" id="L1065">                + sorted.getAbsolutePath();</span>
+<span class="fc" id="L1066">        LOG.debug(&quot;Issue external command: {}&quot;, command);</span>
+<span class="fc" id="L1067">        cmds.removeLast();</span>
+<span class="fc" id="L1068">        cmds.add(command);</span>
+<span class="fc" id="L1069">        Process process = pb.start();</span>
+<span class="fc" id="L1070">        int exitValue = process.waitFor();</span>
+<span class="pc bpc" id="L1071" title="1 of 2 branches missed.">        if (exitValue != 0) {</span>
+<span class="nc" id="L1072">          LOG.warn(&quot;Error sorting file (copying header lines) with GNU head&quot;);</span>
+<span class="nc" id="L1073">          return false;</span>
         }
 
         // do the sorting ignoring the header rows
-<span class="fc" id="L958">        command =</span>
-            &quot;sed &quot;
-                + ignoreHeaderLines
-                + &quot;d &quot;
-<span class="fc" id="L962">                + input.getAbsolutePath()</span>
+<span class="fc" id="L1077">        command =</span>
+            &quot;tail -q -n +&quot;
+                + (ignoreHeaderLines + 1)
+                + &quot; &quot;
+                + fileList
                 + &quot; | &quot;
                 + &quot;sort &quot;
                 + sortArgs
                 + &quot; &gt;&gt; &quot;
-<span class="fc" id="L967">                + sorted.getAbsolutePath();</span>
-<span class="fc" id="L968">      } else {</span>
+<span class="fc" id="L1086">                + sorted.getAbsolutePath();</span>
+<span class="fc" id="L1087">      } else {</span>
         // do sorting directly, we don't have header rows
-<span class="fc" id="L970">        command =</span>
-<span class="fc" id="L971">            &quot;sort &quot; + sortArgs + &quot; -o &quot; + sorted.getAbsolutePath() + ' ' + input.getAbsolutePath();</span>
+<span class="fc" id="L1089">        command = &quot;sort &quot; + sortArgs + &quot; -o &quot; + sorted.getAbsolutePath() + ' ' + fileList;</span>
       }
 
-<span class="fc" id="L974">      LOG.debug(&quot;Issue external command: {}&quot;, command);</span>
-<span class="fc" id="L975">      cmds.removeLast();</span>
-<span class="fc" id="L976">      cmds.add(command);</span>
-<span class="fc" id="L977">      Process process = pb.start();</span>
+<span class="fc" id="L1092">      LOG.debug(&quot;Issue external command: {}&quot;, command);</span>
+<span class="fc" id="L1093">      cmds.removeLast();</span>
+<span class="fc" id="L1094">      cmds.add(command);</span>
+<span class="fc" id="L1095">      Process process = pb.start();</span>
       // get the stdout and stderr from the command that was run
-<span class="fc" id="L979">      InputStream err = process.getErrorStream();</span>
-<span class="fc" id="L980">      int exitValue = process.waitFor();</span>
-<span class="fc bfc" id="L981" title="All 2 branches covered.">      if (exitValue == 0) {</span>
-<span class="fc" id="L982">        LOG.debug(&quot;Successfully sorted file with GNU sort&quot;);</span>
-<span class="fc" id="L983">        success = true;</span>
+<span class="fc" id="L1097">      InputStream err = process.getErrorStream();</span>
+<span class="fc" id="L1098">      int exitValue = process.waitFor();</span>
+<span class="fc bfc" id="L1099" title="All 2 branches covered.">      if (exitValue == 0) {</span>
+<span class="fc" id="L1100">        LOG.debug(&quot;Successfully sorted file with GNU sort&quot;);</span>
+<span class="fc" id="L1101">        success = true;</span>
       } else {
-<span class="fc" id="L985">        LOG.warn(&quot;Error sorting file with GNU sort&quot;);</span>
-<span class="fc" id="L986">        InputStreamUtils isu = new InputStreamUtils();</span>
-<span class="fc" id="L987">        System.err.append(isu.readEntireStream(err));</span>
+<span class="fc" id="L1103">        LOG.warn(&quot;Error sorting file with GNU sort&quot;);</span>
+<span class="fc" id="L1104">        InputStreamUtils isu = new InputStreamUtils();</span>
+<span class="fc" id="L1105">        System.err.append(isu.readEntireStream(err));</span>
       }
-<span class="nc" id="L989">    } catch (Exception e) {</span>
-<span class="nc" id="L990">      LOG.warn(&quot;Caught Exception using GNU sort&quot;, e);</span>
-<span class="fc" id="L991">    }</span>
-<span class="fc" id="L992">    return success;</span>
+<span class="nc" id="L1107">    } catch (Exception e) {</span>
+<span class="nc" id="L1108">      LOG.warn(&quot;Caught Exception using GNU sort&quot;, e);</span>
+<span class="fc" id="L1109">    }</span>
+<span class="fc" id="L1110">    return success;</span>
   }
 
   /**
@@ -1008,23 +1126,23 @@ import org.slf4j.LoggerFactory;
       int fileCount,
       List&lt;String&gt; linesToSort)
       throws IOException {
-<span class="fc" id="L1011">    long start = System.currentTimeMillis();</span>
-<span class="fc" id="L1012">    linesToSort.sort(lineComparator);</span>
+<span class="fc" id="L1129">    long start = System.currentTimeMillis();</span>
+<span class="fc" id="L1130">    linesToSort.sort(lineComparator);</span>
     // When implementing a comparator, make it SUPER quick!!!
-<span class="fc" id="L1014">    LOG.debug(</span>
+<span class="fc" id="L1132">    LOG.debug(</span>
         &quot;Collections.sort took msec[&quot;
-<span class="fc" id="L1016">            + (System.currentTimeMillis() - start)</span>
+<span class="fc" id="L1134">            + (System.currentTimeMillis() - start)</span>
             + &quot;] to sort records[&quot;
-<span class="fc" id="L1018">            + linesToSort.size()</span>
+<span class="fc" id="L1136">            + linesToSort.size()</span>
             + ']');
-<span class="fc" id="L1020">    File sortFile = getChunkFile(input, fileCount);</span>
-<span class="fc" id="L1021">    try (Writer fw = new OutputStreamWriter(new FileOutputStream(sortFile), encoding)) {</span>
-<span class="fc bfc" id="L1022" title="All 2 branches covered.">      for (String s : linesToSort) {</span>
-<span class="fc" id="L1023">        fw.write(s);</span>
-<span class="fc" id="L1024">        fw.write(&quot;\n&quot;);</span>
-<span class="fc" id="L1025">      }</span>
+<span class="fc" id="L1138">    File sortFile = getChunkFile(input, fileCount);</span>
+<span class="fc" id="L1139">    try (Writer fw = new OutputStreamWriter(new FileOutputStream(sortFile), encoding)) {</span>
+<span class="fc bfc" id="L1140" title="All 2 branches covered.">      for (String s : linesToSort) {</span>
+<span class="fc" id="L1141">        fw.write(s);</span>
+<span class="fc" id="L1142">        fw.write(&quot;\n&quot;);</span>
+<span class="fc" id="L1143">      }</span>
     }
-<span class="fc" id="L1027">    return sortFile;</span>
+<span class="fc" id="L1145">    return sortFile;</span>
   }
 
   /**
@@ -1037,11 +1155,11 @@ import org.slf4j.LoggerFactory;
    * @throws IOException if an I/O error occurs
    */
   public static void touch(File file) throws IOException {
-<span class="nc" id="L1040">    Objects.requireNonNull(file);</span>
-<span class="nc bnc" id="L1041" title="All 4 branches missed.">    if (!file.createNewFile() &amp;&amp; !file.setLastModified(System.currentTimeMillis())) {</span>
-<span class="nc" id="L1042">      throw new IOException(&quot;Unable to update modification time of &quot; + file);</span>
+<span class="fc" id="L1158">    Objects.requireNonNull(file);</span>
+<span class="pc bpc" id="L1159" title="3 of 4 branches missed.">    if (!file.createNewFile() &amp;&amp; !file.setLastModified(System.currentTimeMillis())) {</span>
+<span class="nc" id="L1160">      throw new IOException(&quot;Unable to update modification time of &quot; + file);</span>
     }
-<span class="nc" id="L1044">  }</span>
+<span class="fc" id="L1162">  }</span>
 
   /**
    * Returns the &lt;a href=&quot;http://en.wikipedia.org/wiki/Filename_extension&quot;&gt;file extension&lt;/a&gt; for
@@ -1058,10 +1176,10 @@ import org.slf4j.LoggerFactory;
    * &lt;p&gt;From Guava.
    */
   public static String getFileExtension(String fullName) {
-<span class="fc" id="L1061">    Objects.requireNonNull(fullName);</span>
-<span class="fc" id="L1062">    String fileName = new File(fullName).getName();</span>
-<span class="fc" id="L1063">    int dotIndex = fileName.lastIndexOf('.');</span>
-<span class="pc bpc" id="L1064" title="1 of 2 branches missed.">    return (dotIndex == -1) ? &quot;&quot; : fileName.substring(dotIndex + 1);</span>
+<span class="fc" id="L1179">    Objects.requireNonNull(fullName);</span>
+<span class="fc" id="L1180">    String fileName = new File(fullName).getName();</span>
+<span class="fc" id="L1181">    int dotIndex = fileName.lastIndexOf('.');</span>
+<span class="pc bpc" id="L1182" title="1 of 2 branches missed.">    return (dotIndex == -1) ? &quot;&quot; : fileName.substring(dotIndex + 1);</span>
   }
 
   /**
@@ -1075,22 +1193,22 @@ import org.slf4j.LoggerFactory;
    *     directories of the specified file could not be created.
    */
   public static void createParentDirs(File file) throws IOException {
-<span class="fc" id="L1078">    Objects.requireNonNull(file);</span>
-<span class="fc" id="L1079">    File parent = file.getCanonicalFile().getParentFile();</span>
-<span class="pc bpc" id="L1080" title="1 of 2 branches missed.">    if (parent == null) {</span>
+<span class="fc" id="L1196">    Objects.requireNonNull(file);</span>
+<span class="fc" id="L1197">    File parent = file.getCanonicalFile().getParentFile();</span>
+<span class="pc bpc" id="L1198" title="1 of 2 branches missed.">    if (parent == null) {</span>
       /*
        * The given directory is a filesystem root. All zero of its ancestors exist. This doesn't
        * mean that the root itself exists -- consider x:\ on a Windows machine without such a drive
        * -- or even that the caller can create it, but this method makes no such guarantees even for
        * non-root files.
        */
-<span class="nc" id="L1087">      return;</span>
+<span class="nc" id="L1205">      return;</span>
     }
     //noinspection ResultOfMethodCallIgnored
-<span class="fc" id="L1090">    parent.mkdirs();</span>
-<span class="pc bpc" id="L1091" title="1 of 2 branches missed.">    if (!parent.isDirectory()) {</span>
-<span class="nc" id="L1092">      throw new IOException(&quot;Unable to create parent directories of &quot; + file);</span>
+<span class="fc" id="L1208">    parent.mkdirs();</span>
+<span class="pc bpc" id="L1209" title="1 of 2 branches missed.">    if (!parent.isDirectory()) {</span>
+<span class="nc" id="L1210">      throw new IOException(&quot;Unable to create parent directories of &quot; + file);</span>
     }
-<span class="fc" id="L1094">  }</span>
+<span class="fc" id="L1212">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
