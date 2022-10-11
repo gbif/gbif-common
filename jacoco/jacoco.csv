@@ -21,7 +21,7 @@ GBIF Common,org.gbif.utils.text,StringUtils,408,340,65,50,82,95,49,37,13,9
 GBIF Common,org.gbif.utils.text,StringLengthComparator,18,0,2,0,4,0,3,0,2,0
 GBIF Common,org.gbif.utils.text,EmailUtils,9,37,1,3,3,10,2,3,1,2
 GBIF Common,org.gbif.utils.text,StringComparator,21,0,8,0,8,0,6,0,2,0
-GBIF Common,org.gbif.utils.text,LineComparator,16,132,9,21,5,38,10,11,2,4
+GBIF Common,org.gbif.utils.text,LineComparator,22,126,12,18,8,35,11,10,2,4
 GBIF Common,org.gbif.utils.text,EmailUtils.EmailWithName,0,3,0,0,0,1,0,1,0,1
 GBIF Common,org.gbif.utils.number,BigDecimalUtils,0,28,0,4,0,6,0,3,0,1
 GBIF Common,org.gbif.utils.file,CharsetDetection,106,630,51,105,34,170,37,62,1,20
@@ -29,7 +29,7 @@ GBIF Common,org.gbif.utils.file,CompressionUtil,114,676,14,56,35,140,15,40,4,16
 GBIF Common,org.gbif.utils.file,ResourcesUtil,104,164,13,13,22,32,9,8,0,4
 GBIF Common,org.gbif.utils.file,UnknownCharsetException,13,0,0,0,6,0,3,0,3,0
 GBIF Common,org.gbif.utils.file,InputStreamUtils,63,43,3,3,15,11,3,5,1,4
-GBIF Common,org.gbif.utils.file,FileUtils,720,1149,79,91,162,259,78,63,27,29
+GBIF Common,org.gbif.utils.file,FileUtils,759,1172,87,93,173,258,83,63,28,28
 GBIF Common,org.gbif.utils.file,FileSplitter,249,0,14,0,61,0,11,0,4,0
 GBIF Common,org.gbif.utils.file,BomSafeInputStreamWrapper,1,66,0,8,1,17,0,7,0,3
 GBIF Common,org.gbif.utils.file,CompressionUtil.UnsupportedCompressionType,12,0,0,0,5,0,3,0,3,0
