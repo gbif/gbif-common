@@ -16,19 +16,26 @@ package org.gbif.utils.file;
 import org.gbif.utils.text.LineComparator;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -108,6 +115,86 @@ public class FileUtilsTest {
     assertFalse(bottomDirectory.getParentFile().exists());
     assertFalse(bottomDirectory.exists());
     assertFalse(bottomFile.exists());
+  }
+
+  @Test
+  @Disabled("Run manually to check the performance of merging sorted files.")
+  public void testMergeSortedFilesSpeed() throws IOException {
+    // This is the chunks produced from the first part of Java-sorting iNaturalist's media file.
+    String prefix =
+        "/4TB/Matt/unpacked_50c9509d-22c7-4a22-a47d-8c48425ef4a7/media_%dcsv-normalized";
+    List<File> sortFiles = new ArrayList<>();
+    for (int i = 0; i <= 825; i++) {
+      sortFiles.add(new File(String.format(prefix, i)));
+    }
+
+    LineComparator lineComparator = new LineComparator(0, ",", '"');
+
+    OutputStreamWriter performanceWriter =
+        new OutputStreamWriter(
+            new OutputStream() {
+              int count = 0;
+              StopWatch sw = StopWatch.createStarted();
+
+              @Override
+              public void write(int b) throws IOException {
+                if (b == '\n') {
+                  count++;
+
+                  if (count % 100_000 == 0 && sw.getTime(TimeUnit.SECONDS) > 0) {
+                    System.out.println(
+                        "Done "
+                            + count
+                            + " at "
+                            + (count / sw.getTime(TimeUnit.SECONDS))
+                            + " lines per second");
+                  }
+
+                  if (count == 10_000_000) {
+                    System.out.println(
+                        "Done "
+                            + count
+                            + " at "
+                            + (count / sw.getTime(TimeUnit.SECONDS))
+                            + " lines per second");
+                    System.out.println("Took " + sw.getTime(TimeUnit.SECONDS));
+                    throw new IOException("Did enough");
+                  }
+                }
+              }
+            });
+    try {
+      new FileUtils().mergeSortedFiles(sortFiles, performanceWriter, lineComparator);
+    } catch (IOException e) {
+    }
+
+    StopWatch sw = StopWatch.createStarted();
+    OutputStreamWriter fileWriter =
+        new OutputStreamWriter(new FileOutputStream(prefix.replace("%d", "OUTPUT")));
+    new FileUtils().mergeSortedFiles(sortFiles, fileWriter, lineComparator);
+    System.out.println("Took " + sw.getTime(TimeUnit.SECONDS) + " seconds.");
+  }
+
+  @Test
+  public void testMergeSortedFiles() throws IOException {
+    // Note split_4 is empty.
+    List<File> sortedSplitFiles = new ArrayList<>();
+    for (int i = 0; i <= 5; i++) {
+      sortedSplitFiles.add(FileUtils.getClasspathFile("merging/100-words/split_" + i));
+    }
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    OutputStreamWriter writer = new OutputStreamWriter(output);
+
+    LineComparator lineComparator = new LineComparator(0, ",", '"');
+
+    new FileUtils().mergeSortedFiles(sortedSplitFiles, writer, lineComparator);
+
+    String[] sorted = output.toString().split("\n");
+    for (int i = 1; i < sorted.length; i++) {
+      assertTrue(sorted[i - 1].compareTo(sorted[i]) <= 0);
+    }
+    assertEquals(100, sorted.length);
   }
 
   @Test
@@ -502,7 +589,7 @@ public class FileUtilsTest {
   }
 
   /**
-   * Test sorting multiple fils into a single file. Second column, so Java sort.
+   * Test sorting multiple files into a single file. Second column, so Java sort.
    */
   @Test
   public void testMultiFileSort2ndColumn() throws IOException {

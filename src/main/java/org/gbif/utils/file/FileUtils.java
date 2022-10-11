@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -529,50 +530,79 @@ public final class FileUtils {
    * @param lineComparator To use when determining the order (reuse the one that was used to sort the individual
    *        files)
    */
-  public void mergedSortedFiles(
-      List<File> sortFiles, OutputStreamWriter sortedFileWriter, Comparator<String> lineComparator)
+  public void mergeSortedFiles(
+      List<File> sortFiles, Writer sortedFileWriter, Comparator<String> lineComparator)
       throws IOException {
-    List<BufferedReader> partReaders = new LinkedList<>();
+    LinkedList<Pair<String, BufferedReader>> partReaders = new LinkedList<>();
     try {
-      List<String> partReaderLine = new LinkedList<>();
       for (File f : sortFiles) {
         // Use UTF-8 sort order.
-        partReaders.add(
+        BufferedReader partReader =
             new BufferedReader(
-                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)));
-      }
-      boolean moreData = false;
-      // load first line in
-      for (BufferedReader partReader : partReaders) {
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8));
+        // Load first lines
         String partLine = partReader.readLine();
         if (partLine != null) {
-          moreData = true;
+          partReaders.add(Pair.of(partLine, partReader));
         }
-        // we still add the "null" to keep the partReaders and partLineReader indexes in sync -
-        // ALWAYS
-        partReaderLine.add(partLine);
       }
-      // keep going until all readers are exhausted
-      while (moreData) {
-        int index = lowestValueIndex(partReaderLine, lineComparator);
-        if (index >= 0) {
-          sortedFileWriter.write(partReaderLine.get(index));
-          sortedFileWriter.write("\n");
-          BufferedReader r = partReaders.get(index);
-          String partLine = r.readLine();
-          // TODO: Synchronization on local variable?
-          synchronized (partReaderLine) {
-            partReaderLine.add(index, partLine);
-            partReaderLine.remove(index + 1);
-          }
+      // Sort the first lines
+      Collections.sort(partReaders, (Comparator.comparing(Pair::getLeft, lineComparator)));
+
+      // Start with the first reader
+      while (partReaders.size() > 1) {
+        BufferedReader currentBuffer = partReaders.get(0).getRight();
+        String currentLine = partReaders.get(0).getLeft();
+        String nextFilesFirstLine = partReaders.get(1).getLeft();
+
+        // Read from it, until its value is greater than the second reader.
+        while (currentLine != null
+            && lineComparator.compare(currentLine, nextFilesFirstLine) <= 0) {
+          sortedFileWriter.write(currentLine);
+          sortedFileWriter.write('\n');
+
+          currentLine = currentBuffer.readLine();
+        }
+        partReaders.remove(0);
+
+        if (currentLine == null) {
+          // If it's completed, close and remove it.
+          currentBuffer.close();
         } else {
-          moreData = false;
+          // Otherwise, insert it into the list, maintaining the order
+          Pair<String, BufferedReader> currentReaderPair = Pair.of(currentLine, currentBuffer);
+
+          // Start at 1, as we are always larger than the first (was the second) entry
+          for (int i = 1; i < partReaders.size(); i++) {
+            if (lineComparator.compare(partReaders.get(i).getLeft(), currentLine) >= 0) {
+              partReaders.add(i, currentReaderPair);
+              break;
+            }
+
+            // If we get here, it goes at the end of the list.
+            if (i + 1 == partReaders.size()) {
+              partReaders.add(i + 1, currentReaderPair);
+              break;
+            }
+          }
         }
       }
+
+      // Read the remainder of the final buffer
+      BufferedReader currentBuffer = partReaders.get(0).getRight();
+      String current = partReaders.get(0).getLeft();
+      while (current != null) {
+        sortedFileWriter.write(current);
+        sortedFileWriter.write('\n');
+
+        current = currentBuffer.readLine();
+      }
+      currentBuffer.close();
+
     } finally {
-      for (BufferedReader b : partReaders) {
+      for (Pair<String, BufferedReader> pair : partReaders) {
         try {
-          b.close();
+          pair.getRight().close();
         } catch (RuntimeException e) {
         }
       }
@@ -809,7 +839,7 @@ public final class FileUtils {
       Comparator<String> lineComparator,
       int ignoreHeaderLines)
       throws IOException {
-    LOG.debug("Sorting file(s) {}", inputs.stream().map(File::getAbsolutePath));
+    LOG.debug("Sorting file(s) {}", inputs);
     long start = System.currentTimeMillis();
 
     List<File> sortFiles = new LinkedList<>();
@@ -857,13 +887,13 @@ public final class FileUtils {
             + " secs");
 
     // now merge the sorted files into one single sorted file
-    FileWriter sortedFileWriter = new FileWriter(sorted);
+    Writer sortedFileWriter = new BufferedWriter(new FileWriter(sorted));
     // first write the old header lines if existing
     for (String h : headerLines) {
       sortedFileWriter.write(h);
       sortedFileWriter.write("\n");
     }
-    mergedSortedFiles(sortFiles, sortedFileWriter, lineComparator);
+    mergeSortedFiles(sortFiles, sortedFileWriter, lineComparator);
 
     LOG.debug(
         "Fils(s) {} sorted successfully using {} parts to do sorting in {}s",
