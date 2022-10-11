@@ -573,32 +573,35 @@ public final class FileUtils {
           Pair<String, BufferedReader> currentReaderPair = Pair.of(currentLine, currentBuffer);
 
           // Start at 1, as we are always larger than the first (was the second) entry
-          for (int i = 1; i < partReaders.size(); i++) {
-            if (lineComparator.compare(partReaders.get(i).getLeft(), currentLine) >= 0) {
+          for (int i = 1; i <= partReaders.size(); i++) {
+            // If we get here, it goes at the end of the list.
+            if (i == partReaders.size()) {
               partReaders.add(i, currentReaderPair);
               break;
             }
 
-            // If we get here, it goes at the end of the list.
-            if (i + 1 == partReaders.size()) {
-              partReaders.add(i + 1, currentReaderPair);
+            if (lineComparator.compare(partReaders.get(i).getLeft(), currentLine) >= 0) {
+              partReaders.add(i, currentReaderPair);
               break;
             }
           }
         }
+        // mergeFileStatus("Loop "+currentLine, partReaders);
       }
 
       // Read the remainder of the final buffer
-      BufferedReader currentBuffer = partReaders.get(0).getRight();
-      String current = partReaders.get(0).getLeft();
-      while (current != null) {
-        sortedFileWriter.write(current);
-        sortedFileWriter.write('\n');
+      // mergeFileStatus("Final", partReaders);
+      if (partReaders.size() > 0) {
+        BufferedReader currentBuffer = partReaders.get(0).getRight();
+        String current = partReaders.get(0).getLeft();
+        while (current != null) {
+          sortedFileWriter.write(current);
+          sortedFileWriter.write('\n');
 
-        current = currentBuffer.readLine();
+          current = currentBuffer.readLine();
+        }
+        currentBuffer.close();
       }
-      currentBuffer.close();
-
     } finally {
       for (Pair<String, BufferedReader> pair : partReaders) {
         try {
@@ -614,6 +617,15 @@ public final class FileUtils {
         f.delete();
       }
     }
+  }
+
+  // Just for debugging
+  private void mergeFileStatus(String note, List<Pair<String, BufferedReader>> partReaders) {
+    LOG.trace(note);
+    for (int i = 0; i < partReaders.size(); i++) {
+      LOG.trace(i + ": " + partReaders.get(i).getLeft());
+    }
+    LOG.trace("-");
   }
 
   /**
@@ -775,7 +787,7 @@ public final class FileUtils {
       throws IOException {
     LOG.debug(
         "Sorting file(s) {} as new file {}",
-        inputs.stream().map(File::getAbsolutePath),
+        inputs.stream().map(File::getAbsolutePath).toArray(),
         sorted.getAbsolutePath());
     if (encoding == null) {
       LOG.warn("No encoding specified, assume UTF-8");
@@ -896,8 +908,8 @@ public final class FileUtils {
     mergeSortedFiles(sortFiles, sortedFileWriter, lineComparator);
 
     LOG.debug(
-        "Fils(s) {} sorted successfully using {} parts to do sorting in {}s",
-        inputs.stream().map(File::getAbsolutePath),
+        "File(s) {} sorted successfully using {} parts to do sorting in {}s",
+        inputs.stream().map(File::getAbsolutePath).toArray(),
         sortFiles.size(),
         (System.currentTimeMillis() - start) / 1000);
   }

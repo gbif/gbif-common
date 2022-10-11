@@ -177,11 +177,12 @@ public class FileUtilsTest {
 
   @Test
   public void testMergeSortedFiles() throws IOException {
-    // Note split_4 is empty.
     List<File> sortedSplitFiles = new ArrayList<>();
-    for (int i = 0; i <= 5; i++) {
-      sortedSplitFiles.add(FileUtils.getClasspathFile("merging/100-words/split_" + i));
+    for (int i = 0; i <= 4; i++) {
+      sortedSplitFiles.add(FileUtils.getClasspathFile("merging/split_" + i + ".txt"));
     }
+    // Also add an empty file
+    sortedSplitFiles.add(File.createTempFile("gbif-common-file-merge", "empty.txt"));
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     OutputStreamWriter writer = new OutputStreamWriter(output);
@@ -195,6 +196,22 @@ public class FileUtilsTest {
       assertTrue(sorted[i - 1].compareTo(sorted[i]) <= 0);
     }
     assertEquals(100, sorted.length);
+  }
+
+  @Test
+  public void testMergeEmptyFiles() throws IOException {
+    List<File> sortedSplitFiles = new ArrayList<>();
+    sortedSplitFiles.add(File.createTempFile("gbif-common-file-merge", "empty.txt"));
+    sortedSplitFiles.add(File.createTempFile("gbif-common-file-merge", "empty.txt"));
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    OutputStreamWriter writer = new OutputStreamWriter(output);
+
+    LineComparator lineComparator = new LineComparator(0, ",", '"');
+
+    new FileUtils().mergeSortedFiles(sortedSplitFiles, writer, lineComparator);
+
+    assertEquals("", output.toString());
   }
 
   @Test
