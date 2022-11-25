@@ -147,7 +147,7 @@ public class CompressionUtilTest {
     File testArchiveFile = classpathFile("compression/test.txt.gz");
     List<File> result = CompressionUtil.ungzipFile(tmpDir, testArchiveFile, false);
     assertEquals(1, result.size());
-    assertTrue(result.get(0).getName().equals("test.txt"));
+    assertEquals("test.txt", result.get(0).getName());
   }
 
   /**

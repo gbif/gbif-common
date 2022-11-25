@@ -23,12 +23,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -37,6 +40,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -439,7 +443,7 @@ public class CompressionUtil {
             createParentFolder(targetFile);
 
             LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
-            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+            try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(targetFile.toPath()))) {
               IOUtils.copy(zipInput, out);
             }
           }
@@ -450,9 +454,10 @@ public class CompressionUtil {
     if (keepSubdirectories) {
       removeRootDirectory(directory);
     }
-    return (directory.listFiles() == null)
-        ? new ArrayList<File>()
-        : Arrays.asList(directory.listFiles());
+
+    File[] files = directory.listFiles();
+
+    return (files == null) ? new ArrayList<>() : Arrays.asList(files);
   }
 
   /**
@@ -472,21 +477,33 @@ public class CompressionUtil {
    * Removes a wrapping root directory and flatten its structure by moving all that root directory's files and
    * subdirectories up to the same level as the root directory.
    */
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   private static void removeRootDirectory(File directory) {
     File[] rootFiles = directory.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
-    if (rootFiles.length == 1) {
-      File root = rootFiles[0];
-      if (root.isDirectory()) {
-        LOG.debug(
-            "Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());
-        for (File f :
-            org.apache.commons.io.FileUtils.listFilesAndDirs(
-                root, TrueFileFilter.TRUE, TrueFileFilter.TRUE)) {
-          File f2 = new File(directory, f.getName());
-          f.renameTo(f2);
-        }
-        root.delete();
+    if (rootFiles == null) {
+      LOG.error("Failed to retrieve root directory from {}", directory.getAbsolutePath());
+      return;
+    }
+
+    if (rootFiles.length != 1) {
+      LOG.error("More than one root directory at {}", directory.getAbsolutePath());
+      return;
+    }
+
+    File root = rootFiles[0];
+    if (root.isDirectory()) {
+      LOG.debug("Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());
+      Collection<File> filesAndDirs = FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE);
+      // directories shouldn't be in the end, sort
+      List<File> sortedFilesAndDirs = filesAndDirs.stream()
+          .sorted(Comparator.comparing(File::getAbsolutePath))
+          .collect(Collectors.toList());
+
+      for (File f : sortedFilesAndDirs) {
+        File f2 = new File(directory, f.getName());
+        f.renameTo(f2);
       }
+      root.delete();
     }
   }
 
