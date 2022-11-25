@@ -16,18 +16,18 @@
   <url>https://github.com/gbif/gbif-common</url>
 
   <properties>
-    <commons-compress.version>1.21</commons-compress.version>
-    <commons-lang.version>3.6</commons-lang.version>
-    <commons-io.version>2.7</commons-io.version>
+    <commons-compress.version>1.22</commons-compress.version>
+    <commons-lang.version>3.12.0</commons-lang.version>
+    <commons-io.version>2.11.0</commons-io.version>
 
     <jsr305.version>3.0.2</jsr305.version>
 
-    <!--Jackson libraries will be shaded-->
-    <jackson.version>2.11.3</jackson.version>
+    <!-- Jackson will be shaded-->
+    <jackson.version>2.14.1</jackson.version>
 
-    <junit.version>5.6.3</junit.version>
-    <logback.version>1.2.3</logback.version>
-    <slf4j.version>1.7.30</slf4j.version>
+    <junit.version>5.9.1</junit.version>
+    <logback.version>1.4.5</logback.version>
+    <slf4j.version>1.7.36</slf4j.version>
 
     <!-- Sonar -->
     <sonar.language>java</sonar.language>
@@ -236,17 +236,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>local-sonar</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <properties>
-        <sonar.host.url>http://localhost:9000</sonar.host.url>
-      </properties>
-    </profile>
-  </profiles>
 
 </project>
