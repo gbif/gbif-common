@@ -9,7 +9,7 @@ GBIF Common,org.gbif.utils.collection,IterableUtils,3,5,0,0,1,1,1,2,1,2
 GBIF Common,org.gbif.utils.collection,ArrayUtils,188,0,10,0,26,0,10,0,5,0
 GBIF Common,org.gbif.utils.file.tabular,JacksonUtils,0,20,0,2,0,4,0,2,0,1
 GBIF Common,org.gbif.utils.file.tabular,JacksonCsvFileReader,5,142,2,12,2,33,3,11,1,6
-GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadataExtractor,28,609,6,38,10,142,9,41,3,25
+GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadataExtractor,88,549,6,38,16,136,9,41,3,25
 GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadata,0,24,0,0,0,10,0,7,0,7
 GBIF Common,org.gbif.utils.file.tabular,TabularFileMetadataExtractor.LineDelimiterStats,0,15,0,0,0,6,0,3,0,3
 GBIF Common,org.gbif.utils.file.tabular,TabularFileNormalizer,15,117,4,6,5,27,5,5,1,4
@@ -25,7 +25,7 @@ GBIF Common,org.gbif.utils.text,LineComparator,22,126,12,18,8,35,11,10,2,4
 GBIF Common,org.gbif.utils.text,EmailUtils.EmailWithName,0,3,0,0,0,1,0,1,0,1
 GBIF Common,org.gbif.utils.number,BigDecimalUtils,0,28,0,4,0,6,0,3,0,1
 GBIF Common,org.gbif.utils.file,CharsetDetection,106,630,51,105,34,170,37,62,1,20
-GBIF Common,org.gbif.utils.file,CompressionUtil,114,676,14,56,35,140,15,40,4,16
+GBIF Common,org.gbif.utils.file,CompressionUtil,120,697,15,57,36,150,16,40,4,16
 GBIF Common,org.gbif.utils.file,ResourcesUtil,104,164,13,13,22,32,9,8,0,4
 GBIF Common,org.gbif.utils.file,UnknownCharsetException,13,0,0,0,6,0,3,0,3,0
 GBIF Common,org.gbif.utils.file,InputStreamUtils,63,43,3,3,15,11,3,5,1,4
