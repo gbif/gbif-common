@@ -443,7 +443,8 @@ public class CompressionUtil {
             createParentFolder(targetFile);
 
             LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());
-            try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(targetFile.toPath()))) {
+            try (OutputStream out =
+                new BufferedOutputStream(Files.newOutputStream(targetFile.toPath()))) {
               IOUtils.copy(zipInput, out);
             }
           }
@@ -492,12 +493,15 @@ public class CompressionUtil {
 
     File root = rootFiles[0];
     if (root.isDirectory()) {
-      LOG.debug("Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());
-      Collection<File> filesAndDirs = FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE);
+      LOG.debug(
+          "Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());
+      Collection<File> filesAndDirs =
+          FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE);
       // directories shouldn't be in the end, sort
-      List<File> sortedFilesAndDirs = filesAndDirs.stream()
-          .sorted(Comparator.comparing(File::getAbsolutePath))
-          .collect(Collectors.toList());
+      List<File> sortedFilesAndDirs =
+          filesAndDirs.stream()
+              .sorted(Comparator.comparing(File::getAbsolutePath))
+              .collect(Collectors.toList());
 
       for (File f : sortedFilesAndDirs) {
         File f2 = new File(directory, f.getName());
