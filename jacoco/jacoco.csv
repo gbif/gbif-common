@@ -25,7 +25,7 @@ GBIF Common,org.gbif.utils.text,LineComparator,22,126,12,18,8,35,11,10,2,4
 GBIF Common,org.gbif.utils.text,EmailUtils.EmailWithName,0,3,0,0,0,1,0,1,0,1
 GBIF Common,org.gbif.utils.number,BigDecimalUtils,0,28,0,4,0,6,0,3,0,1
 GBIF Common,org.gbif.utils.file,CharsetDetection,106,630,51,105,34,170,37,62,1,20
-GBIF Common,org.gbif.utils.file,CompressionUtil,120,697,15,57,36,150,16,40,4,16
+GBIF Common,org.gbif.utils.file,CompressionUtil,151,715,16,58,41,153,18,42,5,18
 GBIF Common,org.gbif.utils.file,ResourcesUtil,104,164,13,13,22,32,9,8,0,4
 GBIF Common,org.gbif.utils.file,UnknownCharsetException,13,0,0,0,6,0,3,0,3,0
 GBIF Common,org.gbif.utils.file,InputStreamUtils,63,43,3,3,15,11,3,5,1,4
