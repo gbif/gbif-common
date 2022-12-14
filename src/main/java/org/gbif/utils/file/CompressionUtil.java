@@ -112,7 +112,8 @@ public class CompressionUtil {
    *
    * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)
    */
-  public static List<File> decompressFile(File directory, File compressedFile, String unzippedFileName)
+  public static List<File> decompressFile(
+      File directory, File compressedFile, String unzippedFileName)
       throws IOException, UnsupportedCompressionType {
     return decompressFile(directory, compressedFile, unzippedFileName, false);
   }
@@ -314,8 +315,8 @@ public class CompressionUtil {
    *
    * @throws IOException if reading or writing fails
    */
-  public static List<File> ungzipFile(File directory, File gzipFile, String unzippedName, boolean isTarred)
-      throws IOException {
+  public static List<File> ungzipFile(
+      File directory, File gzipFile, String unzippedName, boolean isTarred) throws IOException {
     if (isTarred) return untgzFile(directory, gzipFile);
 
     List<File> files = new ArrayList<>();
