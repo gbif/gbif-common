@@ -48,6 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("unused")
 public class CompressionUtil {
 
   private CompressionUtil() {
@@ -99,7 +100,7 @@ public class CompressionUtil {
   /**
    * Defaults keeping subDirectories to false.
    *
-   * @see org.gbif.utils.file.CompressionUtil#decompressFile(java.io.File, java.io.File, boolean)
+   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)
    */
   public static List<File> decompressFile(File directory, File compressedFile)
       throws IOException, UnsupportedCompressionType {
@@ -107,10 +108,32 @@ public class CompressionUtil {
   }
 
   /**
-   * Tries to decompress a file using TAR+gzip, TAR or Zip regardless of the filename or its suffix.
+   * Defaults keeping subDirectories to false, but provides unzipped file name.
+   *
+   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)
+   */
+  public static List<File> decompressFile(File directory, File compressedFile, String unzippedFileName)
+      throws IOException, UnsupportedCompressionType {
+    return decompressFile(directory, compressedFile, unzippedFileName, false);
+  }
+
+  /**
+   * Defaults keeping subDirectories to false and unzipped file name to null.
+   *
+   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)
+   */
+  public static List<File> decompressFile(
+      File directory, File compressedFile, boolean keepSubdirectories)
+      throws IOException, UnsupportedCompressionType {
+    return decompressFile(directory, compressedFile, null, false);
+  }
+
+  /**
+   * Tries to decompress a file using TAR+gzip, gzip, TAR or Zip regardless of the filename or its suffix.
    *
    * @param directory      directory where archive's contents will be decompressed to
    * @param compressedFile compressed file
+   * @param unzippedFileName unzipped file name (in case of one file)
    *
    * @return list of files that have been extracted or null an empty list if archive couldn't be decompressed
    *
@@ -119,7 +142,7 @@ public class CompressionUtil {
    * @throws UnsupportedCompressionType if the compression type wasn't recognized
    */
   public static List<File> decompressFile(
-      File directory, File compressedFile, boolean keepSubdirectories)
+      File directory, File compressedFile, String unzippedFileName, boolean keepSubdirectories)
       throws IOException, UnsupportedCompressionType {
     List<File> files = null;
 
@@ -128,8 +151,11 @@ public class CompressionUtil {
       try {
         LOG.debug("Uncompressing {} with gzip compression to {}", compressedFile, directory);
         files = untgzFile(directory, compressedFile);
+      } catch (IOException e) {
+        LOG.debug("Not .tar.gz compression, trying .gz");
+        files = ungzipFile(directory, compressedFile, unzippedFileName, false);
       } catch (Exception e) {
-        LOG.debug("Not gzip compression");
+        LOG.error("Not gzip compression");
       }
     }
 
@@ -167,7 +193,7 @@ public class CompressionUtil {
    * @return               true if the file is in gzip format
    * @throws IOException   if a problem occurred reading compressed file
    */
-  private static boolean isGzipFormat(File compressedFile) throws IOException {
+  public static boolean isGzipFormat(File compressedFile) throws IOException {
     try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {
       return GZIPInputStream.GZIP_MAGIC == (file.read() & 0xff | ((file.read() << 8) & 0xff00));
     }
@@ -179,7 +205,7 @@ public class CompressionUtil {
    * @return               true if the file is a TAR
    * @throws IOException   if a problem occurred reading compressed file
    */
-  private static boolean isTarFormat(File compressedFile) throws IOException {
+  public static boolean isTarFormat(File compressedFile) throws IOException {
     try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {
       // TAR files contain "ustar\0" or "ustar " at byte 257.
       // https://www.gnu.org/software/tar/manual/html_node/Standard.html
@@ -202,7 +228,7 @@ public class CompressionUtil {
    * @return a list of all created files
    */
   public static List<File> untgzFile(File directory, File tgzFile) throws IOException {
-    return untarStream(directory, new GZIPInputStream(new FileInputStream(tgzFile)));
+    return untarStream(directory, new GZIPInputStream(Files.newInputStream(tgzFile.toPath())));
   }
 
   /**
@@ -214,7 +240,7 @@ public class CompressionUtil {
    * @return a list of all created files
    */
   public static List<File> untarFile(File directory, File tarFile) throws IOException {
-    return untarStream(directory, new FileInputStream(tarFile));
+    return untarStream(directory, Files.newInputStream(tarFile.toPath()));
   }
 
   /**
@@ -226,7 +252,7 @@ public class CompressionUtil {
    * @return a list of all created files
    */
   private static List<File> untarStream(File directory, InputStream tarStream) throws IOException {
-    List<File> files = new ArrayList<File>();
+    List<File> files = new ArrayList<>();
     try (TarArchiveInputStream in = new TarArchiveInputStream(tarStream)) {
       TarArchiveEntry entry;
       while ((entry = in.getNextTarEntry()) != null) {
@@ -256,8 +282,8 @@ public class CompressionUtil {
 
   /**
    * Gunzip a file.  Use this method with isTarred false if the gzip contains a single file.  If it's a gzip
-   * of a TAR pass true to isTarred (or call @untgzFile(directory, tgzFile) which is what this method
-   * just redirects to for isTarred).
+   * of a TAR pass true to isTarred (or call {@link org.gbif.utils.file.CompressionUtil#untgzFile(File, File)}
+   * which is what this method just redirects to for isTarred).
    *
    * @param directory the output directory for the uncompressed file(s)
    * @param gzipFile  the gzip file
@@ -271,16 +297,41 @@ public class CompressionUtil {
       throws IOException {
     if (isTarred) return untgzFile(directory, gzipFile);
 
-    List<File> files = new ArrayList<File>();
-    GZIPInputStream in = null;
+    String unzippedName = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));
+    return ungzipFile(directory, gzipFile, unzippedName, isTarred);
+  }
+
+  /**
+   * Gunzip a file.  Similar to {@link org.gbif.utils.file.CompressionUtil#ungzipFile(File, File, boolean)},
+   * but with ability to control unzipped file name.
+   *
+   * @param directory the output directory for the uncompressed file(s)
+   * @param gzipFile  the gzip file
+   * @param unzippedName  the unzipped file
+   * @param isTarred  true if the gzip contains a TAR
+   *
+   * @return a List of the uncompressed file name(s)
+   *
+   * @throws IOException if reading or writing fails
+   */
+  public static List<File> ungzipFile(File directory, File gzipFile, String unzippedName, boolean isTarred)
+      throws IOException {
+    if (isTarred) return untgzFile(directory, gzipFile);
+
+    List<File> files = new ArrayList<>();
     BufferedOutputStream dest = null;
-    try {
-      in = new GZIPInputStream(new FileInputStream(gzipFile));
+    try (GZIPInputStream in = new GZIPInputStream(Files.newInputStream(gzipFile.toPath()))) {
 
       // assume that the gzip filename is the filename + .gz
-      String unzippedName = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));
-      File outputFile = new File(directory, unzippedName);
-      LOG.debug("Extracting file: {} to: {}", unzippedName, outputFile.getAbsolutePath());
+      String unzippedNameResult;
+      if (StringUtils.isEmpty(unzippedName)) {
+        unzippedNameResult = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));
+      } else {
+        unzippedNameResult = unzippedName;
+      }
+
+      File outputFile = new File(directory, unzippedNameResult);
+      LOG.debug("Extracting file: {} to: {}", unzippedNameResult, outputFile.getAbsolutePath());
       FileOutputStream fos = new FileOutputStream(outputFile);
 
       dest = new BufferedOutputStream(fos, BUFFER);
@@ -291,7 +342,6 @@ public class CompressionUtil {
       }
       files.add(outputFile);
     } finally {
-      if (in != null) in.close();
       if (dest != null) {
         dest.flush();
         dest.close();
@@ -334,7 +384,7 @@ public class CompressionUtil {
   }
 
   public static void zipFile(File file, File zipFile) throws IOException {
-    Set<File> files = new HashSet<File>();
+    Set<File> files = new HashSet<>();
     files.add(file);
     zipFiles(files, file.getParentFile(), zipFile);
   }
