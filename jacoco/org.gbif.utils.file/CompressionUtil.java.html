@@ -126,7 +126,7 @@ public class CompressionUtil {
   public static List&lt;File&gt; decompressFile(
       File directory, File compressedFile, boolean keepSubdirectories)
       throws IOException, UnsupportedCompressionType {
-<span class="fc" id="L129">    return decompressFile(directory, compressedFile, null, false);</span>
+<span class="fc" id="L129">    return decompressFile(directory, compressedFile, null, keepSubdirectories);</span>
   }
 
   /**
