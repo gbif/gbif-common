@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>56</version>
+    <version>61</version>
   </parent>
 
   <artifactId>gbif-common</artifactId>
@@ -16,18 +16,22 @@
   <url>https://github.com/gbif/gbif-common</url>
 
   <properties>
-    <commons-compress.version>1.22</commons-compress.version>
-    <commons-lang.version>3.12.0</commons-lang.version>
-    <commons-io.version>2.11.0</commons-io.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <java.version>17</java.version>
 
-    <jsr305.version>3.0.2</jsr305.version>
+    <commons-compress.version>1.28.0</commons-compress.version>
+    <commons-lang.version>3.20.0</commons-lang.version>
+    <commons-io.version>2.21.0</commons-io.version>
+
+    <spotbugs.version>4.9.8</spotbugs.version>
 
     <!-- Jackson will be shaded-->
     <jackson.version>2.14.1</jackson.version>
 
-    <junit.version>5.9.1</junit.version>
-    <logback.version>1.2.11</logback.version>
-    <slf4j.version>1.7.36</slf4j.version>
+    <junit.version>6.0.2</junit.version>
+    <logback.version>1.5.32</logback.version>
+    <slf4j.version>2.0.17</slf4j.version>
 
     <!-- Sonar -->
     <sonar.language>java</sonar.language>
@@ -56,12 +60,12 @@
   </distributionManagement>
 
   <issueManagement>
-    <system>JIRA</system>
+    <system>GitHub</system>
     <url>https://github.com/gbif/gbif-common/issues</url>
   </issueManagement>
 
   <ciManagement>
-    <system>jenkins</system>
+    <system>Jenkins</system>
     <url>https://builds.gbif.org/job/gbif-common</url>
   </ciManagement>
 
@@ -176,9 +180,10 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>${jsr305.version}</version>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>${spotbugs.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
