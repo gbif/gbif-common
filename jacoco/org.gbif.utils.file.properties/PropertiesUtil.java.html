@@ -64,7 +64,7 @@ public final class PropertiesUtil {
 <span class="nc bnc" id="L64" title="All 2 branches missed.">    if (file.exists()) { // first tries to load the file as a external file</span>
 <span class="nc" id="L65">      try (InputStream is = new FileInputStream(file)) {</span>
 <span class="nc" id="L66">        tempProperties.load(is);</span>
-<span class="nc" id="L67">      }</span>
+      }
     } else { // tries to load the file as a resource
 <span class="nc" id="L69">      URL configFileURL = ResourcesUtil.getResource(propertiesFile);</span>
 <span class="nc" id="L70">      try (InputStream is = configFileURL.openStream()) {</span>
@@ -316,4 +316,4 @@ public final class PropertiesUtil {
 <span class="fc" id="L316">    return filtered;</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
