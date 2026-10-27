@@ -252,218 +252,227 @@
 <span class="source-line-no">239</span><span id="line-239">      return resultCharacter;</span>
 <span class="source-line-no">240</span><span id="line-240">    }</span>
 <span class="source-line-no">241</span><span id="line-241"></span>
-<span class="source-line-no">242</span><span id="line-242">    // as last resort if the most frequent delimiter overall and by line is the same</span>
-<span class="source-line-no">243</span><span id="line-243">    resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);</span>
-<span class="source-line-no">244</span><span id="line-244"></span>
-<span class="source-line-no">245</span><span id="line-245">    return resultCharacter;</span>
-<span class="source-line-no">246</span><span id="line-246">  }</span>
-<span class="source-line-no">247</span><span id="line-247"></span>
-<span class="source-line-no">248</span><span id="line-248">  /**</span>
-<span class="source-line-no">249</span><span id="line-249">   * Return the {@link Character} represents the intersection between 2 sets only if the resulting set represents</span>
-<span class="source-line-no">250</span><span id="line-250">   * a single element.</span>
-<span class="source-line-no">251</span><span id="line-251">   * @param set1</span>
-<span class="source-line-no">252</span><span id="line-252">   * @param set2</span>
-<span class="source-line-no">253</span><span id="line-253">   * @return</span>
-<span class="source-line-no">254</span><span id="line-254">   */</span>
-<span class="source-line-no">255</span><span id="line-255">  private static Optional&lt;Character&gt; intersectSingle(Set&lt;Character&gt; set1, Set&lt;Character&gt; set2) {</span>
-<span class="source-line-no">256</span><span id="line-256">    Set&lt;Character&gt; intersection = new HashSet&lt;&gt;(set1);</span>
-<span class="source-line-no">257</span><span id="line-257">    intersection.retainAll(set2);</span>
-<span class="source-line-no">258</span><span id="line-258"></span>
-<span class="source-line-no">259</span><span id="line-259">    return intersection.size() == 1 ? intersection.stream().findFirst() : Optional.empty();</span>
-<span class="source-line-no">260</span><span id="line-260">  }</span>
-<span class="source-line-no">261</span><span id="line-261"></span>
-<span class="source-line-no">262</span><span id="line-262">  /**</span>
-<span class="source-line-no">263</span><span id="line-263">   * Given a {@link Map}, return all elements that are equals to the first element (including itself)</span>
-<span class="source-line-no">264</span><span id="line-264">   * based on the provided equals function.</span>
-<span class="source-line-no">265</span><span id="line-265">   * @param map</span>
-<span class="source-line-no">266</span><span id="line-266">   * @param equalsPredicate</span>
-<span class="source-line-no">267</span><span id="line-267">   * @param &lt;T&gt;</span>
-<span class="source-line-no">268</span><span id="line-268">   * @return all elements that are equals to the first one or an empty set if the map is empty</span>
-<span class="source-line-no">269</span><span id="line-269">   */</span>
-<span class="source-line-no">270</span><span id="line-270">  private static &lt;T&gt; Set&lt;Character&gt; getAllEqualsToFirst(</span>
-<span class="source-line-no">271</span><span id="line-271">      Map&lt;Character, T&gt; map, BiFunction&lt;T, T, Boolean&gt; equalsPredicate) {</span>
-<span class="source-line-no">272</span><span id="line-272"></span>
-<span class="source-line-no">273</span><span id="line-273">    Optional&lt;Map.Entry&lt;Character, T&gt;&gt; firstMapEntry = map.entrySet().stream().findFirst();</span>
-<span class="source-line-no">274</span><span id="line-274">    if (!firstMapEntry.isPresent()) {</span>
-<span class="source-line-no">275</span><span id="line-275">      return Collections.EMPTY_SET;</span>
-<span class="source-line-no">276</span><span id="line-276">    }</span>
-<span class="source-line-no">277</span><span id="line-277"></span>
-<span class="source-line-no">278</span><span id="line-278">    final T firstValue = firstMapEntry.get().getValue();</span>
-<span class="source-line-no">279</span><span id="line-279">    return map.entrySet().stream()</span>
-<span class="source-line-no">280</span><span id="line-280">        .filter(e -&gt; equalsPredicate.apply(firstValue, e.getValue()))</span>
-<span class="source-line-no">281</span><span id="line-281">        .map(Map.Entry::getKey)</span>
-<span class="source-line-no">282</span><span id="line-282">        .collect(Collectors.toSet());</span>
-<span class="source-line-no">283</span><span id="line-283">  }</span>
-<span class="source-line-no">284</span><span id="line-284"></span>
-<span class="source-line-no">285</span><span id="line-285">  /**</span>
-<span class="source-line-no">286</span><span id="line-286">   * For each element(line) of the sample, compute a {@link LineDelimiterStats} for each delimiter.</span>
-<span class="source-line-no">287</span><span id="line-287">   * Note: delimiter that are not used within a line will be included with the frequency 0.</span>
-<span class="source-line-no">288</span><span id="line-288">   * @param sample</span>
-<span class="source-line-no">289</span><span id="line-289">   * @return new List, never null</span>
-<span class="source-line-no">290</span><span id="line-290">   */</span>
-<span class="source-line-no">291</span><span id="line-291">  static List&lt;LineDelimiterStats&gt; computeLineDelimiterStats(List&lt;String&gt; sample) {</span>
-<span class="source-line-no">292</span><span id="line-292">    return sample.stream()</span>
-<span class="source-line-no">293</span><span id="line-293">        .map(TabularFileMetadataExtractor::lineToLineDelimiterStats)</span>
-<span class="source-line-no">294</span><span id="line-294">        .flatMap(List::stream)</span>
-<span class="source-line-no">295</span><span id="line-295">        .collect(Collectors.toList());</span>
-<span class="source-line-no">296</span><span id="line-296">  }</span>
-<span class="source-line-no">297</span><span id="line-297"></span>
-<span class="source-line-no">298</span><span id="line-298">  /**</span>
-<span class="source-line-no">299</span><span id="line-299">   * Compute the stats for each potential delimiters on a line.</span>
-<span class="source-line-no">300</span><span id="line-300">   * @param line</span>
-<span class="source-line-no">301</span><span id="line-301">   * @return</span>
-<span class="source-line-no">302</span><span id="line-302">   */</span>
-<span class="source-line-no">303</span><span id="line-303">  private static List&lt;LineDelimiterStats&gt; lineToLineDelimiterStats(String line) {</span>
-<span class="source-line-no">304</span><span id="line-304">    return Arrays.stream(POTENTIAL_DELIMITER_CHAR)</span>
-<span class="source-line-no">305</span><span id="line-305">        .map(</span>
-<span class="source-line-no">306</span><span id="line-306">            delimiter -&gt;</span>
-<span class="source-line-no">307</span><span id="line-307">                new LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))</span>
-<span class="source-line-no">308</span><span id="line-308">        .collect(Collectors.toList());</span>
-<span class="source-line-no">309</span><span id="line-309">  }</span>
-<span class="source-line-no">310</span><span id="line-310"></span>
-<span class="source-line-no">311</span><span id="line-311">  /**</span>
-<span class="source-line-no">312</span><span id="line-312">   * For each {@link LineDelimiterStats}, collect the distinct frequency (count) of each delimiter.</span>
-<span class="source-line-no">313</span><span id="line-313">   * This gives us an idea of the "stability" of each delimiter across the sample.</span>
-<span class="source-line-no">314</span><span id="line-314">   * Note that since quotes are not handled, noise can be introduced if a quoted cells use the delimiter.</span>
-<span class="source-line-no">315</span><span id="line-315">   *</span>
-<span class="source-line-no">316</span><span id="line-316">   * See unit test for examples of when this method will be affected by noise.</span>
-<span class="source-line-no">317</span><span id="line-317">   *</span>
-<span class="source-line-no">318</span><span id="line-318">   * The most stable delimiter is normally defined by the {@link Character} returned by the methods where</span>
-<span class="source-line-no">319</span><span id="line-319">   * the list of distinct frequency is the smallest in size excluding cases where the list contains only the element</span>
-<span class="source-line-no">320</span><span id="line-320">   * representing 0 as Integer (which means the delimiter was never used).</span>
-<span class="source-line-no">321</span><span id="line-321">   *</span>
-<span class="source-line-no">322</span><span id="line-322">   * @param linesStats</span>
-<span class="source-line-no">323</span><span id="line-323">   *</span>
-<span class="source-line-no">324</span><span id="line-324">   * @return</span>
-<span class="source-line-no">325</span><span id="line-325">   */</span>
-<span class="source-line-no">326</span><span id="line-326">  static Map&lt;Character, Set&lt;Integer&gt;&gt; computeDelimiterDistinctFrequency(</span>
-<span class="source-line-no">327</span><span id="line-327">      List&lt;LineDelimiterStats&gt; linesStats) {</span>
-<span class="source-line-no">328</span><span id="line-328">    return linesStats.stream()</span>
-<span class="source-line-no">329</span><span id="line-329">        .collect(</span>
-<span class="source-line-no">330</span><span id="line-330">            Collectors.groupingBy(</span>
-<span class="source-line-no">331</span><span id="line-331">                LineDelimiterStats::getDelimiter,</span>
-<span class="source-line-no">332</span><span id="line-332">                Collectors.mapping(LineDelimiterStats::getFrequency, toSet())));</span>
-<span class="source-line-no">333</span><span id="line-333">  }</span>
-<span class="source-line-no">334</span><span id="line-334"></span>
-<span class="source-line-no">335</span><span id="line-335">  /**</span>
-<span class="source-line-no">336</span><span id="line-336">   * For each line, check the delimiter that is used the most.</span>
-<span class="source-line-no">337</span><span id="line-337">   * Return the count of each delimiter.</span>
-<span class="source-line-no">338</span><span id="line-338">   * @param lines</span>
-<span class="source-line-no">339</span><span id="line-339">   * @return</span>
-<span class="source-line-no">340</span><span id="line-340">   */</span>
-<span class="source-line-no">341</span><span id="line-341">  static Map&lt;Character, Long&gt; computeDelimiterHighestFrequencyPerLine(List&lt;String&gt; lines) {</span>
-<span class="source-line-no">342</span><span id="line-342">    return lines.stream()</span>
-<span class="source-line-no">343</span><span id="line-343">        .map(TabularFileMetadataExtractor::getDelimiterWithHighestCount2)</span>
-<span class="source-line-no">344</span><span id="line-344">        .flatMap(</span>
-<span class="source-line-no">345</span><span id="line-345">            o -&gt;</span>
-<span class="source-line-no">346</span><span id="line-346">                o.map(Stream::of)</span>
-<span class="source-line-no">347</span><span id="line-347">                    .orElseGet(Stream::empty)) // remove Optional wrapper and ignore Optional.empty</span>
-<span class="source-line-no">348</span><span id="line-348">        .collect(Collectors.groupingBy(LineDelimiterStats::getDelimiter, counting()));</span>
-<span class="source-line-no">349</span><span id="line-349">  }</span>
-<span class="source-line-no">350</span><span id="line-350"></span>
-<span class="source-line-no">351</span><span id="line-351">  /**</span>
-<span class="source-line-no">352</span><span id="line-352">   * For {@link LineDelimiterStats}, sum the frequency (count) of each delimiter.</span>
-<span class="source-line-no">353</span><span id="line-353">   * This gives us an idea of the overall usage of each delimiter across the sample.</span>
-<span class="source-line-no">354</span><span id="line-354">   * Note that since quotes are not handled, noise can be introduced if a quoted cell uses the delimiter.</span>
-<span class="source-line-no">355</span><span id="line-355">   *</span>
-<span class="source-line-no">356</span><span id="line-356">   * See unit test for examples of when this method will be affected by noise.</span>
-<span class="source-line-no">357</span><span id="line-357">   *</span>
-<span class="source-line-no">358</span><span id="line-358">   * @param linesStats</span>
-<span class="source-line-no">359</span><span id="line-359">   *</span>
-<span class="source-line-no">360</span><span id="line-360">   * @return</span>
-<span class="source-line-no">361</span><span id="line-361">   */</span>
-<span class="source-line-no">362</span><span id="line-362">  static Map&lt;Character, Integer&gt; computeDelimiterFrequencySums(</span>
-<span class="source-line-no">363</span><span id="line-363">      List&lt;LineDelimiterStats&gt; linesStats) {</span>
-<span class="source-line-no">364</span><span id="line-364">    return linesStats.stream()</span>
-<span class="source-line-no">365</span><span id="line-365">        .filter(CONTAINS_FREQUENCY)</span>
-<span class="source-line-no">366</span><span id="line-366">        .collect(</span>
-<span class="source-line-no">367</span><span id="line-367">            Collectors.groupingBy(</span>
-<span class="source-line-no">368</span><span id="line-368">                LineDelimiterStats::getDelimiter,</span>
-<span class="source-line-no">369</span><span id="line-369">                Collectors.summingInt(LineDelimiterStats::getFrequency)));</span>
-<span class="source-line-no">370</span><span id="line-370">  }</span>
-<span class="source-line-no">371</span><span id="line-371"></span>
-<span class="source-line-no">372</span><span id="line-372">  /**</span>
-<span class="source-line-no">373</span><span id="line-373">   * Given a line, get the delimiter with the highest count if any can be found.</span>
-<span class="source-line-no">374</span><span id="line-374">   * Note: quotes are ignored in the count so a delimiter used inside quotes will be counted.</span>
-<span class="source-line-no">375</span><span id="line-375">   *</span>
-<span class="source-line-no">376</span><span id="line-376">   * @param line line of text to analyse</span>
-<span class="source-line-no">377</span><span id="line-377">   *</span>
-<span class="source-line-no">378</span><span id="line-378">   * @return</span>
-<span class="source-line-no">379</span><span id="line-379">   */</span>
-<span class="source-line-no">380</span><span id="line-380">  static Optional&lt;Character&gt; getDelimiterWithHighestCount(String line) {</span>
-<span class="source-line-no">381</span><span id="line-381">    int highestCount = 0;</span>
-<span class="source-line-no">382</span><span id="line-382">    Character highestCountDelimiter = null;</span>
-<span class="source-line-no">383</span><span id="line-383">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
-<span class="source-line-no">384</span><span id="line-384">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
-<span class="source-line-no">385</span><span id="line-385">      if (currentCount &gt; highestCount) {</span>
-<span class="source-line-no">386</span><span id="line-386">        highestCount = currentCount;</span>
-<span class="source-line-no">387</span><span id="line-387">        highestCountDelimiter = delimiter;</span>
-<span class="source-line-no">388</span><span id="line-388">      }</span>
-<span class="source-line-no">389</span><span id="line-389">    }</span>
-<span class="source-line-no">390</span><span id="line-390">    return Optional.ofNullable(highestCountDelimiter);</span>
-<span class="source-line-no">391</span><span id="line-391">  }</span>
-<span class="source-line-no">392</span><span id="line-392"></span>
-<span class="source-line-no">393</span><span id="line-393">  static Optional&lt;LineDelimiterStats&gt; getDelimiterWithHighestCount2(String line) {</span>
-<span class="source-line-no">394</span><span id="line-394">    int highestCount = 0;</span>
-<span class="source-line-no">395</span><span id="line-395">    // Character highestCountDelimiter = null;</span>
-<span class="source-line-no">396</span><span id="line-396">    LineDelimiterStats lineDelimiterStats = null;</span>
-<span class="source-line-no">397</span><span id="line-397">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
-<span class="source-line-no">398</span><span id="line-398">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
-<span class="source-line-no">399</span><span id="line-399">      if (currentCount &gt; highestCount) {</span>
-<span class="source-line-no">400</span><span id="line-400">        highestCount = currentCount;</span>
-<span class="source-line-no">401</span><span id="line-401">        lineDelimiterStats = new LineDelimiterStats(delimiter, highestCount);</span>
-<span class="source-line-no">402</span><span id="line-402">      }</span>
-<span class="source-line-no">403</span><span id="line-403">    }</span>
-<span class="source-line-no">404</span><span id="line-404">    return Optional.ofNullable(lineDelimiterStats);</span>
-<span class="source-line-no">405</span><span id="line-405">  }</span>
-<span class="source-line-no">406</span><span id="line-406"></span>
-<span class="source-line-no">407</span><span id="line-407">  /**</span>
-<span class="source-line-no">408</span><span id="line-408">   * Given a line and a delimiter, try to determine the quoting character if any can be found.</span>
-<span class="source-line-no">409</span><span id="line-409">   * To check if a quote character is used we run a regex to check for a delimiter followed by a quoting character.</span>
-<span class="source-line-no">410</span><span id="line-410">   *</span>
-<span class="source-line-no">411</span><span id="line-411">   * @param line line of text to analyse</span>
-<span class="source-line-no">412</span><span id="line-412">   * @param delimiter delimiter used in the line of text</span>
-<span class="source-line-no">413</span><span id="line-413">   *</span>
-<span class="source-line-no">414</span><span id="line-414">   * @return</span>
-<span class="source-line-no">415</span><span id="line-415">   */</span>
-<span class="source-line-no">416</span><span id="line-416">  static Optional&lt;Character&gt; getQuoteCharWithHighestCount(String line, Character delimiter) {</span>
-<span class="source-line-no">417</span><span id="line-417">    int highestCount = 0;</span>
-<span class="source-line-no">418</span><span id="line-418">    Character highestCountQuoteChar = null;</span>
-<span class="source-line-no">419</span><span id="line-419">    for (Character quoteChar : POTENTIAL_QUOTES_CHAR) {</span>
-<span class="source-line-no">420</span><span id="line-420">      int currentCount = 0;</span>
-<span class="source-line-no">421</span><span id="line-421">      Matcher m = COMPILE_QUOTE_PATTERN_FCT.apply(delimiter, quoteChar).matcher(line);</span>
-<span class="source-line-no">422</span><span id="line-422">      while (m.find()) {</span>
-<span class="source-line-no">423</span><span id="line-423">        currentCount++;</span>
-<span class="source-line-no">424</span><span id="line-424">      }</span>
-<span class="source-line-no">425</span><span id="line-425">      if (currentCount &gt; highestCount) {</span>
-<span class="source-line-no">426</span><span id="line-426">        highestCount = currentCount;</span>
-<span class="source-line-no">427</span><span id="line-427">        highestCountQuoteChar = quoteChar;</span>
-<span class="source-line-no">428</span><span id="line-428">      }</span>
-<span class="source-line-no">429</span><span id="line-429">    }</span>
-<span class="source-line-no">430</span><span id="line-430">    return Optional.ofNullable(highestCountQuoteChar);</span>
-<span class="source-line-no">431</span><span id="line-431">  }</span>
-<span class="source-line-no">432</span><span id="line-432"></span>
-<span class="source-line-no">433</span><span id="line-433">  /**</span>
-<span class="source-line-no">434</span><span id="line-434">   * Inner representation of stats (frequency) of a delimiter</span>
-<span class="source-line-no">435</span><span id="line-435">   */</span>
-<span class="source-line-no">436</span><span id="line-436">  static class LineDelimiterStats {</span>
-<span class="source-line-no">437</span><span id="line-437">    private Character delimiter;</span>
-<span class="source-line-no">438</span><span id="line-438">    private int frequency;</span>
-<span class="source-line-no">439</span><span id="line-439"></span>
-<span class="source-line-no">440</span><span id="line-440">    LineDelimiterStats(Character delimiter, int frequency) {</span>
-<span class="source-line-no">441</span><span id="line-441">      this.delimiter = delimiter;</span>
-<span class="source-line-no">442</span><span id="line-442">      this.frequency = frequency;</span>
-<span class="source-line-no">443</span><span id="line-443">    }</span>
-<span class="source-line-no">444</span><span id="line-444"></span>
-<span class="source-line-no">445</span><span id="line-445">    Character getDelimiter() {</span>
-<span class="source-line-no">446</span><span id="line-446">      return delimiter;</span>
-<span class="source-line-no">447</span><span id="line-447">    }</span>
+<span class="source-line-no">242</span><span id="line-242">    // otherwise, if only one delimiter is used the same number of times on every line, trust it over frequency</span>
+<span class="source-line-no">243</span><span id="line-243">    // (e.g. a tab file where a quoted WKT column holds many commas)</span>
+<span class="source-line-no">244</span><span id="line-244">    if (mostStableDelimiter.size() == 1) {</span>
+<span class="source-line-no">245</span><span id="line-245">      Character stableDelimiter = mostStableDelimiter.iterator().next();</span>
+<span class="source-line-no">246</span><span id="line-246">      if (delimiterDistinctFrequency.get(stableDelimiter).size() == 1) {</span>
+<span class="source-line-no">247</span><span id="line-247">        return Optional.of(stableDelimiter);</span>
+<span class="source-line-no">248</span><span id="line-248">      }</span>
+<span class="source-line-no">249</span><span id="line-249">    }</span>
+<span class="source-line-no">250</span><span id="line-250"></span>
+<span class="source-line-no">251</span><span id="line-251">    // as last resort if the most frequent delimiter overall and by line is the same</span>
+<span class="source-line-no">252</span><span id="line-252">    resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);</span>
+<span class="source-line-no">253</span><span id="line-253"></span>
+<span class="source-line-no">254</span><span id="line-254">    return resultCharacter;</span>
+<span class="source-line-no">255</span><span id="line-255">  }</span>
+<span class="source-line-no">256</span><span id="line-256"></span>
+<span class="source-line-no">257</span><span id="line-257">  /**</span>
+<span class="source-line-no">258</span><span id="line-258">   * Return the {@link Character} represents the intersection between 2 sets only if the resulting set represents</span>
+<span class="source-line-no">259</span><span id="line-259">   * a single element.</span>
+<span class="source-line-no">260</span><span id="line-260">   * @param set1</span>
+<span class="source-line-no">261</span><span id="line-261">   * @param set2</span>
+<span class="source-line-no">262</span><span id="line-262">   * @return</span>
+<span class="source-line-no">263</span><span id="line-263">   */</span>
+<span class="source-line-no">264</span><span id="line-264">  private static Optional&lt;Character&gt; intersectSingle(Set&lt;Character&gt; set1, Set&lt;Character&gt; set2) {</span>
+<span class="source-line-no">265</span><span id="line-265">    Set&lt;Character&gt; intersection = new HashSet&lt;&gt;(set1);</span>
+<span class="source-line-no">266</span><span id="line-266">    intersection.retainAll(set2);</span>
+<span class="source-line-no">267</span><span id="line-267"></span>
+<span class="source-line-no">268</span><span id="line-268">    return intersection.size() == 1 ? intersection.stream().findFirst() : Optional.empty();</span>
+<span class="source-line-no">269</span><span id="line-269">  }</span>
+<span class="source-line-no">270</span><span id="line-270"></span>
+<span class="source-line-no">271</span><span id="line-271">  /**</span>
+<span class="source-line-no">272</span><span id="line-272">   * Given a {@link Map}, return all elements that are equals to the first element (including itself)</span>
+<span class="source-line-no">273</span><span id="line-273">   * based on the provided equals function.</span>
+<span class="source-line-no">274</span><span id="line-274">   * @param map</span>
+<span class="source-line-no">275</span><span id="line-275">   * @param equalsPredicate</span>
+<span class="source-line-no">276</span><span id="line-276">   * @param &lt;T&gt;</span>
+<span class="source-line-no">277</span><span id="line-277">   * @return all elements that are equals to the first one or an empty set if the map is empty</span>
+<span class="source-line-no">278</span><span id="line-278">   */</span>
+<span class="source-line-no">279</span><span id="line-279">  private static &lt;T&gt; Set&lt;Character&gt; getAllEqualsToFirst(</span>
+<span class="source-line-no">280</span><span id="line-280">      Map&lt;Character, T&gt; map, BiFunction&lt;T, T, Boolean&gt; equalsPredicate) {</span>
+<span class="source-line-no">281</span><span id="line-281"></span>
+<span class="source-line-no">282</span><span id="line-282">    Optional&lt;Map.Entry&lt;Character, T&gt;&gt; firstMapEntry = map.entrySet().stream().findFirst();</span>
+<span class="source-line-no">283</span><span id="line-283">    if (!firstMapEntry.isPresent()) {</span>
+<span class="source-line-no">284</span><span id="line-284">      return Collections.EMPTY_SET;</span>
+<span class="source-line-no">285</span><span id="line-285">    }</span>
+<span class="source-line-no">286</span><span id="line-286"></span>
+<span class="source-line-no">287</span><span id="line-287">    final T firstValue = firstMapEntry.get().getValue();</span>
+<span class="source-line-no">288</span><span id="line-288">    return map.entrySet().stream()</span>
+<span class="source-line-no">289</span><span id="line-289">        .filter(e -&gt; equalsPredicate.apply(firstValue, e.getValue()))</span>
+<span class="source-line-no">290</span><span id="line-290">        .map(Map.Entry::getKey)</span>
+<span class="source-line-no">291</span><span id="line-291">        .collect(Collectors.toSet());</span>
+<span class="source-line-no">292</span><span id="line-292">  }</span>
+<span class="source-line-no">293</span><span id="line-293"></span>
+<span class="source-line-no">294</span><span id="line-294">  /**</span>
+<span class="source-line-no">295</span><span id="line-295">   * For each element(line) of the sample, compute a {@link LineDelimiterStats} for each delimiter.</span>
+<span class="source-line-no">296</span><span id="line-296">   * Note: delimiter that are not used within a line will be included with the frequency 0.</span>
+<span class="source-line-no">297</span><span id="line-297">   * @param sample</span>
+<span class="source-line-no">298</span><span id="line-298">   * @return new List, never null</span>
+<span class="source-line-no">299</span><span id="line-299">   */</span>
+<span class="source-line-no">300</span><span id="line-300">  static List&lt;LineDelimiterStats&gt; computeLineDelimiterStats(List&lt;String&gt; sample) {</span>
+<span class="source-line-no">301</span><span id="line-301">    return sample.stream()</span>
+<span class="source-line-no">302</span><span id="line-302">        .map(TabularFileMetadataExtractor::lineToLineDelimiterStats)</span>
+<span class="source-line-no">303</span><span id="line-303">        .flatMap(List::stream)</span>
+<span class="source-line-no">304</span><span id="line-304">        .collect(Collectors.toList());</span>
+<span class="source-line-no">305</span><span id="line-305">  }</span>
+<span class="source-line-no">306</span><span id="line-306"></span>
+<span class="source-line-no">307</span><span id="line-307">  /**</span>
+<span class="source-line-no">308</span><span id="line-308">   * Compute the stats for each potential delimiters on a line.</span>
+<span class="source-line-no">309</span><span id="line-309">   * @param line</span>
+<span class="source-line-no">310</span><span id="line-310">   * @return</span>
+<span class="source-line-no">311</span><span id="line-311">   */</span>
+<span class="source-line-no">312</span><span id="line-312">  private static List&lt;LineDelimiterStats&gt; lineToLineDelimiterStats(String line) {</span>
+<span class="source-line-no">313</span><span id="line-313">    return Arrays.stream(POTENTIAL_DELIMITER_CHAR)</span>
+<span class="source-line-no">314</span><span id="line-314">        .map(</span>
+<span class="source-line-no">315</span><span id="line-315">            delimiter -&gt;</span>
+<span class="source-line-no">316</span><span id="line-316">                new LineDelimiterStats(delimiter, StringUtils.countMatches(line, delimiter)))</span>
+<span class="source-line-no">317</span><span id="line-317">        .collect(Collectors.toList());</span>
+<span class="source-line-no">318</span><span id="line-318">  }</span>
+<span class="source-line-no">319</span><span id="line-319"></span>
+<span class="source-line-no">320</span><span id="line-320">  /**</span>
+<span class="source-line-no">321</span><span id="line-321">   * For each {@link LineDelimiterStats}, collect the distinct frequency (count) of each delimiter.</span>
+<span class="source-line-no">322</span><span id="line-322">   * This gives us an idea of the "stability" of each delimiter across the sample.</span>
+<span class="source-line-no">323</span><span id="line-323">   * Note that since quotes are not handled, noise can be introduced if a quoted cells use the delimiter.</span>
+<span class="source-line-no">324</span><span id="line-324">   *</span>
+<span class="source-line-no">325</span><span id="line-325">   * See unit test for examples of when this method will be affected by noise.</span>
+<span class="source-line-no">326</span><span id="line-326">   *</span>
+<span class="source-line-no">327</span><span id="line-327">   * The most stable delimiter is normally defined by the {@link Character} returned by the methods where</span>
+<span class="source-line-no">328</span><span id="line-328">   * the list of distinct frequency is the smallest in size excluding cases where the list contains only the element</span>
+<span class="source-line-no">329</span><span id="line-329">   * representing 0 as Integer (which means the delimiter was never used).</span>
+<span class="source-line-no">330</span><span id="line-330">   *</span>
+<span class="source-line-no">331</span><span id="line-331">   * @param linesStats</span>
+<span class="source-line-no">332</span><span id="line-332">   *</span>
+<span class="source-line-no">333</span><span id="line-333">   * @return</span>
+<span class="source-line-no">334</span><span id="line-334">   */</span>
+<span class="source-line-no">335</span><span id="line-335">  static Map&lt;Character, Set&lt;Integer&gt;&gt; computeDelimiterDistinctFrequency(</span>
+<span class="source-line-no">336</span><span id="line-336">      List&lt;LineDelimiterStats&gt; linesStats) {</span>
+<span class="source-line-no">337</span><span id="line-337">    return linesStats.stream()</span>
+<span class="source-line-no">338</span><span id="line-338">        .collect(</span>
+<span class="source-line-no">339</span><span id="line-339">            Collectors.groupingBy(</span>
+<span class="source-line-no">340</span><span id="line-340">                LineDelimiterStats::getDelimiter,</span>
+<span class="source-line-no">341</span><span id="line-341">                Collectors.mapping(LineDelimiterStats::getFrequency, toSet())));</span>
+<span class="source-line-no">342</span><span id="line-342">  }</span>
+<span class="source-line-no">343</span><span id="line-343"></span>
+<span class="source-line-no">344</span><span id="line-344">  /**</span>
+<span class="source-line-no">345</span><span id="line-345">   * For each line, check the delimiter that is used the most.</span>
+<span class="source-line-no">346</span><span id="line-346">   * Return the count of each delimiter.</span>
+<span class="source-line-no">347</span><span id="line-347">   * @param lines</span>
+<span class="source-line-no">348</span><span id="line-348">   * @return</span>
+<span class="source-line-no">349</span><span id="line-349">   */</span>
+<span class="source-line-no">350</span><span id="line-350">  static Map&lt;Character, Long&gt; computeDelimiterHighestFrequencyPerLine(List&lt;String&gt; lines) {</span>
+<span class="source-line-no">351</span><span id="line-351">    return lines.stream()</span>
+<span class="source-line-no">352</span><span id="line-352">        .map(TabularFileMetadataExtractor::getDelimiterWithHighestCount2)</span>
+<span class="source-line-no">353</span><span id="line-353">        .flatMap(</span>
+<span class="source-line-no">354</span><span id="line-354">            o -&gt;</span>
+<span class="source-line-no">355</span><span id="line-355">                o.map(Stream::of)</span>
+<span class="source-line-no">356</span><span id="line-356">                    .orElseGet(Stream::empty)) // remove Optional wrapper and ignore Optional.empty</span>
+<span class="source-line-no">357</span><span id="line-357">        .collect(Collectors.groupingBy(LineDelimiterStats::getDelimiter, counting()));</span>
+<span class="source-line-no">358</span><span id="line-358">  }</span>
+<span class="source-line-no">359</span><span id="line-359"></span>
+<span class="source-line-no">360</span><span id="line-360">  /**</span>
+<span class="source-line-no">361</span><span id="line-361">   * For {@link LineDelimiterStats}, sum the frequency (count) of each delimiter.</span>
+<span class="source-line-no">362</span><span id="line-362">   * This gives us an idea of the overall usage of each delimiter across the sample.</span>
+<span class="source-line-no">363</span><span id="line-363">   * Note that since quotes are not handled, noise can be introduced if a quoted cell uses the delimiter.</span>
+<span class="source-line-no">364</span><span id="line-364">   *</span>
+<span class="source-line-no">365</span><span id="line-365">   * See unit test for examples of when this method will be affected by noise.</span>
+<span class="source-line-no">366</span><span id="line-366">   *</span>
+<span class="source-line-no">367</span><span id="line-367">   * @param linesStats</span>
+<span class="source-line-no">368</span><span id="line-368">   *</span>
+<span class="source-line-no">369</span><span id="line-369">   * @return</span>
+<span class="source-line-no">370</span><span id="line-370">   */</span>
+<span class="source-line-no">371</span><span id="line-371">  static Map&lt;Character, Integer&gt; computeDelimiterFrequencySums(</span>
+<span class="source-line-no">372</span><span id="line-372">      List&lt;LineDelimiterStats&gt; linesStats) {</span>
+<span class="source-line-no">373</span><span id="line-373">    return linesStats.stream()</span>
+<span class="source-line-no">374</span><span id="line-374">        .filter(CONTAINS_FREQUENCY)</span>
+<span class="source-line-no">375</span><span id="line-375">        .collect(</span>
+<span class="source-line-no">376</span><span id="line-376">            Collectors.groupingBy(</span>
+<span class="source-line-no">377</span><span id="line-377">                LineDelimiterStats::getDelimiter,</span>
+<span class="source-line-no">378</span><span id="line-378">                Collectors.summingInt(LineDelimiterStats::getFrequency)));</span>
+<span class="source-line-no">379</span><span id="line-379">  }</span>
+<span class="source-line-no">380</span><span id="line-380"></span>
+<span class="source-line-no">381</span><span id="line-381">  /**</span>
+<span class="source-line-no">382</span><span id="line-382">   * Given a line, get the delimiter with the highest count if any can be found.</span>
+<span class="source-line-no">383</span><span id="line-383">   * Note: quotes are ignored in the count so a delimiter used inside quotes will be counted.</span>
+<span class="source-line-no">384</span><span id="line-384">   *</span>
+<span class="source-line-no">385</span><span id="line-385">   * @param line line of text to analyse</span>
+<span class="source-line-no">386</span><span id="line-386">   *</span>
+<span class="source-line-no">387</span><span id="line-387">   * @return</span>
+<span class="source-line-no">388</span><span id="line-388">   */</span>
+<span class="source-line-no">389</span><span id="line-389">  static Optional&lt;Character&gt; getDelimiterWithHighestCount(String line) {</span>
+<span class="source-line-no">390</span><span id="line-390">    int highestCount = 0;</span>
+<span class="source-line-no">391</span><span id="line-391">    Character highestCountDelimiter = null;</span>
+<span class="source-line-no">392</span><span id="line-392">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
+<span class="source-line-no">393</span><span id="line-393">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
+<span class="source-line-no">394</span><span id="line-394">      if (currentCount &gt; highestCount) {</span>
+<span class="source-line-no">395</span><span id="line-395">        highestCount = currentCount;</span>
+<span class="source-line-no">396</span><span id="line-396">        highestCountDelimiter = delimiter;</span>
+<span class="source-line-no">397</span><span id="line-397">      }</span>
+<span class="source-line-no">398</span><span id="line-398">    }</span>
+<span class="source-line-no">399</span><span id="line-399">    return Optional.ofNullable(highestCountDelimiter);</span>
+<span class="source-line-no">400</span><span id="line-400">  }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">  static Optional&lt;LineDelimiterStats&gt; getDelimiterWithHighestCount2(String line) {</span>
+<span class="source-line-no">403</span><span id="line-403">    int highestCount = 0;</span>
+<span class="source-line-no">404</span><span id="line-404">    // Character highestCountDelimiter = null;</span>
+<span class="source-line-no">405</span><span id="line-405">    LineDelimiterStats lineDelimiterStats = null;</span>
+<span class="source-line-no">406</span><span id="line-406">    for (Character delimiter : POTENTIAL_DELIMITER_CHAR) {</span>
+<span class="source-line-no">407</span><span id="line-407">      int currentCount = StringUtils.countMatches(line, delimiter);</span>
+<span class="source-line-no">408</span><span id="line-408">      if (currentCount &gt; highestCount) {</span>
+<span class="source-line-no">409</span><span id="line-409">        highestCount = currentCount;</span>
+<span class="source-line-no">410</span><span id="line-410">        lineDelimiterStats = new LineDelimiterStats(delimiter, highestCount);</span>
+<span class="source-line-no">411</span><span id="line-411">      }</span>
+<span class="source-line-no">412</span><span id="line-412">    }</span>
+<span class="source-line-no">413</span><span id="line-413">    return Optional.ofNullable(lineDelimiterStats);</span>
+<span class="source-line-no">414</span><span id="line-414">  }</span>
+<span class="source-line-no">415</span><span id="line-415"></span>
+<span class="source-line-no">416</span><span id="line-416">  /**</span>
+<span class="source-line-no">417</span><span id="line-417">   * Given a line and a delimiter, try to determine the quoting character if any can be found.</span>
+<span class="source-line-no">418</span><span id="line-418">   * To check if a quote character is used we run a regex to check for a delimiter followed by a quoting character.</span>
+<span class="source-line-no">419</span><span id="line-419">   *</span>
+<span class="source-line-no">420</span><span id="line-420">   * @param line line of text to analyse</span>
+<span class="source-line-no">421</span><span id="line-421">   * @param delimiter delimiter used in the line of text</span>
+<span class="source-line-no">422</span><span id="line-422">   *</span>
+<span class="source-line-no">423</span><span id="line-423">   * @return</span>
+<span class="source-line-no">424</span><span id="line-424">   */</span>
+<span class="source-line-no">425</span><span id="line-425">  static Optional&lt;Character&gt; getQuoteCharWithHighestCount(String line, Character delimiter) {</span>
+<span class="source-line-no">426</span><span id="line-426">    int highestCount = 0;</span>
+<span class="source-line-no">427</span><span id="line-427">    Character highestCountQuoteChar = null;</span>
+<span class="source-line-no">428</span><span id="line-428">    for (Character quoteChar : POTENTIAL_QUOTES_CHAR) {</span>
+<span class="source-line-no">429</span><span id="line-429">      int currentCount = 0;</span>
+<span class="source-line-no">430</span><span id="line-430">      Matcher m = COMPILE_QUOTE_PATTERN_FCT.apply(delimiter, quoteChar).matcher(line);</span>
+<span class="source-line-no">431</span><span id="line-431">      while (m.find()) {</span>
+<span class="source-line-no">432</span><span id="line-432">        currentCount++;</span>
+<span class="source-line-no">433</span><span id="line-433">      }</span>
+<span class="source-line-no">434</span><span id="line-434">      if (currentCount &gt; highestCount) {</span>
+<span class="source-line-no">435</span><span id="line-435">        highestCount = currentCount;</span>
+<span class="source-line-no">436</span><span id="line-436">        highestCountQuoteChar = quoteChar;</span>
+<span class="source-line-no">437</span><span id="line-437">      }</span>
+<span class="source-line-no">438</span><span id="line-438">    }</span>
+<span class="source-line-no">439</span><span id="line-439">    return Optional.ofNullable(highestCountQuoteChar);</span>
+<span class="source-line-no">440</span><span id="line-440">  }</span>
+<span class="source-line-no">441</span><span id="line-441"></span>
+<span class="source-line-no">442</span><span id="line-442">  /**</span>
+<span class="source-line-no">443</span><span id="line-443">   * Inner representation of stats (frequency) of a delimiter</span>
+<span class="source-line-no">444</span><span id="line-444">   */</span>
+<span class="source-line-no">445</span><span id="line-445">  static class LineDelimiterStats {</span>
+<span class="source-line-no">446</span><span id="line-446">    private Character delimiter;</span>
+<span class="source-line-no">447</span><span id="line-447">    private int frequency;</span>
 <span class="source-line-no">448</span><span id="line-448"></span>
-<span class="source-line-no">449</span><span id="line-449">    int getFrequency() {</span>
-<span class="source-line-no">450</span><span id="line-450">      return frequency;</span>
-<span class="source-line-no">451</span><span id="line-451">    }</span>
-<span class="source-line-no">452</span><span id="line-452">  }</span>
-<span class="source-line-no">453</span><span id="line-453">}</span>
+<span class="source-line-no">449</span><span id="line-449">    LineDelimiterStats(Character delimiter, int frequency) {</span>
+<span class="source-line-no">450</span><span id="line-450">      this.delimiter = delimiter;</span>
+<span class="source-line-no">451</span><span id="line-451">      this.frequency = frequency;</span>
+<span class="source-line-no">452</span><span id="line-452">    }</span>
+<span class="source-line-no">453</span><span id="line-453"></span>
+<span class="source-line-no">454</span><span id="line-454">    Character getDelimiter() {</span>
+<span class="source-line-no">455</span><span id="line-455">      return delimiter;</span>
+<span class="source-line-no">456</span><span id="line-456">    }</span>
+<span class="source-line-no">457</span><span id="line-457"></span>
+<span class="source-line-no">458</span><span id="line-458">    int getFrequency() {</span>
+<span class="source-line-no">459</span><span id="line-459">      return frequency;</span>
+<span class="source-line-no">460</span><span id="line-460">    }</span>
+<span class="source-line-no">461</span><span id="line-461">  }</span>
+<span class="source-line-no">462</span><span id="line-462">}</span>
 
 
 

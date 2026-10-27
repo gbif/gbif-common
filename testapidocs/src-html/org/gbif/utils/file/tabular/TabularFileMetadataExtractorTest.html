@@ -241,41 +241,43 @@
 <span class="source-line-no">228</span><span id="line-228">    String[] files = {</span>
 <span class="source-line-no">229</span><span id="line-229">      "csv/eol/my_darwincore_tab_separated_quoted.txt",</span>
 <span class="source-line-no">230</span><span id="line-230">      "csv/eol/my_dataobject_tab_separated_quoted.txt",</span>
-<span class="source-line-no">231</span><span id="line-231">      "csv/borza_tab_separated_quoted.txt"</span>
-<span class="source-line-no">232</span><span id="line-232">    };</span>
-<span class="source-line-no">233</span><span id="line-233">    for (String fn : files) {</span>
-<span class="source-line-no">234</span><span id="line-234">      runExtractTabularFileMetadata(fn, '\t', '"', StandardCharsets.UTF_8);</span>
-<span class="source-line-no">235</span><span id="line-235">    }</span>
-<span class="source-line-no">236</span><span id="line-236">  }</span>
-<span class="source-line-no">237</span><span id="line-237"></span>
-<span class="source-line-no">238</span><span id="line-238">  private static void runExtractTabularFileMetadata(</span>
-<span class="source-line-no">239</span><span id="line-239">      String classPathFile,</span>
-<span class="source-line-no">240</span><span id="line-240">      Character expectedDelimiter,</span>
-<span class="source-line-no">241</span><span id="line-241">      Character expectedQuoteChar,</span>
-<span class="source-line-no">242</span><span id="line-242">      Charset expectedCharset)</span>
-<span class="source-line-no">243</span><span id="line-243">      throws IOException {</span>
-<span class="source-line-no">244</span><span id="line-244">    Path source = FileUtils.getClasspathFile(classPathFile).toPath();</span>
-<span class="source-line-no">245</span><span id="line-245">    TabularFileMetadata tabFileMetadata = extractTabularFileMetadata(source);</span>
-<span class="source-line-no">246</span><span id="line-246">    assertEquals(expectedDelimiter.charValue(), tabFileMetadata.getDelimiter().charValue());</span>
-<span class="source-line-no">247</span><span id="line-247"></span>
-<span class="source-line-no">248</span><span id="line-248">    if (expectedQuoteChar == null) {</span>
-<span class="source-line-no">249</span><span id="line-249">      assertNull(tabFileMetadata.getQuotedBy());</span>
-<span class="source-line-no">250</span><span id="line-250">    } else {</span>
-<span class="source-line-no">251</span><span id="line-251">      assertNotNull(tabFileMetadata.getQuotedBy(), "Expect a quote character -&gt; " + source);</span>
-<span class="source-line-no">252</span><span id="line-252">      assertEquals(expectedQuoteChar, tabFileMetadata.getQuotedBy(), "Source file -&gt; " + source);</span>
-<span class="source-line-no">253</span><span id="line-253">    }</span>
-<span class="source-line-no">254</span><span id="line-254"></span>
-<span class="source-line-no">255</span><span id="line-255">    assertEquals(expectedCharset, tabFileMetadata.getEncoding());</span>
-<span class="source-line-no">256</span><span id="line-256">  }</span>
-<span class="source-line-no">257</span><span id="line-257"></span>
-<span class="source-line-no">258</span><span id="line-258">  @Test</span>
-<span class="source-line-no">259</span><span id="line-259">  public void detectEncoding() throws IOException {</span>
-<span class="source-line-no">260</span><span id="line-260">    runExtractTabularFileMetadata(</span>
-<span class="source-line-no">261</span><span id="line-261">        "tabular/test_encoding_detection.iso-8859-1.csv", ',', null, StandardCharsets.ISO_8859_1);</span>
+<span class="source-line-no">231</span><span id="line-231">      "csv/borza_tab_separated_quoted.txt",</span>
+<span class="source-line-no">232</span><span id="line-232">      // more commas (in WKT) than tabs, https://github.com/gbif/gbif-common/issues/36</span>
+<span class="source-line-no">233</span><span id="line-233">      "csv/event_wkt_tab_separated_quoted.txt"</span>
+<span class="source-line-no">234</span><span id="line-234">    };</span>
+<span class="source-line-no">235</span><span id="line-235">    for (String fn : files) {</span>
+<span class="source-line-no">236</span><span id="line-236">      runExtractTabularFileMetadata(fn, '\t', '"', StandardCharsets.UTF_8);</span>
+<span class="source-line-no">237</span><span id="line-237">    }</span>
+<span class="source-line-no">238</span><span id="line-238">  }</span>
+<span class="source-line-no">239</span><span id="line-239"></span>
+<span class="source-line-no">240</span><span id="line-240">  private static void runExtractTabularFileMetadata(</span>
+<span class="source-line-no">241</span><span id="line-241">      String classPathFile,</span>
+<span class="source-line-no">242</span><span id="line-242">      Character expectedDelimiter,</span>
+<span class="source-line-no">243</span><span id="line-243">      Character expectedQuoteChar,</span>
+<span class="source-line-no">244</span><span id="line-244">      Charset expectedCharset)</span>
+<span class="source-line-no">245</span><span id="line-245">      throws IOException {</span>
+<span class="source-line-no">246</span><span id="line-246">    Path source = FileUtils.getClasspathFile(classPathFile).toPath();</span>
+<span class="source-line-no">247</span><span id="line-247">    TabularFileMetadata tabFileMetadata = extractTabularFileMetadata(source);</span>
+<span class="source-line-no">248</span><span id="line-248">    assertEquals(expectedDelimiter.charValue(), tabFileMetadata.getDelimiter().charValue());</span>
+<span class="source-line-no">249</span><span id="line-249"></span>
+<span class="source-line-no">250</span><span id="line-250">    if (expectedQuoteChar == null) {</span>
+<span class="source-line-no">251</span><span id="line-251">      assertNull(tabFileMetadata.getQuotedBy());</span>
+<span class="source-line-no">252</span><span id="line-252">    } else {</span>
+<span class="source-line-no">253</span><span id="line-253">      assertNotNull(tabFileMetadata.getQuotedBy(), "Expect a quote character -&gt; " + source);</span>
+<span class="source-line-no">254</span><span id="line-254">      assertEquals(expectedQuoteChar, tabFileMetadata.getQuotedBy(), "Source file -&gt; " + source);</span>
+<span class="source-line-no">255</span><span id="line-255">    }</span>
+<span class="source-line-no">256</span><span id="line-256"></span>
+<span class="source-line-no">257</span><span id="line-257">    assertEquals(expectedCharset, tabFileMetadata.getEncoding());</span>
+<span class="source-line-no">258</span><span id="line-258">  }</span>
+<span class="source-line-no">259</span><span id="line-259"></span>
+<span class="source-line-no">260</span><span id="line-260">  @Test</span>
+<span class="source-line-no">261</span><span id="line-261">  public void detectEncoding() throws IOException {</span>
 <span class="source-line-no">262</span><span id="line-262">    runExtractTabularFileMetadata(</span>
-<span class="source-line-no">263</span><span id="line-263">        "tabular/test_encoding_detection.utf-8.csv", ',', null, StandardCharsets.UTF_8);</span>
-<span class="source-line-no">264</span><span id="line-264">  }</span>
-<span class="source-line-no">265</span><span id="line-265">}</span>
+<span class="source-line-no">263</span><span id="line-263">        "tabular/test_encoding_detection.iso-8859-1.csv", ',', null, StandardCharsets.ISO_8859_1);</span>
+<span class="source-line-no">264</span><span id="line-264">    runExtractTabularFileMetadata(</span>
+<span class="source-line-no">265</span><span id="line-265">        "tabular/test_encoding_detection.utf-8.csv", ',', null, StandardCharsets.UTF_8);</span>
+<span class="source-line-no">266</span><span id="line-266">  }</span>
+<span class="source-line-no">267</span><span id="line-267">}</span>
 
 
 
