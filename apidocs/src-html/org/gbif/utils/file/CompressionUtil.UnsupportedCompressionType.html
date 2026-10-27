@@ -53,543 +53,581 @@
 <span class="source-line-no">040</span><span id="line-40"></span>
 <span class="source-line-no">041</span><span id="line-41">import org.apache.commons.compress.archivers.tar.TarArchiveEntry;</span>
 <span class="source-line-no">042</span><span id="line-42">import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;</span>
-<span class="source-line-no">043</span><span id="line-43">import org.apache.commons.io.FileUtils;</span>
-<span class="source-line-no">044</span><span id="line-44">import org.apache.commons.io.IOUtils;</span>
-<span class="source-line-no">045</span><span id="line-45">import org.apache.commons.io.filefilter.HiddenFileFilter;</span>
-<span class="source-line-no">046</span><span id="line-46">import org.apache.commons.io.filefilter.TrueFileFilter;</span>
-<span class="source-line-no">047</span><span id="line-47">import org.apache.commons.lang3.StringUtils;</span>
-<span class="source-line-no">048</span><span id="line-48">import org.slf4j.Logger;</span>
-<span class="source-line-no">049</span><span id="line-49">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">050</span><span id="line-50"></span>
-<span class="source-line-no">051</span><span id="line-51">@SuppressWarnings("unused")</span>
-<span class="source-line-no">052</span><span id="line-52">public class CompressionUtil {</span>
-<span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">  private CompressionUtil() {</span>
-<span class="source-line-no">055</span><span id="line-55">    throw new UnsupportedOperationException("Can't initialize class");</span>
-<span class="source-line-no">056</span><span id="line-56">  }</span>
-<span class="source-line-no">057</span><span id="line-57"></span>
-<span class="source-line-no">058</span><span id="line-58">  public static class UnsupportedCompressionType extends RuntimeException {</span>
+<span class="source-line-no">043</span><span id="line-43">import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;</span>
+<span class="source-line-no">044</span><span id="line-44">import org.apache.commons.compress.compressors.zstandard.ZstdUtils;</span>
+<span class="source-line-no">045</span><span id="line-45">import org.apache.commons.io.FileUtils;</span>
+<span class="source-line-no">046</span><span id="line-46">import org.apache.commons.io.IOUtils;</span>
+<span class="source-line-no">047</span><span id="line-47">import org.apache.commons.io.filefilter.HiddenFileFilter;</span>
+<span class="source-line-no">048</span><span id="line-48">import org.apache.commons.io.filefilter.TrueFileFilter;</span>
+<span class="source-line-no">049</span><span id="line-49">import org.apache.commons.lang3.StringUtils;</span>
+<span class="source-line-no">050</span><span id="line-50">import org.slf4j.Logger;</span>
+<span class="source-line-no">051</span><span id="line-51">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">052</span><span id="line-52"></span>
+<span class="source-line-no">053</span><span id="line-53">@SuppressWarnings("unused")</span>
+<span class="source-line-no">054</span><span id="line-54">public class CompressionUtil {</span>
+<span class="source-line-no">055</span><span id="line-55"></span>
+<span class="source-line-no">056</span><span id="line-56">  private CompressionUtil() {</span>
+<span class="source-line-no">057</span><span id="line-57">    throw new UnsupportedOperationException("Can't initialize class");</span>
+<span class="source-line-no">058</span><span id="line-58">  }</span>
 <span class="source-line-no">059</span><span id="line-59"></span>
-<span class="source-line-no">060</span><span id="line-60">    public UnsupportedCompressionType() {}</span>
+<span class="source-line-no">060</span><span id="line-60">  public static class UnsupportedCompressionType extends RuntimeException {</span>
 <span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">    public UnsupportedCompressionType(String message) {</span>
-<span class="source-line-no">063</span><span id="line-63">      super(message);</span>
-<span class="source-line-no">064</span><span id="line-64">    }</span>
-<span class="source-line-no">065</span><span id="line-65"></span>
-<span class="source-line-no">066</span><span id="line-66">    public UnsupportedCompressionType(String message, Throwable cause) {</span>
-<span class="source-line-no">067</span><span id="line-67">      super(message, cause);</span>
-<span class="source-line-no">068</span><span id="line-68">    }</span>
-<span class="source-line-no">069</span><span id="line-69">  }</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">  private static final Logger LOG = LoggerFactory.getLogger(CompressionUtil.class);</span>
-<span class="source-line-no">072</span><span id="line-72">  private static final int BUFFER = 2048;</span>
-<span class="source-line-no">073</span><span id="line-73">  private static final String APPLE_RESOURCE_FORK = "__MACOSX";</span>
-<span class="source-line-no">074</span><span id="line-74">  private static final byte[] TAR_MAGIC_BYTES = new byte[] {'u', 's', 't', 'a', 'r'};</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">  /**</span>
-<span class="source-line-no">077</span><span id="line-77">   * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename</span>
-<span class="source-line-no">078</span><span id="line-78">   * or its suffix.</span>
-<span class="source-line-no">079</span><span id="line-79">   *</span>
-<span class="source-line-no">080</span><span id="line-80">   * @return folder containing all decompressed files</span>
-<span class="source-line-no">081</span><span id="line-81">   */</span>
-<span class="source-line-no">082</span><span id="line-82">  public static File decompressFile(File compressedFile)</span>
-<span class="source-line-no">083</span><span id="line-83">      throws IOException, UnsupportedCompressionType {</span>
-<span class="source-line-no">084</span><span id="line-84">    // create empty tmp dir</span>
-<span class="source-line-no">085</span><span id="line-85">    File dir = File.createTempFile("gbif-", null);</span>
-<span class="source-line-no">086</span><span id="line-86">    if (dir.exists() &amp;&amp; !dir.delete()) {</span>
-<span class="source-line-no">087</span><span id="line-87">      throw new IOException("Couldn't delete temporary directory");</span>
-<span class="source-line-no">088</span><span id="line-88">    }</span>
-<span class="source-line-no">089</span><span id="line-89"></span>
-<span class="source-line-no">090</span><span id="line-90">    if (!dir.mkdirs()) {</span>
-<span class="source-line-no">091</span><span id="line-91">      throw new IOException("Couldn't create temporary directory for decompression");</span>
-<span class="source-line-no">092</span><span id="line-92">    }</span>
-<span class="source-line-no">093</span><span id="line-93"></span>
-<span class="source-line-no">094</span><span id="line-94">    // decompress</span>
-<span class="source-line-no">095</span><span id="line-95">    decompressFile(dir, compressedFile);</span>
-<span class="source-line-no">096</span><span id="line-96"></span>
-<span class="source-line-no">097</span><span id="line-97">    return dir;</span>
-<span class="source-line-no">098</span><span id="line-98">  }</span>
-<span class="source-line-no">099</span><span id="line-99"></span>
-<span class="source-line-no">100</span><span id="line-100">  /**</span>
-<span class="source-line-no">101</span><span id="line-101">   * Defaults keeping subDirectories to false.</span>
-<span class="source-line-no">102</span><span id="line-102">   *</span>
-<span class="source-line-no">103</span><span id="line-103">   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)</span>
-<span class="source-line-no">104</span><span id="line-104">   */</span>
-<span class="source-line-no">105</span><span id="line-105">  public static List&lt;File&gt; decompressFile(File directory, File compressedFile)</span>
-<span class="source-line-no">106</span><span id="line-106">      throws IOException, UnsupportedCompressionType {</span>
-<span class="source-line-no">107</span><span id="line-107">    return decompressFile(directory, compressedFile, false);</span>
-<span class="source-line-no">108</span><span id="line-108">  }</span>
-<span class="source-line-no">109</span><span id="line-109"></span>
-<span class="source-line-no">110</span><span id="line-110">  /**</span>
-<span class="source-line-no">111</span><span id="line-111">   * Defaults keeping subDirectories to false, but provides unzipped file name.</span>
-<span class="source-line-no">112</span><span id="line-112">   *</span>
-<span class="source-line-no">113</span><span id="line-113">   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)</span>
-<span class="source-line-no">114</span><span id="line-114">   */</span>
-<span class="source-line-no">115</span><span id="line-115">  public static List&lt;File&gt; decompressFile(</span>
-<span class="source-line-no">116</span><span id="line-116">      File directory, File compressedFile, String unzippedFileName)</span>
-<span class="source-line-no">117</span><span id="line-117">      throws IOException, UnsupportedCompressionType {</span>
-<span class="source-line-no">118</span><span id="line-118">    return decompressFile(directory, compressedFile, unzippedFileName, false);</span>
-<span class="source-line-no">119</span><span id="line-119">  }</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">  /**</span>
-<span class="source-line-no">122</span><span id="line-122">   * Defaults keeping subDirectories to false and unzipped file name to null.</span>
-<span class="source-line-no">123</span><span id="line-123">   *</span>
-<span class="source-line-no">124</span><span id="line-124">   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)</span>
-<span class="source-line-no">125</span><span id="line-125">   */</span>
-<span class="source-line-no">126</span><span id="line-126">  public static List&lt;File&gt; decompressFile(</span>
-<span class="source-line-no">127</span><span id="line-127">      File directory, File compressedFile, boolean keepSubdirectories)</span>
-<span class="source-line-no">128</span><span id="line-128">      throws IOException, UnsupportedCompressionType {</span>
-<span class="source-line-no">129</span><span id="line-129">    return decompressFile(directory, compressedFile, null, keepSubdirectories);</span>
-<span class="source-line-no">130</span><span id="line-130">  }</span>
-<span class="source-line-no">131</span><span id="line-131"></span>
-<span class="source-line-no">132</span><span id="line-132">  /**</span>
-<span class="source-line-no">133</span><span id="line-133">   * Tries to decompress a file using TAR+gzip, gzip, TAR or Zip regardless of the filename or its suffix.</span>
-<span class="source-line-no">134</span><span id="line-134">   *</span>
-<span class="source-line-no">135</span><span id="line-135">   * @param directory      directory where archive's contents will be decompressed to</span>
-<span class="source-line-no">136</span><span id="line-136">   * @param compressedFile compressed file</span>
-<span class="source-line-no">137</span><span id="line-137">   * @param unzippedFileName unzipped file name (in case of one file)</span>
-<span class="source-line-no">138</span><span id="line-138">   *</span>
-<span class="source-line-no">139</span><span id="line-139">   * @return list of files that have been extracted or null an empty list if archive couldn't be decompressed</span>
+<span class="source-line-no">062</span><span id="line-62">    public UnsupportedCompressionType() {}</span>
+<span class="source-line-no">063</span><span id="line-63"></span>
+<span class="source-line-no">064</span><span id="line-64">    public UnsupportedCompressionType(String message) {</span>
+<span class="source-line-no">065</span><span id="line-65">      super(message);</span>
+<span class="source-line-no">066</span><span id="line-66">    }</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">    public UnsupportedCompressionType(String message, Throwable cause) {</span>
+<span class="source-line-no">069</span><span id="line-69">      super(message, cause);</span>
+<span class="source-line-no">070</span><span id="line-70">    }</span>
+<span class="source-line-no">071</span><span id="line-71">  }</span>
+<span class="source-line-no">072</span><span id="line-72"></span>
+<span class="source-line-no">073</span><span id="line-73">  private static final Logger LOG = LoggerFactory.getLogger(CompressionUtil.class);</span>
+<span class="source-line-no">074</span><span id="line-74">  private static final int BUFFER = 2048;</span>
+<span class="source-line-no">075</span><span id="line-75">  private static final String APPLE_RESOURCE_FORK = "__MACOSX";</span>
+<span class="source-line-no">076</span><span id="line-76">  private static final byte[] TAR_MAGIC_BYTES = new byte[] {'u', 's', 't', 'a', 'r'};</span>
+<span class="source-line-no">077</span><span id="line-77"></span>
+<span class="source-line-no">078</span><span id="line-78">  /**</span>
+<span class="source-line-no">079</span><span id="line-79">   * Tries to decompress a file into a newly created temporary directory, trying gzip or zip regardless of the filename</span>
+<span class="source-line-no">080</span><span id="line-80">   * or its suffix.</span>
+<span class="source-line-no">081</span><span id="line-81">   *</span>
+<span class="source-line-no">082</span><span id="line-82">   * @return folder containing all decompressed files</span>
+<span class="source-line-no">083</span><span id="line-83">   */</span>
+<span class="source-line-no">084</span><span id="line-84">  public static File decompressFile(File compressedFile)</span>
+<span class="source-line-no">085</span><span id="line-85">      throws IOException, UnsupportedCompressionType {</span>
+<span class="source-line-no">086</span><span id="line-86">    // create empty tmp dir</span>
+<span class="source-line-no">087</span><span id="line-87">    File dir = File.createTempFile("gbif-", null);</span>
+<span class="source-line-no">088</span><span id="line-88">    if (dir.exists() &amp;&amp; !dir.delete()) {</span>
+<span class="source-line-no">089</span><span id="line-89">      throw new IOException("Couldn't delete temporary directory");</span>
+<span class="source-line-no">090</span><span id="line-90">    }</span>
+<span class="source-line-no">091</span><span id="line-91"></span>
+<span class="source-line-no">092</span><span id="line-92">    if (!dir.mkdirs()) {</span>
+<span class="source-line-no">093</span><span id="line-93">      throw new IOException("Couldn't create temporary directory for decompression");</span>
+<span class="source-line-no">094</span><span id="line-94">    }</span>
+<span class="source-line-no">095</span><span id="line-95"></span>
+<span class="source-line-no">096</span><span id="line-96">    // decompress</span>
+<span class="source-line-no">097</span><span id="line-97">    decompressFile(dir, compressedFile);</span>
+<span class="source-line-no">098</span><span id="line-98"></span>
+<span class="source-line-no">099</span><span id="line-99">    return dir;</span>
+<span class="source-line-no">100</span><span id="line-100">  }</span>
+<span class="source-line-no">101</span><span id="line-101"></span>
+<span class="source-line-no">102</span><span id="line-102">  /**</span>
+<span class="source-line-no">103</span><span id="line-103">   * Defaults keeping subDirectories to false.</span>
+<span class="source-line-no">104</span><span id="line-104">   *</span>
+<span class="source-line-no">105</span><span id="line-105">   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)</span>
+<span class="source-line-no">106</span><span id="line-106">   */</span>
+<span class="source-line-no">107</span><span id="line-107">  public static List&lt;File&gt; decompressFile(File directory, File compressedFile)</span>
+<span class="source-line-no">108</span><span id="line-108">      throws IOException, UnsupportedCompressionType {</span>
+<span class="source-line-no">109</span><span id="line-109">    return decompressFile(directory, compressedFile, false);</span>
+<span class="source-line-no">110</span><span id="line-110">  }</span>
+<span class="source-line-no">111</span><span id="line-111"></span>
+<span class="source-line-no">112</span><span id="line-112">  /**</span>
+<span class="source-line-no">113</span><span id="line-113">   * Defaults keeping subDirectories to false, but provides unzipped file name.</span>
+<span class="source-line-no">114</span><span id="line-114">   *</span>
+<span class="source-line-no">115</span><span id="line-115">   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)</span>
+<span class="source-line-no">116</span><span id="line-116">   */</span>
+<span class="source-line-no">117</span><span id="line-117">  public static List&lt;File&gt; decompressFile(</span>
+<span class="source-line-no">118</span><span id="line-118">      File directory, File compressedFile, String unzippedFileName)</span>
+<span class="source-line-no">119</span><span id="line-119">      throws IOException, UnsupportedCompressionType {</span>
+<span class="source-line-no">120</span><span id="line-120">    return decompressFile(directory, compressedFile, unzippedFileName, false);</span>
+<span class="source-line-no">121</span><span id="line-121">  }</span>
+<span class="source-line-no">122</span><span id="line-122"></span>
+<span class="source-line-no">123</span><span id="line-123">  /**</span>
+<span class="source-line-no">124</span><span id="line-124">   * Defaults keeping subDirectories to false and unzipped file name to null.</span>
+<span class="source-line-no">125</span><span id="line-125">   *</span>
+<span class="source-line-no">126</span><span id="line-126">   * @see org.gbif.utils.file.CompressionUtil#decompressFile(File, File, String, boolean)</span>
+<span class="source-line-no">127</span><span id="line-127">   */</span>
+<span class="source-line-no">128</span><span id="line-128">  public static List&lt;File&gt; decompressFile(</span>
+<span class="source-line-no">129</span><span id="line-129">      File directory, File compressedFile, boolean keepSubdirectories)</span>
+<span class="source-line-no">130</span><span id="line-130">      throws IOException, UnsupportedCompressionType {</span>
+<span class="source-line-no">131</span><span id="line-131">    return decompressFile(directory, compressedFile, null, keepSubdirectories);</span>
+<span class="source-line-no">132</span><span id="line-132">  }</span>
+<span class="source-line-no">133</span><span id="line-133"></span>
+<span class="source-line-no">134</span><span id="line-134">  /**</span>
+<span class="source-line-no">135</span><span id="line-135">   * Tries to decompress a file using TAR+gzip, gzip, TAR or Zip regardless of the filename or its suffix.</span>
+<span class="source-line-no">136</span><span id="line-136">   *</span>
+<span class="source-line-no">137</span><span id="line-137">   * @param directory      directory where archive's contents will be decompressed to</span>
+<span class="source-line-no">138</span><span id="line-138">   * @param compressedFile compressed file</span>
+<span class="source-line-no">139</span><span id="line-139">   * @param unzippedFileName unzipped file name (in case of one file)</span>
 <span class="source-line-no">140</span><span id="line-140">   *</span>
-<span class="source-line-no">141</span><span id="line-141">   * @throws IOException                if problem occurred reading compressed file, or directory couldn't be written</span>
-<span class="source-line-no">142</span><span id="line-142">   *                                    to</span>
-<span class="source-line-no">143</span><span id="line-143">   * @throws UnsupportedCompressionType if the compression type wasn't recognized</span>
-<span class="source-line-no">144</span><span id="line-144">   */</span>
-<span class="source-line-no">145</span><span id="line-145">  public static List&lt;File&gt; decompressFile(</span>
-<span class="source-line-no">146</span><span id="line-146">      File directory, File compressedFile, String unzippedFileName, boolean keepSubdirectories)</span>
-<span class="source-line-no">147</span><span id="line-147">      throws IOException, UnsupportedCompressionType {</span>
-<span class="source-line-no">148</span><span id="line-148">    List&lt;File&gt; files = null;</span>
-<span class="source-line-no">149</span><span id="line-149"></span>
-<span class="source-line-no">150</span><span id="line-150">    // Test before trying gzip format</span>
-<span class="source-line-no">151</span><span id="line-151">    if (isGzipFormat(compressedFile)) {</span>
-<span class="source-line-no">152</span><span id="line-152">      try {</span>
-<span class="source-line-no">153</span><span id="line-153">        LOG.debug("Uncompressing {} with gzip compression to {}", compressedFile, directory);</span>
-<span class="source-line-no">154</span><span id="line-154">        files = untgzFile(directory, compressedFile);</span>
-<span class="source-line-no">155</span><span id="line-155">      } catch (IOException e) {</span>
-<span class="source-line-no">156</span><span id="line-156">        LOG.debug("Not .tar.gz compression, trying .gz");</span>
-<span class="source-line-no">157</span><span id="line-157">        files = ungzipFile(directory, compressedFile, unzippedFileName, false);</span>
-<span class="source-line-no">158</span><span id="line-158">      } catch (Exception e) {</span>
-<span class="source-line-no">159</span><span id="line-159">        LOG.error("Not gzip compression");</span>
-<span class="source-line-no">160</span><span id="line-160">      }</span>
-<span class="source-line-no">161</span><span id="line-161">    }</span>
-<span class="source-line-no">162</span><span id="line-162"></span>
-<span class="source-line-no">163</span><span id="line-163">    // Test before trying TAR format</span>
-<span class="source-line-no">164</span><span id="line-164">    if (isTarFormat(compressedFile)) {</span>
-<span class="source-line-no">165</span><span id="line-165">      try {</span>
-<span class="source-line-no">166</span><span id="line-166">        LOG.debug("Uncompressing {} with TAR compression to {}", compressedFile, directory);</span>
-<span class="source-line-no">167</span><span id="line-167">        files = untarFile(directory, compressedFile);</span>
-<span class="source-line-no">168</span><span id="line-168">      } catch (Exception e) {</span>
-<span class="source-line-no">169</span><span id="line-169">        LOG.debug("Not TAR compression");</span>
-<span class="source-line-no">170</span><span id="line-170">      }</span>
-<span class="source-line-no">171</span><span id="line-171">    }</span>
-<span class="source-line-no">172</span><span id="line-172"></span>
-<span class="source-line-no">173</span><span id="line-173">    // Then try zip</span>
-<span class="source-line-no">174</span><span id="line-174">    if (files == null) {</span>
-<span class="source-line-no">175</span><span id="line-175">      try {</span>
-<span class="source-line-no">176</span><span id="line-176">        LOG.debug("Uncompressing {} with Zip compression to {}", compressedFile, directory);</span>
-<span class="source-line-no">177</span><span id="line-177">        files = unzipFile(directory, compressedFile, keepSubdirectories);</span>
-<span class="source-line-no">178</span><span id="line-178">      } catch (ZipException e) {</span>
-<span class="source-line-no">179</span><span id="line-179">        LOG.debug("Not Zip compression");</span>
-<span class="source-line-no">180</span><span id="line-180">        throw new UnsupportedCompressionType("Unknown compression type. Neither gzip nor Zip", e);</span>
-<span class="source-line-no">181</span><span id="line-181">      }</span>
-<span class="source-line-no">182</span><span id="line-182">    }</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">    if (files.isEmpty()) {</span>
-<span class="source-line-no">185</span><span id="line-185">      LOG.warn("No files extracted from {}, tried TGZ, TAR and Zip compression.", compressedFile);</span>
-<span class="source-line-no">186</span><span id="line-186">    }</span>
-<span class="source-line-no">187</span><span id="line-187"></span>
-<span class="source-line-no">188</span><span id="line-188">    return files;</span>
-<span class="source-line-no">189</span><span id="line-189">  }</span>
-<span class="source-line-no">190</span><span id="line-190"></span>
-<span class="source-line-no">191</span><span id="line-191">  /**</span>
-<span class="source-line-no">192</span><span id="line-192">   * Check the file's first two bytes, to see if they are the gzip magic number.</span>
-<span class="source-line-no">193</span><span id="line-193">   * @param compressedFile compressed file</span>
-<span class="source-line-no">194</span><span id="line-194">   * @return               true if the file is in gzip format</span>
-<span class="source-line-no">195</span><span id="line-195">   * @throws IOException   if a problem occurred reading compressed file</span>
-<span class="source-line-no">196</span><span id="line-196">   */</span>
-<span class="source-line-no">197</span><span id="line-197">  public static boolean isGzipFormat(File compressedFile) throws IOException {</span>
-<span class="source-line-no">198</span><span id="line-198">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {</span>
-<span class="source-line-no">199</span><span id="line-199">      return GZIPInputStream.GZIP_MAGIC == (file.read() &amp; 0xff | ((file.read() &lt;&lt; 8) &amp; 0xff00));</span>
-<span class="source-line-no">200</span><span id="line-200">    }</span>
+<span class="source-line-no">141</span><span id="line-141">   * @return list of files that have been extracted or null an empty list if archive couldn't be decompressed</span>
+<span class="source-line-no">142</span><span id="line-142">   *</span>
+<span class="source-line-no">143</span><span id="line-143">   * @throws IOException                if problem occurred reading compressed file, or directory couldn't be written</span>
+<span class="source-line-no">144</span><span id="line-144">   *                                    to</span>
+<span class="source-line-no">145</span><span id="line-145">   * @throws UnsupportedCompressionType if the compression type wasn't recognized</span>
+<span class="source-line-no">146</span><span id="line-146">   */</span>
+<span class="source-line-no">147</span><span id="line-147">  public static List&lt;File&gt; decompressFile(</span>
+<span class="source-line-no">148</span><span id="line-148">      File directory, File compressedFile, String unzippedFileName, boolean keepSubdirectories)</span>
+<span class="source-line-no">149</span><span id="line-149">      throws IOException, UnsupportedCompressionType {</span>
+<span class="source-line-no">150</span><span id="line-150">    List&lt;File&gt; files = null;</span>
+<span class="source-line-no">151</span><span id="line-151"></span>
+<span class="source-line-no">152</span><span id="line-152">    // Test before trying Zstandard format</span>
+<span class="source-line-no">153</span><span id="line-153">    if (isZstdFormat(compressedFile)) {</span>
+<span class="source-line-no">154</span><span id="line-154">      try {</span>
+<span class="source-line-no">155</span><span id="line-155">        LOG.debug("Uncompressing {} with Zstd compression to {}", compressedFile, directory);</span>
+<span class="source-line-no">156</span><span id="line-156">        files = untzstdFile(directory, compressedFile);</span>
+<span class="source-line-no">157</span><span id="line-157">      } catch (Exception e) {</span>
+<span class="source-line-no">158</span><span id="line-158">        LOG.error("Not TAR Zstd compression");</span>
+<span class="source-line-no">159</span><span id="line-159">      }</span>
+<span class="source-line-no">160</span><span id="line-160">    }</span>
+<span class="source-line-no">161</span><span id="line-161"></span>
+<span class="source-line-no">162</span><span id="line-162">    // Test before trying gzip format</span>
+<span class="source-line-no">163</span><span id="line-163">    if (isGzipFormat(compressedFile)) {</span>
+<span class="source-line-no">164</span><span id="line-164">      try {</span>
+<span class="source-line-no">165</span><span id="line-165">        LOG.debug("Uncompressing {} with gzip compression to {}", compressedFile, directory);</span>
+<span class="source-line-no">166</span><span id="line-166">        files = untgzFile(directory, compressedFile);</span>
+<span class="source-line-no">167</span><span id="line-167">      } catch (IOException e) {</span>
+<span class="source-line-no">168</span><span id="line-168">        LOG.debug("Not .tar.gz compression, trying .gz");</span>
+<span class="source-line-no">169</span><span id="line-169">        files = ungzipFile(directory, compressedFile, unzippedFileName, false);</span>
+<span class="source-line-no">170</span><span id="line-170">      } catch (Exception e) {</span>
+<span class="source-line-no">171</span><span id="line-171">        LOG.error("Not gzip compression");</span>
+<span class="source-line-no">172</span><span id="line-172">      }</span>
+<span class="source-line-no">173</span><span id="line-173">    }</span>
+<span class="source-line-no">174</span><span id="line-174"></span>
+<span class="source-line-no">175</span><span id="line-175">    // Test before trying TAR format</span>
+<span class="source-line-no">176</span><span id="line-176">    if (isTarFormat(compressedFile)) {</span>
+<span class="source-line-no">177</span><span id="line-177">      try {</span>
+<span class="source-line-no">178</span><span id="line-178">        LOG.debug("Uncompressing {} with TAR compression to {}", compressedFile, directory);</span>
+<span class="source-line-no">179</span><span id="line-179">        files = untarFile(directory, compressedFile);</span>
+<span class="source-line-no">180</span><span id="line-180">      } catch (Exception e) {</span>
+<span class="source-line-no">181</span><span id="line-181">        LOG.debug("Not TAR compression");</span>
+<span class="source-line-no">182</span><span id="line-182">      }</span>
+<span class="source-line-no">183</span><span id="line-183">    }</span>
+<span class="source-line-no">184</span><span id="line-184"></span>
+<span class="source-line-no">185</span><span id="line-185">    // Then try zip</span>
+<span class="source-line-no">186</span><span id="line-186">    if (files == null) {</span>
+<span class="source-line-no">187</span><span id="line-187">      try {</span>
+<span class="source-line-no">188</span><span id="line-188">        LOG.debug("Uncompressing {} with Zip compression to {}", compressedFile, directory);</span>
+<span class="source-line-no">189</span><span id="line-189">        files = unzipFile(directory, compressedFile, keepSubdirectories);</span>
+<span class="source-line-no">190</span><span id="line-190">      } catch (ZipException e) {</span>
+<span class="source-line-no">191</span><span id="line-191">        LOG.debug("Not Zip compression");</span>
+<span class="source-line-no">192</span><span id="line-192">        throw new UnsupportedCompressionType("Unknown compression type. Neither gzip nor Zip", e);</span>
+<span class="source-line-no">193</span><span id="line-193">      }</span>
+<span class="source-line-no">194</span><span id="line-194">    }</span>
+<span class="source-line-no">195</span><span id="line-195"></span>
+<span class="source-line-no">196</span><span id="line-196">    if (files.isEmpty()) {</span>
+<span class="source-line-no">197</span><span id="line-197">      LOG.warn("No files extracted from {}, tried TGZ, TAR and Zip compression.", compressedFile);</span>
+<span class="source-line-no">198</span><span id="line-198">    }</span>
+<span class="source-line-no">199</span><span id="line-199"></span>
+<span class="source-line-no">200</span><span id="line-200">    return files;</span>
 <span class="source-line-no">201</span><span id="line-201">  }</span>
 <span class="source-line-no">202</span><span id="line-202"></span>
 <span class="source-line-no">203</span><span id="line-203">  /**</span>
-<span class="source-line-no">204</span><span id="line-204">   * Check the file is a Tape ARchive (TAR).</span>
+<span class="source-line-no">204</span><span id="line-204">   * Check the file's first four bytes, to see if they are the Zstandard magic number.</span>
 <span class="source-line-no">205</span><span id="line-205">   * @param compressedFile compressed file</span>
-<span class="source-line-no">206</span><span id="line-206">   * @return               true if the file is a TAR</span>
+<span class="source-line-no">206</span><span id="line-206">   * @return               true if the file is in Zstd format</span>
 <span class="source-line-no">207</span><span id="line-207">   * @throws IOException   if a problem occurred reading compressed file</span>
 <span class="source-line-no">208</span><span id="line-208">   */</span>
-<span class="source-line-no">209</span><span id="line-209">  public static boolean isTarFormat(File compressedFile) throws IOException {</span>
+<span class="source-line-no">209</span><span id="line-209">  public static boolean isZstdFormat(File compressedFile) throws IOException {</span>
 <span class="source-line-no">210</span><span id="line-210">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {</span>
-<span class="source-line-no">211</span><span id="line-211">      // TAR files contain "ustar\0" or "ustar " at byte 257.</span>
-<span class="source-line-no">212</span><span id="line-212">      // https://www.gnu.org/software/tar/manual/html_node/Standard.html</span>
-<span class="source-line-no">213</span><span id="line-213">      byte[] at257 = new byte[5];</span>
-<span class="source-line-no">214</span><span id="line-214">      file.seek(257);</span>
-<span class="source-line-no">215</span><span id="line-215">      file.read(at257, 0, 5);</span>
-<span class="source-line-no">216</span><span id="line-216">      return Arrays.equals(at257, TAR_MAGIC_BYTES);</span>
-<span class="source-line-no">217</span><span id="line-217">    } catch (Exception e) {</span>
-<span class="source-line-no">218</span><span id="line-218">      LOG.debug("Exc", e);</span>
-<span class="source-line-no">219</span><span id="line-219">    }</span>
-<span class="source-line-no">220</span><span id="line-220">    return false;</span>
-<span class="source-line-no">221</span><span id="line-221">  }</span>
-<span class="source-line-no">222</span><span id="line-222"></span>
-<span class="source-line-no">223</span><span id="line-223">  /**</span>
-<span class="source-line-no">224</span><span id="line-224">   * Extracts a gzipped TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.</span>
-<span class="source-line-no">225</span><span id="line-225">   *</span>
-<span class="source-line-no">226</span><span id="line-226">   * @param directory where the file should be extracted to</span>
-<span class="source-line-no">227</span><span id="line-227">   * @param tgzFile   to extract</span>
-<span class="source-line-no">228</span><span id="line-228">   *</span>
-<span class="source-line-no">229</span><span id="line-229">   * @return a list of all created files</span>
-<span class="source-line-no">230</span><span id="line-230">   */</span>
-<span class="source-line-no">231</span><span id="line-231">  public static List&lt;File&gt; untgzFile(File directory, File tgzFile) throws IOException {</span>
-<span class="source-line-no">232</span><span id="line-232">    return untarStream(directory, new GZIPInputStream(Files.newInputStream(tgzFile.toPath())));</span>
-<span class="source-line-no">233</span><span id="line-233">  }</span>
-<span class="source-line-no">234</span><span id="line-234"></span>
-<span class="source-line-no">235</span><span id="line-235">  /**</span>
-<span class="source-line-no">236</span><span id="line-236">   * Extracts a plain TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.</span>
-<span class="source-line-no">237</span><span id="line-237">   *</span>
-<span class="source-line-no">238</span><span id="line-238">   * @param directory where the file should be extracted to</span>
-<span class="source-line-no">239</span><span id="line-239">   * @param tarFile   to extract</span>
-<span class="source-line-no">240</span><span id="line-240">   *</span>
-<span class="source-line-no">241</span><span id="line-241">   * @return a list of all created files</span>
-<span class="source-line-no">242</span><span id="line-242">   */</span>
-<span class="source-line-no">243</span><span id="line-243">  public static List&lt;File&gt; untarFile(File directory, File tarFile) throws IOException {</span>
-<span class="source-line-no">244</span><span id="line-244">    return untarStream(directory, Files.newInputStream(tarFile.toPath()));</span>
-<span class="source-line-no">245</span><span id="line-245">  }</span>
-<span class="source-line-no">246</span><span id="line-246"></span>
-<span class="source-line-no">247</span><span id="line-247">  /**</span>
-<span class="source-line-no">248</span><span id="line-248">   * Extracts a TAR stream. Directory structure and hidden files (i.e. files starting with a dot) are ignored.</span>
-<span class="source-line-no">249</span><span id="line-249">   *</span>
-<span class="source-line-no">250</span><span id="line-250">   * @param directory where the file should be extracted to</span>
-<span class="source-line-no">251</span><span id="line-251">   * @param tarStream to extract</span>
-<span class="source-line-no">252</span><span id="line-252">   *</span>
-<span class="source-line-no">253</span><span id="line-253">   * @return a list of all created files</span>
-<span class="source-line-no">254</span><span id="line-254">   */</span>
-<span class="source-line-no">255</span><span id="line-255">  private static List&lt;File&gt; untarStream(File directory, InputStream tarStream) throws IOException {</span>
-<span class="source-line-no">256</span><span id="line-256">    List&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">257</span><span id="line-257">    try (TarArchiveInputStream in = new TarArchiveInputStream(tarStream)) {</span>
-<span class="source-line-no">258</span><span id="line-258">      TarArchiveEntry entry;</span>
-<span class="source-line-no">259</span><span id="line-259">      while ((entry = in.getNextTarEntry()) != null) {</span>
-<span class="source-line-no">260</span><span id="line-260">        if (entry.isDirectory()) {</span>
-<span class="source-line-no">261</span><span id="line-261">          LOG.debug("TAR archive contains directories which are being ignored");</span>
-<span class="source-line-no">262</span><span id="line-262">          continue;</span>
-<span class="source-line-no">263</span><span id="line-263">        }</span>
-<span class="source-line-no">264</span><span id="line-264">        String fn = new File(entry.getName()).getName();</span>
-<span class="source-line-no">265</span><span id="line-265">        if (fn.startsWith(".")) {</span>
-<span class="source-line-no">266</span><span id="line-266">          LOG.debug("TAR archive contains a hidden file {} which is being ignored", fn);</span>
-<span class="source-line-no">267</span><span id="line-267">          continue;</span>
-<span class="source-line-no">268</span><span id="line-268">        }</span>
-<span class="source-line-no">269</span><span id="line-269">        File targetFile = new File(directory, fn);</span>
-<span class="source-line-no">270</span><span id="line-270">        if (targetFile.exists()) {</span>
-<span class="source-line-no">271</span><span id="line-271">          LOG.warn("TAR archive contains duplicate filename {}, only the first was extracted", fn);</span>
-<span class="source-line-no">272</span><span id="line-272">          continue;</span>
-<span class="source-line-no">273</span><span id="line-273">        }</span>
-<span class="source-line-no">274</span><span id="line-274">        LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());</span>
-<span class="source-line-no">275</span><span id="line-275">        try (FileOutputStream out = new FileOutputStream(targetFile)) {</span>
-<span class="source-line-no">276</span><span id="line-276">          IOUtils.copy(in, out);</span>
-<span class="source-line-no">277</span><span id="line-277">        }</span>
-<span class="source-line-no">278</span><span id="line-278">        files.add(targetFile);</span>
-<span class="source-line-no">279</span><span id="line-279">      }</span>
-<span class="source-line-no">280</span><span id="line-280">    }</span>
-<span class="source-line-no">281</span><span id="line-281">    return files;</span>
-<span class="source-line-no">282</span><span id="line-282">  }</span>
-<span class="source-line-no">283</span><span id="line-283"></span>
-<span class="source-line-no">284</span><span id="line-284">  /**</span>
-<span class="source-line-no">285</span><span id="line-285">   * Gunzip a file.  Use this method with isTarred false if the gzip contains a single file.  If it's a gzip</span>
-<span class="source-line-no">286</span><span id="line-286">   * of a TAR pass true to isTarred (or call {@link org.gbif.utils.file.CompressionUtil#untgzFile(File, File)}</span>
-<span class="source-line-no">287</span><span id="line-287">   * which is what this method just redirects to for isTarred).</span>
-<span class="source-line-no">288</span><span id="line-288">   *</span>
-<span class="source-line-no">289</span><span id="line-289">   * @param directory the output directory for the uncompressed file(s)</span>
-<span class="source-line-no">290</span><span id="line-290">   * @param gzipFile  the gzip file</span>
-<span class="source-line-no">291</span><span id="line-291">   * @param isTarred  true if the gzip contains a TAR</span>
-<span class="source-line-no">292</span><span id="line-292">   *</span>
-<span class="source-line-no">293</span><span id="line-293">   * @return a List of the uncompressed file name(s)</span>
-<span class="source-line-no">294</span><span id="line-294">   *</span>
-<span class="source-line-no">295</span><span id="line-295">   * @throws IOException if reading or writing fails</span>
-<span class="source-line-no">296</span><span id="line-296">   */</span>
-<span class="source-line-no">297</span><span id="line-297">  public static List&lt;File&gt; ungzipFile(File directory, File gzipFile, boolean isTarred)</span>
-<span class="source-line-no">298</span><span id="line-298">      throws IOException {</span>
-<span class="source-line-no">299</span><span id="line-299">    if (isTarred) return untgzFile(directory, gzipFile);</span>
-<span class="source-line-no">300</span><span id="line-300"></span>
-<span class="source-line-no">301</span><span id="line-301">    String unzippedName = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));</span>
-<span class="source-line-no">302</span><span id="line-302">    return ungzipFile(directory, gzipFile, unzippedName, isTarred);</span>
-<span class="source-line-no">303</span><span id="line-303">  }</span>
-<span class="source-line-no">304</span><span id="line-304"></span>
-<span class="source-line-no">305</span><span id="line-305">  /**</span>
-<span class="source-line-no">306</span><span id="line-306">   * Gunzip a file.  Similar to {@link org.gbif.utils.file.CompressionUtil#ungzipFile(File, File, boolean)},</span>
-<span class="source-line-no">307</span><span id="line-307">   * but with ability to control unzipped file name.</span>
-<span class="source-line-no">308</span><span id="line-308">   *</span>
-<span class="source-line-no">309</span><span id="line-309">   * @param directory the output directory for the uncompressed file(s)</span>
-<span class="source-line-no">310</span><span id="line-310">   * @param gzipFile  the gzip file</span>
-<span class="source-line-no">311</span><span id="line-311">   * @param unzippedName  the unzipped file</span>
-<span class="source-line-no">312</span><span id="line-312">   * @param isTarred  true if the gzip contains a TAR</span>
-<span class="source-line-no">313</span><span id="line-313">   *</span>
-<span class="source-line-no">314</span><span id="line-314">   * @return a List of the uncompressed file name(s)</span>
-<span class="source-line-no">315</span><span id="line-315">   *</span>
-<span class="source-line-no">316</span><span id="line-316">   * @throws IOException if reading or writing fails</span>
-<span class="source-line-no">317</span><span id="line-317">   */</span>
-<span class="source-line-no">318</span><span id="line-318">  public static List&lt;File&gt; ungzipFile(</span>
-<span class="source-line-no">319</span><span id="line-319">      File directory, File gzipFile, String unzippedName, boolean isTarred) throws IOException {</span>
-<span class="source-line-no">320</span><span id="line-320">    if (isTarred) return untgzFile(directory, gzipFile);</span>
+<span class="source-line-no">211</span><span id="line-211">      byte[] header =  new byte[4];</span>
+<span class="source-line-no">212</span><span id="line-212">      file.read(header);</span>
+<span class="source-line-no">213</span><span id="line-213">      return ZstdUtils.matches(header, 4);</span>
+<span class="source-line-no">214</span><span id="line-214">    }</span>
+<span class="source-line-no">215</span><span id="line-215">  }</span>
+<span class="source-line-no">216</span><span id="line-216"></span>
+<span class="source-line-no">217</span><span id="line-217">  /**</span>
+<span class="source-line-no">218</span><span id="line-218">   * Check the file's first two bytes, to see if they are the gzip magic number.</span>
+<span class="source-line-no">219</span><span id="line-219">   * @param compressedFile compressed file</span>
+<span class="source-line-no">220</span><span id="line-220">   * @return               true if the file is in gzip format</span>
+<span class="source-line-no">221</span><span id="line-221">   * @throws IOException   if a problem occurred reading compressed file</span>
+<span class="source-line-no">222</span><span id="line-222">   */</span>
+<span class="source-line-no">223</span><span id="line-223">  public static boolean isGzipFormat(File compressedFile) throws IOException {</span>
+<span class="source-line-no">224</span><span id="line-224">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {</span>
+<span class="source-line-no">225</span><span id="line-225">      return GZIPInputStream.GZIP_MAGIC == (file.read() &amp; 0xff | ((file.read() &lt;&lt; 8) &amp; 0xff00));</span>
+<span class="source-line-no">226</span><span id="line-226">    }</span>
+<span class="source-line-no">227</span><span id="line-227">  }</span>
+<span class="source-line-no">228</span><span id="line-228"></span>
+<span class="source-line-no">229</span><span id="line-229">  /**</span>
+<span class="source-line-no">230</span><span id="line-230">   * Check the file is a Tape ARchive (TAR).</span>
+<span class="source-line-no">231</span><span id="line-231">   * @param compressedFile compressed file</span>
+<span class="source-line-no">232</span><span id="line-232">   * @return               true if the file is a TAR</span>
+<span class="source-line-no">233</span><span id="line-233">   * @throws IOException   if a problem occurred reading compressed file</span>
+<span class="source-line-no">234</span><span id="line-234">   */</span>
+<span class="source-line-no">235</span><span id="line-235">  public static boolean isTarFormat(File compressedFile) throws IOException {</span>
+<span class="source-line-no">236</span><span id="line-236">    try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {</span>
+<span class="source-line-no">237</span><span id="line-237">      // TAR files contain "ustar\0" or "ustar " at byte 257.</span>
+<span class="source-line-no">238</span><span id="line-238">      // https://www.gnu.org/software/tar/manual/html_node/Standard.html</span>
+<span class="source-line-no">239</span><span id="line-239">      byte[] at257 = new byte[5];</span>
+<span class="source-line-no">240</span><span id="line-240">      file.seek(257);</span>
+<span class="source-line-no">241</span><span id="line-241">      file.read(at257, 0, 5);</span>
+<span class="source-line-no">242</span><span id="line-242">      return Arrays.equals(at257, TAR_MAGIC_BYTES);</span>
+<span class="source-line-no">243</span><span id="line-243">    } catch (Exception e) {</span>
+<span class="source-line-no">244</span><span id="line-244">      LOG.debug("Exc", e);</span>
+<span class="source-line-no">245</span><span id="line-245">    }</span>
+<span class="source-line-no">246</span><span id="line-246">    return false;</span>
+<span class="source-line-no">247</span><span id="line-247">  }</span>
+<span class="source-line-no">248</span><span id="line-248"></span>
+<span class="source-line-no">249</span><span id="line-249">  /**</span>
+<span class="source-line-no">250</span><span id="line-250">   * Extracts a Zstandard TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.</span>
+<span class="source-line-no">251</span><span id="line-251">   *</span>
+<span class="source-line-no">252</span><span id="line-252">   * @param directory where the file should be extracted to</span>
+<span class="source-line-no">253</span><span id="line-253">   * @param tarzstFile   to extract</span>
+<span class="source-line-no">254</span><span id="line-254">   *</span>
+<span class="source-line-no">255</span><span id="line-255">   * @return a list of all created files</span>
+<span class="source-line-no">256</span><span id="line-256">   */</span>
+<span class="source-line-no">257</span><span id="line-257">  public static List&lt;File&gt; untzstdFile(File directory, File tarzstFile) throws IOException {</span>
+<span class="source-line-no">258</span><span id="line-258">    return untarStream(directory, new ZstdCompressorInputStream(Files.newInputStream(tarzstFile.toPath())));</span>
+<span class="source-line-no">259</span><span id="line-259">  }</span>
+<span class="source-line-no">260</span><span id="line-260"></span>
+<span class="source-line-no">261</span><span id="line-261">  /**</span>
+<span class="source-line-no">262</span><span id="line-262">   * Extracts a gzipped TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.</span>
+<span class="source-line-no">263</span><span id="line-263">   *</span>
+<span class="source-line-no">264</span><span id="line-264">   * @param directory where the file should be extracted to</span>
+<span class="source-line-no">265</span><span id="line-265">   * @param tgzFile   to extract</span>
+<span class="source-line-no">266</span><span id="line-266">   *</span>
+<span class="source-line-no">267</span><span id="line-267">   * @return a list of all created files</span>
+<span class="source-line-no">268</span><span id="line-268">   */</span>
+<span class="source-line-no">269</span><span id="line-269">  public static List&lt;File&gt; untgzFile(File directory, File tgzFile) throws IOException {</span>
+<span class="source-line-no">270</span><span id="line-270">    return untarStream(directory, new GZIPInputStream(Files.newInputStream(tgzFile.toPath())));</span>
+<span class="source-line-no">271</span><span id="line-271">  }</span>
+<span class="source-line-no">272</span><span id="line-272"></span>
+<span class="source-line-no">273</span><span id="line-273">  /**</span>
+<span class="source-line-no">274</span><span id="line-274">   * Extracts a plain TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.</span>
+<span class="source-line-no">275</span><span id="line-275">   *</span>
+<span class="source-line-no">276</span><span id="line-276">   * @param directory where the file should be extracted to</span>
+<span class="source-line-no">277</span><span id="line-277">   * @param tarFile   to extract</span>
+<span class="source-line-no">278</span><span id="line-278">   *</span>
+<span class="source-line-no">279</span><span id="line-279">   * @return a list of all created files</span>
+<span class="source-line-no">280</span><span id="line-280">   */</span>
+<span class="source-line-no">281</span><span id="line-281">  public static List&lt;File&gt; untarFile(File directory, File tarFile) throws IOException {</span>
+<span class="source-line-no">282</span><span id="line-282">    return untarStream(directory, Files.newInputStream(tarFile.toPath()));</span>
+<span class="source-line-no">283</span><span id="line-283">  }</span>
+<span class="source-line-no">284</span><span id="line-284"></span>
+<span class="source-line-no">285</span><span id="line-285">  /**</span>
+<span class="source-line-no">286</span><span id="line-286">   * Extracts a TAR stream. Directory structure and hidden files (i.e. files starting with a dot) are ignored.</span>
+<span class="source-line-no">287</span><span id="line-287">   *</span>
+<span class="source-line-no">288</span><span id="line-288">   * @param directory where the file should be extracted to</span>
+<span class="source-line-no">289</span><span id="line-289">   * @param tarStream to extract</span>
+<span class="source-line-no">290</span><span id="line-290">   *</span>
+<span class="source-line-no">291</span><span id="line-291">   * @return a list of all created files</span>
+<span class="source-line-no">292</span><span id="line-292">   */</span>
+<span class="source-line-no">293</span><span id="line-293">  private static List&lt;File&gt; untarStream(File directory, InputStream tarStream) throws IOException {</span>
+<span class="source-line-no">294</span><span id="line-294">    List&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">295</span><span id="line-295">    try (TarArchiveInputStream in = new TarArchiveInputStream(tarStream)) {</span>
+<span class="source-line-no">296</span><span id="line-296">      TarArchiveEntry entry;</span>
+<span class="source-line-no">297</span><span id="line-297">      while ((entry = in.getNextTarEntry()) != null) {</span>
+<span class="source-line-no">298</span><span id="line-298">        if (entry.isDirectory()) {</span>
+<span class="source-line-no">299</span><span id="line-299">          LOG.debug("TAR archive contains directories which are being ignored");</span>
+<span class="source-line-no">300</span><span id="line-300">          continue;</span>
+<span class="source-line-no">301</span><span id="line-301">        }</span>
+<span class="source-line-no">302</span><span id="line-302">        String fn = new File(entry.getName()).getName();</span>
+<span class="source-line-no">303</span><span id="line-303">        if (fn.startsWith(".")) {</span>
+<span class="source-line-no">304</span><span id="line-304">          LOG.debug("TAR archive contains a hidden file {} which is being ignored", fn);</span>
+<span class="source-line-no">305</span><span id="line-305">          continue;</span>
+<span class="source-line-no">306</span><span id="line-306">        }</span>
+<span class="source-line-no">307</span><span id="line-307">        File targetFile = new File(directory, fn);</span>
+<span class="source-line-no">308</span><span id="line-308">        if (targetFile.exists()) {</span>
+<span class="source-line-no">309</span><span id="line-309">          LOG.warn("TAR archive contains duplicate filename {}, only the first was extracted", fn);</span>
+<span class="source-line-no">310</span><span id="line-310">          continue;</span>
+<span class="source-line-no">311</span><span id="line-311">        }</span>
+<span class="source-line-no">312</span><span id="line-312">        LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());</span>
+<span class="source-line-no">313</span><span id="line-313">        try (FileOutputStream out = new FileOutputStream(targetFile)) {</span>
+<span class="source-line-no">314</span><span id="line-314">          IOUtils.copy(in, out);</span>
+<span class="source-line-no">315</span><span id="line-315">        }</span>
+<span class="source-line-no">316</span><span id="line-316">        files.add(targetFile);</span>
+<span class="source-line-no">317</span><span id="line-317">      }</span>
+<span class="source-line-no">318</span><span id="line-318">    }</span>
+<span class="source-line-no">319</span><span id="line-319">    return files;</span>
+<span class="source-line-no">320</span><span id="line-320">  }</span>
 <span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">    List&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">323</span><span id="line-323">    BufferedOutputStream dest = null;</span>
-<span class="source-line-no">324</span><span id="line-324">    try (GZIPInputStream in = new GZIPInputStream(Files.newInputStream(gzipFile.toPath()))) {</span>
-<span class="source-line-no">325</span><span id="line-325"></span>
-<span class="source-line-no">326</span><span id="line-326">      // assume that the gzip filename is the filename + .gz</span>
-<span class="source-line-no">327</span><span id="line-327">      String unzippedNameResult;</span>
-<span class="source-line-no">328</span><span id="line-328">      if (StringUtils.isEmpty(unzippedName)) {</span>
-<span class="source-line-no">329</span><span id="line-329">        unzippedNameResult = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));</span>
-<span class="source-line-no">330</span><span id="line-330">      } else {</span>
-<span class="source-line-no">331</span><span id="line-331">        unzippedNameResult = unzippedName;</span>
-<span class="source-line-no">332</span><span id="line-332">      }</span>
-<span class="source-line-no">333</span><span id="line-333"></span>
-<span class="source-line-no">334</span><span id="line-334">      File outputFile = new File(directory, unzippedNameResult);</span>
-<span class="source-line-no">335</span><span id="line-335">      LOG.debug("Extracting file: {} to: {}", unzippedNameResult, outputFile.getAbsolutePath());</span>
-<span class="source-line-no">336</span><span id="line-336">      FileOutputStream fos = new FileOutputStream(outputFile);</span>
-<span class="source-line-no">337</span><span id="line-337"></span>
-<span class="source-line-no">338</span><span id="line-338">      dest = new BufferedOutputStream(fos, BUFFER);</span>
-<span class="source-line-no">339</span><span id="line-339">      int count;</span>
-<span class="source-line-no">340</span><span id="line-340">      byte[] data = new byte[BUFFER];</span>
-<span class="source-line-no">341</span><span id="line-341">      while ((count = in.read(data, 0, BUFFER)) != -1) {</span>
-<span class="source-line-no">342</span><span id="line-342">        dest.write(data, 0, count);</span>
-<span class="source-line-no">343</span><span id="line-343">      }</span>
-<span class="source-line-no">344</span><span id="line-344">      files.add(outputFile);</span>
-<span class="source-line-no">345</span><span id="line-345">    } finally {</span>
-<span class="source-line-no">346</span><span id="line-346">      if (dest != null) {</span>
-<span class="source-line-no">347</span><span id="line-347">        dest.flush();</span>
-<span class="source-line-no">348</span><span id="line-348">        dest.close();</span>
-<span class="source-line-no">349</span><span id="line-349">      }</span>
-<span class="source-line-no">350</span><span id="line-350">    }</span>
-<span class="source-line-no">351</span><span id="line-351"></span>
-<span class="source-line-no">352</span><span id="line-352">    return files;</span>
-<span class="source-line-no">353</span><span id="line-353">  }</span>
-<span class="source-line-no">354</span><span id="line-354"></span>
-<span class="source-line-no">355</span><span id="line-355">  /**</span>
-<span class="source-line-no">356</span><span id="line-356">   * Defaults keepSubdirectories to false.</span>
-<span class="source-line-no">357</span><span id="line-357">   *</span>
-<span class="source-line-no">358</span><span id="line-358">   * @see org.gbif.utils.file.CompressionUtil#unzipFile(java.io.File, java.io.File, boolean)</span>
-<span class="source-line-no">359</span><span id="line-359">   */</span>
-<span class="source-line-no">360</span><span id="line-360">  public static List&lt;File&gt; unzipFile(File directory, File zipFile) throws IOException {</span>
-<span class="source-line-no">361</span><span id="line-361">    return unzipFile(directory, zipFile, false);</span>
-<span class="source-line-no">362</span><span id="line-362">  }</span>
+<span class="source-line-no">322</span><span id="line-322">  /**</span>
+<span class="source-line-no">323</span><span id="line-323">   * Gunzip a file.  Use this method with isTarred false if the gzip contains a single file.  If it's a gzip</span>
+<span class="source-line-no">324</span><span id="line-324">   * of a TAR pass true to isTarred (or call {@link org.gbif.utils.file.CompressionUtil#untgzFile(File, File)}</span>
+<span class="source-line-no">325</span><span id="line-325">   * which is what this method just redirects to for isTarred).</span>
+<span class="source-line-no">326</span><span id="line-326">   *</span>
+<span class="source-line-no">327</span><span id="line-327">   * @param directory the output directory for the uncompressed file(s)</span>
+<span class="source-line-no">328</span><span id="line-328">   * @param gzipFile  the gzip file</span>
+<span class="source-line-no">329</span><span id="line-329">   * @param isTarred  true if the gzip contains a TAR</span>
+<span class="source-line-no">330</span><span id="line-330">   *</span>
+<span class="source-line-no">331</span><span id="line-331">   * @return a List of the uncompressed file name(s)</span>
+<span class="source-line-no">332</span><span id="line-332">   *</span>
+<span class="source-line-no">333</span><span id="line-333">   * @throws IOException if reading or writing fails</span>
+<span class="source-line-no">334</span><span id="line-334">   */</span>
+<span class="source-line-no">335</span><span id="line-335">  public static List&lt;File&gt; ungzipFile(File directory, File gzipFile, boolean isTarred)</span>
+<span class="source-line-no">336</span><span id="line-336">      throws IOException {</span>
+<span class="source-line-no">337</span><span id="line-337">    if (isTarred) return untgzFile(directory, gzipFile);</span>
+<span class="source-line-no">338</span><span id="line-338"></span>
+<span class="source-line-no">339</span><span id="line-339">    String unzippedName = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));</span>
+<span class="source-line-no">340</span><span id="line-340">    return ungzipFile(directory, gzipFile, unzippedName, isTarred);</span>
+<span class="source-line-no">341</span><span id="line-341">  }</span>
+<span class="source-line-no">342</span><span id="line-342"></span>
+<span class="source-line-no">343</span><span id="line-343">  /**</span>
+<span class="source-line-no">344</span><span id="line-344">   * Gunzip a file.  Similar to {@link org.gbif.utils.file.CompressionUtil#ungzipFile(File, File, boolean)},</span>
+<span class="source-line-no">345</span><span id="line-345">   * but with ability to control unzipped file name.</span>
+<span class="source-line-no">346</span><span id="line-346">   *</span>
+<span class="source-line-no">347</span><span id="line-347">   * @param directory the output directory for the uncompressed file(s)</span>
+<span class="source-line-no">348</span><span id="line-348">   * @param gzipFile  the gzip file</span>
+<span class="source-line-no">349</span><span id="line-349">   * @param unzippedName  the unzipped file</span>
+<span class="source-line-no">350</span><span id="line-350">   * @param isTarred  true if the gzip contains a TAR</span>
+<span class="source-line-no">351</span><span id="line-351">   *</span>
+<span class="source-line-no">352</span><span id="line-352">   * @return a List of the uncompressed file name(s)</span>
+<span class="source-line-no">353</span><span id="line-353">   *</span>
+<span class="source-line-no">354</span><span id="line-354">   * @throws IOException if reading or writing fails</span>
+<span class="source-line-no">355</span><span id="line-355">   */</span>
+<span class="source-line-no">356</span><span id="line-356">  public static List&lt;File&gt; ungzipFile(</span>
+<span class="source-line-no">357</span><span id="line-357">      File directory, File gzipFile, String unzippedName, boolean isTarred) throws IOException {</span>
+<span class="source-line-no">358</span><span id="line-358">    if (isTarred) return untgzFile(directory, gzipFile);</span>
+<span class="source-line-no">359</span><span id="line-359"></span>
+<span class="source-line-no">360</span><span id="line-360">    List&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">361</span><span id="line-361">    BufferedOutputStream dest = null;</span>
+<span class="source-line-no">362</span><span id="line-362">    try (GZIPInputStream in = new GZIPInputStream(Files.newInputStream(gzipFile.toPath()))) {</span>
 <span class="source-line-no">363</span><span id="line-363"></span>
-<span class="source-line-no">364</span><span id="line-364">  /**</span>
-<span class="source-line-no">365</span><span id="line-365">   * Zip a directory with all files but skipping included subdirectories.</span>
-<span class="source-line-no">366</span><span id="line-366">   * Only files directly within the directory are added to the archive.</span>
-<span class="source-line-no">367</span><span id="line-367">   *</span>
-<span class="source-line-no">368</span><span id="line-368">   * @param dir     the directory to zip</span>
-<span class="source-line-no">369</span><span id="line-369">   * @param zipFile the zipped file</span>
-<span class="source-line-no">370</span><span id="line-370">   */</span>
-<span class="source-line-no">371</span><span id="line-371">  public static void zipDir(File dir, File zipFile) throws IOException {</span>
-<span class="source-line-no">372</span><span id="line-372">    zipDir(dir, zipFile, false);</span>
-<span class="source-line-no">373</span><span id="line-373">  }</span>
-<span class="source-line-no">374</span><span id="line-374"></span>
-<span class="source-line-no">375</span><span id="line-375">  /**</span>
-<span class="source-line-no">376</span><span id="line-376">   * Zip a directory with all files. Files in Subdirectories will be included if the inclSubdirs is true.</span>
-<span class="source-line-no">377</span><span id="line-377">   *</span>
-<span class="source-line-no">378</span><span id="line-378">   * @param dir     the directory to zip</span>
-<span class="source-line-no">379</span><span id="line-379">   * @param zipFile the zipped file</span>
-<span class="source-line-no">380</span><span id="line-380">   * @param inclSubdirs if true includes all subdirectories recursively</span>
-<span class="source-line-no">381</span><span id="line-381">   */</span>
-<span class="source-line-no">382</span><span id="line-382">  public static void zipDir(File dir, File zipFile, boolean inclSubdirs) throws IOException {</span>
-<span class="source-line-no">383</span><span id="line-383">    Collection&lt;File&gt; files = org.apache.commons.io.FileUtils.listFiles(dir, null, inclSubdirs);</span>
-<span class="source-line-no">384</span><span id="line-384">    zipFiles(files, dir, zipFile);</span>
-<span class="source-line-no">385</span><span id="line-385">  }</span>
-<span class="source-line-no">386</span><span id="line-386"></span>
-<span class="source-line-no">387</span><span id="line-387">  public static void zipFile(File file, File zipFile) throws IOException {</span>
-<span class="source-line-no">388</span><span id="line-388">    Set&lt;File&gt; files = new HashSet&lt;&gt;();</span>
-<span class="source-line-no">389</span><span id="line-389">    files.add(file);</span>
-<span class="source-line-no">390</span><span id="line-390">    zipFiles(files, file.getParentFile(), zipFile);</span>
+<span class="source-line-no">364</span><span id="line-364">      // assume that the gzip filename is the filename + .gz</span>
+<span class="source-line-no">365</span><span id="line-365">      String unzippedNameResult;</span>
+<span class="source-line-no">366</span><span id="line-366">      if (StringUtils.isEmpty(unzippedName)) {</span>
+<span class="source-line-no">367</span><span id="line-367">        unzippedNameResult = gzipFile.getName().substring(0, gzipFile.getName().lastIndexOf("."));</span>
+<span class="source-line-no">368</span><span id="line-368">      } else {</span>
+<span class="source-line-no">369</span><span id="line-369">        unzippedNameResult = unzippedName;</span>
+<span class="source-line-no">370</span><span id="line-370">      }</span>
+<span class="source-line-no">371</span><span id="line-371"></span>
+<span class="source-line-no">372</span><span id="line-372">      File outputFile = new File(directory, unzippedNameResult);</span>
+<span class="source-line-no">373</span><span id="line-373">      LOG.debug("Extracting file: {} to: {}", unzippedNameResult, outputFile.getAbsolutePath());</span>
+<span class="source-line-no">374</span><span id="line-374">      FileOutputStream fos = new FileOutputStream(outputFile);</span>
+<span class="source-line-no">375</span><span id="line-375"></span>
+<span class="source-line-no">376</span><span id="line-376">      dest = new BufferedOutputStream(fos, BUFFER);</span>
+<span class="source-line-no">377</span><span id="line-377">      int count;</span>
+<span class="source-line-no">378</span><span id="line-378">      byte[] data = new byte[BUFFER];</span>
+<span class="source-line-no">379</span><span id="line-379">      while ((count = in.read(data, 0, BUFFER)) != -1) {</span>
+<span class="source-line-no">380</span><span id="line-380">        dest.write(data, 0, count);</span>
+<span class="source-line-no">381</span><span id="line-381">      }</span>
+<span class="source-line-no">382</span><span id="line-382">      files.add(outputFile);</span>
+<span class="source-line-no">383</span><span id="line-383">    } finally {</span>
+<span class="source-line-no">384</span><span id="line-384">      if (dest != null) {</span>
+<span class="source-line-no">385</span><span id="line-385">        dest.flush();</span>
+<span class="source-line-no">386</span><span id="line-386">        dest.close();</span>
+<span class="source-line-no">387</span><span id="line-387">      }</span>
+<span class="source-line-no">388</span><span id="line-388">    }</span>
+<span class="source-line-no">389</span><span id="line-389"></span>
+<span class="source-line-no">390</span><span id="line-390">    return files;</span>
 <span class="source-line-no">391</span><span id="line-391">  }</span>
 <span class="source-line-no">392</span><span id="line-392"></span>
 <span class="source-line-no">393</span><span id="line-393">  /**</span>
-<span class="source-line-no">394</span><span id="line-394">   * Creates a zip archive from a given collection of files.</span>
-<span class="source-line-no">395</span><span id="line-395">   * In order to preserve paths in the archive a rootContext can be specified which will be removed from the individual</span>
-<span class="source-line-no">396</span><span id="line-396">   * zip entries. For example a rootContext of /home/freak with a file /home/freak/photo/birthday.jpg to be zipped</span>
-<span class="source-line-no">397</span><span id="line-397">   * will result in a zip entry with a path photo/birthday.jpg.</span>
-<span class="source-line-no">398</span><span id="line-398">   *</span>
-<span class="source-line-no">399</span><span id="line-399">   * @param files to be included in the zip archive</span>
-<span class="source-line-no">400</span><span id="line-400">   * @param rootContext optional path to be removed from each file</span>
-<span class="source-line-no">401</span><span id="line-401">   * @param zipFile the zip file to be created</span>
-<span class="source-line-no">402</span><span id="line-402">   * @throws IOException</span>
-<span class="source-line-no">403</span><span id="line-403">   */</span>
-<span class="source-line-no">404</span><span id="line-404">  public static void zipFiles(Collection&lt;File&gt; files, File rootContext, File zipFile)</span>
-<span class="source-line-no">405</span><span id="line-405">      throws IOException {</span>
-<span class="source-line-no">406</span><span id="line-406">    if (files.isEmpty()) {</span>
-<span class="source-line-no">407</span><span id="line-407">      LOG.info("no files to zip.");</span>
-<span class="source-line-no">408</span><span id="line-408">    } else {</span>
-<span class="source-line-no">409</span><span id="line-409">      try {</span>
-<span class="source-line-no">410</span><span id="line-410">        BufferedInputStream origin = null;</span>
-<span class="source-line-no">411</span><span id="line-411">        FileOutputStream dest = new FileOutputStream(zipFile);</span>
-<span class="source-line-no">412</span><span id="line-412">        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));</span>
-<span class="source-line-no">413</span><span id="line-413">        // out.setMethod(ZipOutputStream.DEFLATED);</span>
-<span class="source-line-no">414</span><span id="line-414">        byte[] data = new byte[BUFFER];</span>
-<span class="source-line-no">415</span><span id="line-415">        for (File f : files) {</span>
-<span class="source-line-no">416</span><span id="line-416">          LOG.debug("Adding file {} to archive", f);</span>
-<span class="source-line-no">417</span><span id="line-417">          FileInputStream fi = new FileInputStream(f);</span>
-<span class="source-line-no">418</span><span id="line-418">          origin = new BufferedInputStream(fi, BUFFER);</span>
-<span class="source-line-no">419</span><span id="line-419"></span>
-<span class="source-line-no">420</span><span id="line-420">          String zipPath =</span>
-<span class="source-line-no">421</span><span id="line-421">              StringUtils.removeStart(</span>
-<span class="source-line-no">422</span><span id="line-422">                  f.getAbsolutePath(), rootContext.getAbsolutePath() + File.separator);</span>
-<span class="source-line-no">423</span><span id="line-423">          ZipEntry entry = new ZipEntry(zipPath);</span>
-<span class="source-line-no">424</span><span id="line-424">          out.putNextEntry(entry);</span>
-<span class="source-line-no">425</span><span id="line-425">          int count;</span>
-<span class="source-line-no">426</span><span id="line-426">          while ((count = origin.read(data, 0, BUFFER)) != -1) {</span>
-<span class="source-line-no">427</span><span id="line-427">            out.write(data, 0, count);</span>
-<span class="source-line-no">428</span><span id="line-428">          }</span>
-<span class="source-line-no">429</span><span id="line-429">          origin.close();</span>
-<span class="source-line-no">430</span><span id="line-430">        }</span>
-<span class="source-line-no">431</span><span id="line-431">        out.finish();</span>
-<span class="source-line-no">432</span><span id="line-432">        out.close();</span>
-<span class="source-line-no">433</span><span id="line-433">      } catch (IOException e) {</span>
-<span class="source-line-no">434</span><span id="line-434">        LOG.error("IOException while zipping files: {}", files);</span>
-<span class="source-line-no">435</span><span id="line-435">        throw e;</span>
-<span class="source-line-no">436</span><span id="line-436">      }</span>
-<span class="source-line-no">437</span><span id="line-437">    }</span>
-<span class="source-line-no">438</span><span id="line-438">  }</span>
-<span class="source-line-no">439</span><span id="line-439"></span>
-<span class="source-line-no">440</span><span id="line-440">  /**</span>
-<span class="source-line-no">441</span><span id="line-441">   * Extracts a zipped file into a target directory. If the file is wrapped in a root directory, this is removed by</span>
-<span class="source-line-no">442</span><span id="line-442">   * default. Other subdirectories are ignored according to the parameter keepSubdirectories.</span>
-<span class="source-line-no">443</span><span id="line-443">   * &lt;/br&gt;</span>
-<span class="source-line-no">444</span><span id="line-444">   * The following types of files are also ignored by default:</span>
-<span class="source-line-no">445</span><span id="line-445">   * i) hidden files (i.e. files starting with a dot)</span>
-<span class="source-line-no">446</span><span id="line-446">   * ii) Apple resource fork (__MACOSX), including its subdirectories and subfiles</span>
-<span class="source-line-no">447</span><span id="line-447">   *</span>
-<span class="source-line-no">448</span><span id="line-448">   * @param directory          where the zipped file and its subdirectories should be extracted to</span>
-<span class="source-line-no">449</span><span id="line-449">   * @param zipFile            to extract</span>
-<span class="source-line-no">450</span><span id="line-450">   * @param keepSubdirectories whether to preserve subdirectories or not</span>
-<span class="source-line-no">451</span><span id="line-451">   *</span>
-<span class="source-line-no">452</span><span id="line-452">   * @return a list of all created files and directories extracted to target directory</span>
-<span class="source-line-no">453</span><span id="line-453">   */</span>
-<span class="source-line-no">454</span><span id="line-454">  public static List&lt;File&gt; unzipFile(File directory, File zipFile, boolean keepSubdirectories)</span>
-<span class="source-line-no">455</span><span id="line-455">      throws IOException {</span>
-<span class="source-line-no">456</span><span id="line-456">    LOG.debug(</span>
-<span class="source-line-no">457</span><span id="line-457">        "Unzipping archive "</span>
-<span class="source-line-no">458</span><span id="line-458">            + zipFile.getName()</span>
-<span class="source-line-no">459</span><span id="line-459">            + " into directory: "</span>
-<span class="source-line-no">460</span><span id="line-460">            + directory.getAbsolutePath());</span>
-<span class="source-line-no">461</span><span id="line-461"></span>
-<span class="source-line-no">462</span><span id="line-462">    // This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain</span>
-<span class="source-line-no">463</span><span id="line-463">    // Zip64 files.</span>
-<span class="source-line-no">464</span><span id="line-464">    // https://bugs.openjdk.java.net/browse/JDK-8186464</span>
-<span class="source-line-no">465</span><span id="line-465">    try (FileInputStream fInput = new FileInputStream(zipFile);</span>
-<span class="source-line-no">466</span><span id="line-466">        ZipInputStream zipInput = new ZipInputStream(fInput)) {</span>
-<span class="source-line-no">467</span><span id="line-467">      ZipEntry entry;</span>
-<span class="source-line-no">468</span><span id="line-468"></span>
-<span class="source-line-no">469</span><span id="line-469">      while ((entry = zipInput.getNextEntry()) != null) {</span>
-<span class="source-line-no">470</span><span id="line-470">        // ignore resource fork directories and subfiles</span>
-<span class="source-line-no">471</span><span id="line-471">        if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {</span>
-<span class="source-line-no">472</span><span id="line-472">          LOG.debug("Ignoring resource fork file: " + entry.getName());</span>
-<span class="source-line-no">473</span><span id="line-473">        }</span>
-<span class="source-line-no">474</span><span id="line-474">        // ignore directories and hidden directories (e.g. .svn) (based on flag)</span>
-<span class="source-line-no">475</span><span id="line-475">        else if (entry.isDirectory()) {</span>
-<span class="source-line-no">476</span><span id="line-476">          if (isHiddenFile(new File(entry.getName()))) {</span>
-<span class="source-line-no">477</span><span id="line-477">            LOG.debug("Ignoring hidden directory: " + entry.getName());</span>
-<span class="source-line-no">478</span><span id="line-478">          } else if (keepSubdirectories) {</span>
-<span class="source-line-no">479</span><span id="line-479">            new File(directory, entry.getName()).mkdir();</span>
-<span class="source-line-no">480</span><span id="line-480">          } else {</span>
-<span class="source-line-no">481</span><span id="line-481">            LOG.debug("Ignoring (sub)directory: " + entry.getName());</span>
-<span class="source-line-no">482</span><span id="line-482">          }</span>
-<span class="source-line-no">483</span><span id="line-483">        }</span>
-<span class="source-line-no">484</span><span id="line-484">        // ignore hidden files</span>
-<span class="source-line-no">485</span><span id="line-485">        else {</span>
-<span class="source-line-no">486</span><span id="line-486">          if (isHiddenFile(new File(entry.getName()))) {</span>
-<span class="source-line-no">487</span><span id="line-487">            LOG.debug("Ignoring hidden file: " + entry.getName());</span>
-<span class="source-line-no">488</span><span id="line-488">          } else {</span>
-<span class="source-line-no">489</span><span id="line-489">            File targetFile =</span>
-<span class="source-line-no">490</span><span id="line-490">                (keepSubdirectories)</span>
-<span class="source-line-no">491</span><span id="line-491">                    ? new File(directory, entry.getName())</span>
-<span class="source-line-no">492</span><span id="line-492">                    : new File(directory, new File(entry.getName()).getName());</span>
-<span class="source-line-no">493</span><span id="line-493">            // ensure parent folder always exists, and extract file</span>
-<span class="source-line-no">494</span><span id="line-494">            createParentFolder(targetFile);</span>
-<span class="source-line-no">495</span><span id="line-495"></span>
-<span class="source-line-no">496</span><span id="line-496">            LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());</span>
-<span class="source-line-no">497</span><span id="line-497">            try (OutputStream out =</span>
-<span class="source-line-no">498</span><span id="line-498">                new BufferedOutputStream(Files.newOutputStream(targetFile.toPath()))) {</span>
-<span class="source-line-no">499</span><span id="line-499">              IOUtils.copy(zipInput, out);</span>
-<span class="source-line-no">500</span><span id="line-500">            }</span>
-<span class="source-line-no">501</span><span id="line-501">          }</span>
-<span class="source-line-no">502</span><span id="line-502">        }</span>
-<span class="source-line-no">503</span><span id="line-503">      }</span>
-<span class="source-line-no">504</span><span id="line-504">    }</span>
-<span class="source-line-no">505</span><span id="line-505">    // remove the wrapping root directory and flatten structure</span>
-<span class="source-line-no">506</span><span id="line-506">    if (keepSubdirectories) {</span>
-<span class="source-line-no">507</span><span id="line-507">      removeRootDirectory(directory);</span>
-<span class="source-line-no">508</span><span id="line-508">    }</span>
-<span class="source-line-no">509</span><span id="line-509"></span>
-<span class="source-line-no">510</span><span id="line-510">    File[] files = directory.listFiles();</span>
-<span class="source-line-no">511</span><span id="line-511"></span>
-<span class="source-line-no">512</span><span id="line-512">    return (files == null) ? new ArrayList&lt;&gt;() : Arrays.asList(files);</span>
-<span class="source-line-no">513</span><span id="line-513">  }</span>
-<span class="source-line-no">514</span><span id="line-514"></span>
-<span class="source-line-no">515</span><span id="line-515">  /**</span>
-<span class="source-line-no">516</span><span id="line-516">   * @return true if file is a hidden file or directory, or if any of its parent directories are hidden checking</span>
-<span class="source-line-no">517</span><span id="line-517">   * recursively</span>
-<span class="source-line-no">518</span><span id="line-518">   */</span>
-<span class="source-line-no">519</span><span id="line-519">  private static boolean isHiddenFile(File f) {</span>
-<span class="source-line-no">520</span><span id="line-520">    if (f.getName().startsWith(".")) {</span>
-<span class="source-line-no">521</span><span id="line-521">      return true;</span>
-<span class="source-line-no">522</span><span id="line-522">    } else if (f.getParentFile() != null) {</span>
-<span class="source-line-no">523</span><span id="line-523">      return isHiddenFile(f.getParentFile());</span>
-<span class="source-line-no">524</span><span id="line-524">    }</span>
-<span class="source-line-no">525</span><span id="line-525">    return false;</span>
-<span class="source-line-no">526</span><span id="line-526">  }</span>
-<span class="source-line-no">527</span><span id="line-527"></span>
-<span class="source-line-no">528</span><span id="line-528">  /**</span>
-<span class="source-line-no">529</span><span id="line-529">   * Removes a wrapping root directory and flatten its structure by moving all that root directory's files and</span>
-<span class="source-line-no">530</span><span id="line-530">   * subdirectories up to the same level as the root directory.</span>
-<span class="source-line-no">531</span><span id="line-531">   */</span>
-<span class="source-line-no">532</span><span id="line-532">  @SuppressWarnings("ResultOfMethodCallIgnored")</span>
-<span class="source-line-no">533</span><span id="line-533">  private static void removeRootDirectory(File directory) {</span>
-<span class="source-line-no">534</span><span id="line-534">    File[] rootFiles = directory.listFiles((FileFilter) HiddenFileFilter.VISIBLE);</span>
-<span class="source-line-no">535</span><span id="line-535">    if (rootFiles == null) {</span>
-<span class="source-line-no">536</span><span id="line-536">      LOG.error("Failed to retrieve root directory from {}", directory.getAbsolutePath());</span>
-<span class="source-line-no">537</span><span id="line-537">      return;</span>
-<span class="source-line-no">538</span><span id="line-538">    }</span>
-<span class="source-line-no">539</span><span id="line-539"></span>
-<span class="source-line-no">540</span><span id="line-540">    if (rootFiles.length != 1) {</span>
-<span class="source-line-no">541</span><span id="line-541">      LOG.error("More than one root directory at {}", directory.getAbsolutePath());</span>
-<span class="source-line-no">542</span><span id="line-542">      return;</span>
-<span class="source-line-no">543</span><span id="line-543">    }</span>
-<span class="source-line-no">544</span><span id="line-544"></span>
-<span class="source-line-no">545</span><span id="line-545">    File root = rootFiles[0];</span>
-<span class="source-line-no">546</span><span id="line-546">    if (root.isDirectory()) {</span>
-<span class="source-line-no">547</span><span id="line-547">      LOG.debug(</span>
-<span class="source-line-no">548</span><span id="line-548">          "Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());</span>
-<span class="source-line-no">549</span><span id="line-549">      Collection&lt;File&gt; filesAndDirs =</span>
-<span class="source-line-no">550</span><span id="line-550">          FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE);</span>
-<span class="source-line-no">551</span><span id="line-551">      // directories shouldn't be in the end, sort</span>
-<span class="source-line-no">552</span><span id="line-552">      List&lt;File&gt; sortedFilesAndDirs =</span>
-<span class="source-line-no">553</span><span id="line-553">          filesAndDirs.stream()</span>
-<span class="source-line-no">554</span><span id="line-554">              .sorted(Comparator.comparing(File::getAbsolutePath))</span>
-<span class="source-line-no">555</span><span id="line-555">              .collect(Collectors.toList());</span>
-<span class="source-line-no">556</span><span id="line-556"></span>
-<span class="source-line-no">557</span><span id="line-557">      for (File f : sortedFilesAndDirs) {</span>
-<span class="source-line-no">558</span><span id="line-558">        File f2 = new File(directory, f.getName());</span>
-<span class="source-line-no">559</span><span id="line-559">        f.renameTo(f2);</span>
-<span class="source-line-no">560</span><span id="line-560">      }</span>
-<span class="source-line-no">561</span><span id="line-561">      root.delete();</span>
+<span class="source-line-no">394</span><span id="line-394">   * Defaults keepSubdirectories to false.</span>
+<span class="source-line-no">395</span><span id="line-395">   *</span>
+<span class="source-line-no">396</span><span id="line-396">   * @see org.gbif.utils.file.CompressionUtil#unzipFile(java.io.File, java.io.File, boolean)</span>
+<span class="source-line-no">397</span><span id="line-397">   */</span>
+<span class="source-line-no">398</span><span id="line-398">  public static List&lt;File&gt; unzipFile(File directory, File zipFile) throws IOException {</span>
+<span class="source-line-no">399</span><span id="line-399">    return unzipFile(directory, zipFile, false);</span>
+<span class="source-line-no">400</span><span id="line-400">  }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">  /**</span>
+<span class="source-line-no">403</span><span id="line-403">   * Zip a directory with all files but skipping included subdirectories.</span>
+<span class="source-line-no">404</span><span id="line-404">   * Only files directly within the directory are added to the archive.</span>
+<span class="source-line-no">405</span><span id="line-405">   *</span>
+<span class="source-line-no">406</span><span id="line-406">   * @param dir     the directory to zip</span>
+<span class="source-line-no">407</span><span id="line-407">   * @param zipFile the zipped file</span>
+<span class="source-line-no">408</span><span id="line-408">   */</span>
+<span class="source-line-no">409</span><span id="line-409">  public static void zipDir(File dir, File zipFile) throws IOException {</span>
+<span class="source-line-no">410</span><span id="line-410">    zipDir(dir, zipFile, false);</span>
+<span class="source-line-no">411</span><span id="line-411">  }</span>
+<span class="source-line-no">412</span><span id="line-412"></span>
+<span class="source-line-no">413</span><span id="line-413">  /**</span>
+<span class="source-line-no">414</span><span id="line-414">   * Zip a directory with all files. Files in Subdirectories will be included if the inclSubdirs is true.</span>
+<span class="source-line-no">415</span><span id="line-415">   *</span>
+<span class="source-line-no">416</span><span id="line-416">   * @param dir     the directory to zip</span>
+<span class="source-line-no">417</span><span id="line-417">   * @param zipFile the zipped file</span>
+<span class="source-line-no">418</span><span id="line-418">   * @param inclSubdirs if true includes all subdirectories recursively</span>
+<span class="source-line-no">419</span><span id="line-419">   */</span>
+<span class="source-line-no">420</span><span id="line-420">  public static void zipDir(File dir, File zipFile, boolean inclSubdirs) throws IOException {</span>
+<span class="source-line-no">421</span><span id="line-421">    Collection&lt;File&gt; files = org.apache.commons.io.FileUtils.listFiles(dir, null, inclSubdirs);</span>
+<span class="source-line-no">422</span><span id="line-422">    zipFiles(files, dir, zipFile);</span>
+<span class="source-line-no">423</span><span id="line-423">  }</span>
+<span class="source-line-no">424</span><span id="line-424"></span>
+<span class="source-line-no">425</span><span id="line-425">  public static void zipFile(File file, File zipFile) throws IOException {</span>
+<span class="source-line-no">426</span><span id="line-426">    Set&lt;File&gt; files = new HashSet&lt;&gt;();</span>
+<span class="source-line-no">427</span><span id="line-427">    files.add(file);</span>
+<span class="source-line-no">428</span><span id="line-428">    zipFiles(files, file.getParentFile(), zipFile);</span>
+<span class="source-line-no">429</span><span id="line-429">  }</span>
+<span class="source-line-no">430</span><span id="line-430"></span>
+<span class="source-line-no">431</span><span id="line-431">  /**</span>
+<span class="source-line-no">432</span><span id="line-432">   * Creates a zip archive from a given collection of files.</span>
+<span class="source-line-no">433</span><span id="line-433">   * In order to preserve paths in the archive a rootContext can be specified which will be removed from the individual</span>
+<span class="source-line-no">434</span><span id="line-434">   * zip entries. For example a rootContext of /home/freak with a file /home/freak/photo/birthday.jpg to be zipped</span>
+<span class="source-line-no">435</span><span id="line-435">   * will result in a zip entry with a path photo/birthday.jpg.</span>
+<span class="source-line-no">436</span><span id="line-436">   *</span>
+<span class="source-line-no">437</span><span id="line-437">   * @param files to be included in the zip archive</span>
+<span class="source-line-no">438</span><span id="line-438">   * @param rootContext optional path to be removed from each file</span>
+<span class="source-line-no">439</span><span id="line-439">   * @param zipFile the zip file to be created</span>
+<span class="source-line-no">440</span><span id="line-440">   * @throws IOException</span>
+<span class="source-line-no">441</span><span id="line-441">   */</span>
+<span class="source-line-no">442</span><span id="line-442">  public static void zipFiles(Collection&lt;File&gt; files, File rootContext, File zipFile)</span>
+<span class="source-line-no">443</span><span id="line-443">      throws IOException {</span>
+<span class="source-line-no">444</span><span id="line-444">    if (files.isEmpty()) {</span>
+<span class="source-line-no">445</span><span id="line-445">      LOG.info("no files to zip.");</span>
+<span class="source-line-no">446</span><span id="line-446">    } else {</span>
+<span class="source-line-no">447</span><span id="line-447">      try {</span>
+<span class="source-line-no">448</span><span id="line-448">        BufferedInputStream origin = null;</span>
+<span class="source-line-no">449</span><span id="line-449">        FileOutputStream dest = new FileOutputStream(zipFile);</span>
+<span class="source-line-no">450</span><span id="line-450">        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));</span>
+<span class="source-line-no">451</span><span id="line-451">        // out.setMethod(ZipOutputStream.DEFLATED);</span>
+<span class="source-line-no">452</span><span id="line-452">        byte[] data = new byte[BUFFER];</span>
+<span class="source-line-no">453</span><span id="line-453">        for (File f : files) {</span>
+<span class="source-line-no">454</span><span id="line-454">          LOG.debug("Adding file {} to archive", f);</span>
+<span class="source-line-no">455</span><span id="line-455">          FileInputStream fi = new FileInputStream(f);</span>
+<span class="source-line-no">456</span><span id="line-456">          origin = new BufferedInputStream(fi, BUFFER);</span>
+<span class="source-line-no">457</span><span id="line-457"></span>
+<span class="source-line-no">458</span><span id="line-458">          String zipPath =</span>
+<span class="source-line-no">459</span><span id="line-459">              StringUtils.removeStart(</span>
+<span class="source-line-no">460</span><span id="line-460">                  f.getAbsolutePath(), rootContext.getAbsolutePath() + File.separator);</span>
+<span class="source-line-no">461</span><span id="line-461">          ZipEntry entry = new ZipEntry(zipPath);</span>
+<span class="source-line-no">462</span><span id="line-462">          out.putNextEntry(entry);</span>
+<span class="source-line-no">463</span><span id="line-463">          int count;</span>
+<span class="source-line-no">464</span><span id="line-464">          while ((count = origin.read(data, 0, BUFFER)) != -1) {</span>
+<span class="source-line-no">465</span><span id="line-465">            out.write(data, 0, count);</span>
+<span class="source-line-no">466</span><span id="line-466">          }</span>
+<span class="source-line-no">467</span><span id="line-467">          origin.close();</span>
+<span class="source-line-no">468</span><span id="line-468">        }</span>
+<span class="source-line-no">469</span><span id="line-469">        out.finish();</span>
+<span class="source-line-no">470</span><span id="line-470">        out.close();</span>
+<span class="source-line-no">471</span><span id="line-471">      } catch (IOException e) {</span>
+<span class="source-line-no">472</span><span id="line-472">        LOG.error("IOException while zipping files: {}", files);</span>
+<span class="source-line-no">473</span><span id="line-473">        throw e;</span>
+<span class="source-line-no">474</span><span id="line-474">      }</span>
+<span class="source-line-no">475</span><span id="line-475">    }</span>
+<span class="source-line-no">476</span><span id="line-476">  }</span>
+<span class="source-line-no">477</span><span id="line-477"></span>
+<span class="source-line-no">478</span><span id="line-478">  /**</span>
+<span class="source-line-no">479</span><span id="line-479">   * Extracts a zipped file into a target directory. If the file is wrapped in a root directory, this is removed by</span>
+<span class="source-line-no">480</span><span id="line-480">   * default. Other subdirectories are ignored according to the parameter keepSubdirectories.</span>
+<span class="source-line-no">481</span><span id="line-481">   * &lt;/br&gt;</span>
+<span class="source-line-no">482</span><span id="line-482">   * The following types of files are also ignored by default:</span>
+<span class="source-line-no">483</span><span id="line-483">   * i) hidden files (i.e. files starting with a dot)</span>
+<span class="source-line-no">484</span><span id="line-484">   * ii) Apple resource fork (__MACOSX), including its subdirectories and subfiles</span>
+<span class="source-line-no">485</span><span id="line-485">   *</span>
+<span class="source-line-no">486</span><span id="line-486">   * @param directory          where the zipped file and its subdirectories should be extracted to</span>
+<span class="source-line-no">487</span><span id="line-487">   * @param zipFile            to extract</span>
+<span class="source-line-no">488</span><span id="line-488">   * @param keepSubdirectories whether to preserve subdirectories or not</span>
+<span class="source-line-no">489</span><span id="line-489">   *</span>
+<span class="source-line-no">490</span><span id="line-490">   * @return a list of all created files and directories extracted to target directory</span>
+<span class="source-line-no">491</span><span id="line-491">   */</span>
+<span class="source-line-no">492</span><span id="line-492">  public static List&lt;File&gt; unzipFile(File directory, File zipFile, boolean keepSubdirectories)</span>
+<span class="source-line-no">493</span><span id="line-493">      throws IOException {</span>
+<span class="source-line-no">494</span><span id="line-494">    LOG.debug(</span>
+<span class="source-line-no">495</span><span id="line-495">        "Unzipping archive "</span>
+<span class="source-line-no">496</span><span id="line-496">            + zipFile.getName()</span>
+<span class="source-line-no">497</span><span id="line-497">            + " into directory: "</span>
+<span class="source-line-no">498</span><span id="line-498">            + directory.getAbsolutePath());</span>
+<span class="source-line-no">499</span><span id="line-499"></span>
+<span class="source-line-no">500</span><span id="line-500">    // This is changed from using ZipFile to a ZipInputStream since Java 8u192 can't open certain</span>
+<span class="source-line-no">501</span><span id="line-501">    // Zip64 files.</span>
+<span class="source-line-no">502</span><span id="line-502">    // https://bugs.openjdk.java.net/browse/JDK-8186464</span>
+<span class="source-line-no">503</span><span id="line-503">    try (FileInputStream fInput = new FileInputStream(zipFile);</span>
+<span class="source-line-no">504</span><span id="line-504">        ZipInputStream zipInput = new ZipInputStream(fInput)) {</span>
+<span class="source-line-no">505</span><span id="line-505">      ZipEntry entry;</span>
+<span class="source-line-no">506</span><span id="line-506"></span>
+<span class="source-line-no">507</span><span id="line-507">      while ((entry = zipInput.getNextEntry()) != null) {</span>
+<span class="source-line-no">508</span><span id="line-508">        // ignore resource fork directories and subfiles</span>
+<span class="source-line-no">509</span><span id="line-509">        if (entry.getName().toUpperCase().contains(APPLE_RESOURCE_FORK)) {</span>
+<span class="source-line-no">510</span><span id="line-510">          LOG.debug("Ignoring resource fork file: " + entry.getName());</span>
+<span class="source-line-no">511</span><span id="line-511">        }</span>
+<span class="source-line-no">512</span><span id="line-512">        // ignore directories and hidden directories (e.g. .svn) (based on flag)</span>
+<span class="source-line-no">513</span><span id="line-513">        else if (entry.isDirectory()) {</span>
+<span class="source-line-no">514</span><span id="line-514">          if (isHiddenFile(new File(entry.getName()))) {</span>
+<span class="source-line-no">515</span><span id="line-515">            LOG.debug("Ignoring hidden directory: " + entry.getName());</span>
+<span class="source-line-no">516</span><span id="line-516">          } else if (keepSubdirectories) {</span>
+<span class="source-line-no">517</span><span id="line-517">            new File(directory, entry.getName()).mkdir();</span>
+<span class="source-line-no">518</span><span id="line-518">          } else {</span>
+<span class="source-line-no">519</span><span id="line-519">            LOG.debug("Ignoring (sub)directory: " + entry.getName());</span>
+<span class="source-line-no">520</span><span id="line-520">          }</span>
+<span class="source-line-no">521</span><span id="line-521">        }</span>
+<span class="source-line-no">522</span><span id="line-522">        // ignore hidden files</span>
+<span class="source-line-no">523</span><span id="line-523">        else {</span>
+<span class="source-line-no">524</span><span id="line-524">          if (isHiddenFile(new File(entry.getName()))) {</span>
+<span class="source-line-no">525</span><span id="line-525">            LOG.debug("Ignoring hidden file: " + entry.getName());</span>
+<span class="source-line-no">526</span><span id="line-526">          } else {</span>
+<span class="source-line-no">527</span><span id="line-527">            File targetFile =</span>
+<span class="source-line-no">528</span><span id="line-528">                (keepSubdirectories)</span>
+<span class="source-line-no">529</span><span id="line-529">                    ? new File(directory, entry.getName())</span>
+<span class="source-line-no">530</span><span id="line-530">                    : new File(directory, new File(entry.getName()).getName());</span>
+<span class="source-line-no">531</span><span id="line-531">            // ensure parent folder always exists, and extract file</span>
+<span class="source-line-no">532</span><span id="line-532">            createParentFolder(targetFile);</span>
+<span class="source-line-no">533</span><span id="line-533"></span>
+<span class="source-line-no">534</span><span id="line-534">            LOG.debug("Extracting file: {} to: {}", entry.getName(), targetFile.getAbsolutePath());</span>
+<span class="source-line-no">535</span><span id="line-535">            try (OutputStream out =</span>
+<span class="source-line-no">536</span><span id="line-536">                new BufferedOutputStream(Files.newOutputStream(targetFile.toPath()))) {</span>
+<span class="source-line-no">537</span><span id="line-537">              IOUtils.copy(zipInput, out);</span>
+<span class="source-line-no">538</span><span id="line-538">            }</span>
+<span class="source-line-no">539</span><span id="line-539">          }</span>
+<span class="source-line-no">540</span><span id="line-540">        }</span>
+<span class="source-line-no">541</span><span id="line-541">      }</span>
+<span class="source-line-no">542</span><span id="line-542">    }</span>
+<span class="source-line-no">543</span><span id="line-543">    // remove the wrapping root directory and flatten structure</span>
+<span class="source-line-no">544</span><span id="line-544">    if (keepSubdirectories) {</span>
+<span class="source-line-no">545</span><span id="line-545">      removeRootDirectory(directory);</span>
+<span class="source-line-no">546</span><span id="line-546">    }</span>
+<span class="source-line-no">547</span><span id="line-547"></span>
+<span class="source-line-no">548</span><span id="line-548">    File[] files = directory.listFiles();</span>
+<span class="source-line-no">549</span><span id="line-549"></span>
+<span class="source-line-no">550</span><span id="line-550">    return (files == null) ? new ArrayList&lt;&gt;() : Arrays.asList(files);</span>
+<span class="source-line-no">551</span><span id="line-551">  }</span>
+<span class="source-line-no">552</span><span id="line-552"></span>
+<span class="source-line-no">553</span><span id="line-553">  /**</span>
+<span class="source-line-no">554</span><span id="line-554">   * @return true if file is a hidden file or directory, or if any of its parent directories are hidden checking</span>
+<span class="source-line-no">555</span><span id="line-555">   * recursively</span>
+<span class="source-line-no">556</span><span id="line-556">   */</span>
+<span class="source-line-no">557</span><span id="line-557">  private static boolean isHiddenFile(File f) {</span>
+<span class="source-line-no">558</span><span id="line-558">    if (f.getName().startsWith(".")) {</span>
+<span class="source-line-no">559</span><span id="line-559">      return true;</span>
+<span class="source-line-no">560</span><span id="line-560">    } else if (f.getParentFile() != null) {</span>
+<span class="source-line-no">561</span><span id="line-561">      return isHiddenFile(f.getParentFile());</span>
 <span class="source-line-no">562</span><span id="line-562">    }</span>
-<span class="source-line-no">563</span><span id="line-563">  }</span>
-<span class="source-line-no">564</span><span id="line-564"></span>
-<span class="source-line-no">565</span><span id="line-565">  /**</span>
-<span class="source-line-no">566</span><span id="line-566">   * Make parent folder.</span>
-<span class="source-line-no">567</span><span id="line-567">   *</span>
-<span class="source-line-no">568</span><span id="line-568">   * @param file destination file</span>
+<span class="source-line-no">563</span><span id="line-563">    return false;</span>
+<span class="source-line-no">564</span><span id="line-564">  }</span>
+<span class="source-line-no">565</span><span id="line-565"></span>
+<span class="source-line-no">566</span><span id="line-566">  /**</span>
+<span class="source-line-no">567</span><span id="line-567">   * Removes a wrapping root directory and flatten its structure by moving all that root directory's files and</span>
+<span class="source-line-no">568</span><span id="line-568">   * subdirectories up to the same level as the root directory.</span>
 <span class="source-line-no">569</span><span id="line-569">   */</span>
-<span class="source-line-no">570</span><span id="line-570">  private static void createParentFolder(File file) {</span>
-<span class="source-line-no">571</span><span id="line-571">    File parent = new File(file.getParent());</span>
-<span class="source-line-no">572</span><span id="line-572">    if (!parent.exists()) {</span>
-<span class="source-line-no">573</span><span id="line-573">      LOG.debug(</span>
-<span class="source-line-no">574</span><span id="line-574">          (parent.mkdirs())</span>
-<span class="source-line-no">575</span><span id="line-575">              ? "Created parent directory: " + parent.getAbsolutePath()</span>
-<span class="source-line-no">576</span><span id="line-576">              : "Failed to create parent directory: " + parent.getAbsolutePath());</span>
-<span class="source-line-no">577</span><span id="line-577">    }</span>
-<span class="source-line-no">578</span><span id="line-578">  }</span>
-<span class="source-line-no">579</span><span id="line-579">}</span>
+<span class="source-line-no">570</span><span id="line-570">  @SuppressWarnings("ResultOfMethodCallIgnored")</span>
+<span class="source-line-no">571</span><span id="line-571">  private static void removeRootDirectory(File directory) {</span>
+<span class="source-line-no">572</span><span id="line-572">    File[] rootFiles = directory.listFiles((FileFilter) HiddenFileFilter.VISIBLE);</span>
+<span class="source-line-no">573</span><span id="line-573">    if (rootFiles == null) {</span>
+<span class="source-line-no">574</span><span id="line-574">      LOG.error("Failed to retrieve root directory from {}", directory.getAbsolutePath());</span>
+<span class="source-line-no">575</span><span id="line-575">      return;</span>
+<span class="source-line-no">576</span><span id="line-576">    }</span>
+<span class="source-line-no">577</span><span id="line-577"></span>
+<span class="source-line-no">578</span><span id="line-578">    if (rootFiles.length != 1) {</span>
+<span class="source-line-no">579</span><span id="line-579">      LOG.error("More than one root directory at {}", directory.getAbsolutePath());</span>
+<span class="source-line-no">580</span><span id="line-580">      return;</span>
+<span class="source-line-no">581</span><span id="line-581">    }</span>
+<span class="source-line-no">582</span><span id="line-582"></span>
+<span class="source-line-no">583</span><span id="line-583">    File root = rootFiles[0];</span>
+<span class="source-line-no">584</span><span id="line-584">    if (root.isDirectory()) {</span>
+<span class="source-line-no">585</span><span id="line-585">      LOG.debug(</span>
+<span class="source-line-no">586</span><span id="line-586">          "Removing single root folder {} found in decompressed archive", root.getAbsoluteFile());</span>
+<span class="source-line-no">587</span><span id="line-587">      Collection&lt;File&gt; filesAndDirs =</span>
+<span class="source-line-no">588</span><span id="line-588">          FileUtils.listFilesAndDirs(root, TrueFileFilter.TRUE, TrueFileFilter.TRUE);</span>
+<span class="source-line-no">589</span><span id="line-589">      // directories shouldn't be in the end, sort</span>
+<span class="source-line-no">590</span><span id="line-590">      List&lt;File&gt; sortedFilesAndDirs =</span>
+<span class="source-line-no">591</span><span id="line-591">          filesAndDirs.stream()</span>
+<span class="source-line-no">592</span><span id="line-592">              .sorted(Comparator.comparing(File::getAbsolutePath))</span>
+<span class="source-line-no">593</span><span id="line-593">              .collect(Collectors.toList());</span>
+<span class="source-line-no">594</span><span id="line-594"></span>
+<span class="source-line-no">595</span><span id="line-595">      for (File f : sortedFilesAndDirs) {</span>
+<span class="source-line-no">596</span><span id="line-596">        File f2 = new File(directory, f.getName());</span>
+<span class="source-line-no">597</span><span id="line-597">        f.renameTo(f2);</span>
+<span class="source-line-no">598</span><span id="line-598">      }</span>
+<span class="source-line-no">599</span><span id="line-599">      root.delete();</span>
+<span class="source-line-no">600</span><span id="line-600">    }</span>
+<span class="source-line-no">601</span><span id="line-601">  }</span>
+<span class="source-line-no">602</span><span id="line-602"></span>
+<span class="source-line-no">603</span><span id="line-603">  /**</span>
+<span class="source-line-no">604</span><span id="line-604">   * Make parent folder.</span>
+<span class="source-line-no">605</span><span id="line-605">   *</span>
+<span class="source-line-no">606</span><span id="line-606">   * @param file destination file</span>
+<span class="source-line-no">607</span><span id="line-607">   */</span>
+<span class="source-line-no">608</span><span id="line-608">  private static void createParentFolder(File file) {</span>
+<span class="source-line-no">609</span><span id="line-609">    File parent = new File(file.getParent());</span>
+<span class="source-line-no">610</span><span id="line-610">    if (!parent.exists()) {</span>
+<span class="source-line-no">611</span><span id="line-611">      LOG.debug(</span>
+<span class="source-line-no">612</span><span id="line-612">          (parent.mkdirs())</span>
+<span class="source-line-no">613</span><span id="line-613">              ? "Created parent directory: " + parent.getAbsolutePath()</span>
+<span class="source-line-no">614</span><span id="line-614">              : "Failed to create parent directory: " + parent.getAbsolutePath());</span>
+<span class="source-line-no">615</span><span id="line-615">    }</span>
+<span class="source-line-no">616</span><span id="line-616">  }</span>
+<span class="source-line-no">617</span><span id="line-617">}</span>
 
 
 
