@@ -40,6 +40,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
@@ -147,6 +149,16 @@ public class CompressionUtil {
       throws IOException, UnsupportedCompressionType {
     List<File> files = null;
 
+    // Test before trying Zstandard format
+    if (isZstdFormat(compressedFile)) {
+      try {
+        LOG.debug("Uncompressing {} with Zstd compression to {}", compressedFile, directory);
+        files = untzstdFile(directory, compressedFile);
+      } catch (Exception e) {
+        LOG.error("Not TAR Zstd compression");
+      }
+    }
+
     // Test before trying gzip format
     if (isGzipFormat(compressedFile)) {
       try {
@@ -189,6 +201,20 @@ public class CompressionUtil {
   }
 
   /**
+   * Check the file's first four bytes, to see if they are the Zstandard magic number.
+   * @param compressedFile compressed file
+   * @return               true if the file is in Zstd format
+   * @throws IOException   if a problem occurred reading compressed file
+   */
+  public static boolean isZstdFormat(File compressedFile) throws IOException {
+    try (RandomAccessFile file = new RandomAccessFile(compressedFile, "r")) {
+      byte[] header =  new byte[4];
+      file.read(header);
+      return ZstdUtils.matches(header, 4);
+    }
+  }
+
+  /**
    * Check the file's first two bytes, to see if they are the gzip magic number.
    * @param compressedFile compressed file
    * @return               true if the file is in gzip format
@@ -218,6 +244,18 @@ public class CompressionUtil {
       LOG.debug("Exc", e);
     }
     return false;
+  }
+
+  /**
+   * Extracts a Zstandard TAR file. Directory structure and hidden files (i.e. files starting with a dot) are ignored.
+   *
+   * @param directory where the file should be extracted to
+   * @param tarzstFile   to extract
+   *
+   * @return a list of all created files
+   */
+  public static List<File> untzstdFile(File directory, File tarzstFile) throws IOException {
+    return untarStream(directory, new ZstdCompressorInputStream(Files.newInputStream(tarzstFile.toPath())));
   }
 
   /**

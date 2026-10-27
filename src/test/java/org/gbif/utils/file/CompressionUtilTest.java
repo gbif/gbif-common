@@ -96,6 +96,12 @@ public class CompressionUtilTest {
     assureEqualContent(result, metaContent, dataContent);
 
     FileUtils.cleanDirectory(tmpDir);
+    testArchiveFile = classpathFile("compression/archive.tar.zst");
+    result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
+    assertEquals(2, result.size());
+    assureEqualContent(result, metaContent, dataContent);
+
+    FileUtils.cleanDirectory(tmpDir);
     testArchiveFile = classpathFile("compression/archive-zip.dat");
     result = CompressionUtil.decompressFile(tmpDir, testArchiveFile);
     assertEquals(2, result.size());

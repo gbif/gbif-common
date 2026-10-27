@@ -21,6 +21,7 @@
     <java.version>17</java.version>
 
     <commons-compress.version>1.28.0</commons-compress.version>
+    <zstd-jni.version>1.5.7-24</zstd-jni.version>
     <commons-lang.version>3.20.0</commons-lang.version>
     <commons-io.version>2.21.0</commons-io.version>
 
@@ -199,6 +200,11 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>${commons-compress.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.luben</groupId>
+      <artifactId>zstd-jni</artifactId>
+      <version>${zstd-jni.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
