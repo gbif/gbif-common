@@ -239,6 +239,15 @@ public class TabularFileMetadataExtractor {
       return resultCharacter;
     }
 
+    // otherwise, if only one delimiter is used the same number of times on every line, trust it over frequency
+    // (e.g. a tab file where a quoted WKT column holds many commas)
+    if (mostStableDelimiter.size() == 1) {
+      Character stableDelimiter = mostStableDelimiter.iterator().next();
+      if (delimiterDistinctFrequency.get(stableDelimiter).size() == 1) {
+        return Optional.of(stableDelimiter);
+      }
+    }
+
     // as last resort if the most frequent delimiter overall and by line is the same
     resultCharacter = intersectSingle(mostFrequentDelimiter, mostFrequentDelimiterPerLine);
 

@@ -228,7 +228,9 @@ public class TabularFileMetadataExtractorTest {
     String[] files = {
       "csv/eol/my_darwincore_tab_separated_quoted.txt",
       "csv/eol/my_dataobject_tab_separated_quoted.txt",
-      "csv/borza_tab_separated_quoted.txt"
+      "csv/borza_tab_separated_quoted.txt",
+      // more commas (in WKT) than tabs, https://github.com/gbif/gbif-common/issues/36
+      "csv/event_wkt_tab_separated_quoted.txt"
     };
     for (String fn : files) {
       runExtractTabularFileMetadata(fn, '\t', '"', StandardCharsets.UTF_8);
