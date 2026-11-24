@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -304,7 +305,7 @@ public class CompressionUtil {
           LOG.debug("TAR archive contains a hidden file {} which is being ignored", fn);
           continue;
         }
-        File targetFile = new File(directory, fn);
+        File targetFile = targetFile(directory, fn);
         if (targetFile.exists()) {
           LOG.warn("TAR archive contains duplicate filename {}, only the first was extracted", fn);
           continue;
@@ -369,7 +370,7 @@ public class CompressionUtil {
         unzippedNameResult = unzippedName;
       }
 
-      File outputFile = new File(directory, unzippedNameResult);
+      File outputFile = targetFile(directory, unzippedNameResult);
       LOG.debug("Extracting file: {} to: {}", unzippedNameResult, outputFile.getAbsolutePath());
       FileOutputStream fos = new FileOutputStream(outputFile);
 
@@ -514,7 +515,7 @@ public class CompressionUtil {
           if (isHiddenFile(new File(entry.getName()))) {
             LOG.debug("Ignoring hidden directory: " + entry.getName());
           } else if (keepSubdirectories) {
-            new File(directory, entry.getName()).mkdir();
+            targetFile(directory, entry.getName()).mkdir();
           } else {
             LOG.debug("Ignoring (sub)directory: " + entry.getName());
           }
@@ -526,8 +527,8 @@ public class CompressionUtil {
           } else {
             File targetFile =
                 (keepSubdirectories)
-                    ? new File(directory, entry.getName())
-                    : new File(directory, new File(entry.getName()).getName());
+                    ? targetFile(directory, entry.getName())
+                    : targetFile(directory, new File(entry.getName()).getName());
             // ensure parent folder always exists, and extract file
             createParentFolder(targetFile);
 
@@ -548,6 +549,21 @@ public class CompressionUtil {
     File[] files = directory.listFiles();
 
     return (files == null) ? new ArrayList<>() : Arrays.asList(files);
+  }
+
+  /**
+   * Resolves an archive entry name inside the target directory.
+   *
+   * @throws IOException if the entry would be written outside the directory ("zip slip"), e.g.
+   *     with an absolute path or ".." segments
+   */
+  static File targetFile(File directory, String entryName) throws IOException {
+    Path root = directory.toPath().toAbsolutePath().normalize();
+    Path target = root.resolve(entryName).normalize();
+    if (!target.startsWith(root) || target.equals(root)) {
+      throw new IOException("Archive entry is outside the target directory: " + entryName);
+    }
+    return target.toFile();
   }
 
   /**

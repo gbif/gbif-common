@@ -14,12 +14,18 @@
 package org.gbif.utils.file;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -29,6 +35,7 @@ import com.sun.management.UnixOperatingSystemMXBean;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -368,5 +375,71 @@ public class CompressionUtilTest {
 
     // Try ls -l /proc/`pgrep -f java -n`/fd
     // Thread.sleep(30000);
+  }
+
+  @Test
+  public void testUnzipEntriesOutsideDirectoryAreNotWritten() throws IOException {
+    File parent = createTempDirectory();
+    File target = new File(parent, "target");
+    assertTrue(target.mkdir());
+    File zip = new File(parent, "evil.zip");
+    writeZip(zip, "../evil.txt", "a/../../evil2.txt", "data/ok.txt");
+
+    CompressionUtil.unzipFile(target, zip, true);
+
+    assertFalse(new File(parent, "evil.txt").exists());
+    assertFalse(new File(parent, "evil2.txt").exists());
+  }
+
+  @Test
+  public void testUnzipAbsoluteEntryIsRejected() throws IOException {
+    File parent = createTempDirectory();
+    File target = new File(parent, "target");
+    assertTrue(target.mkdir());
+    File outside = new File(parent, "evil.txt");
+    File zip = new File(parent, "evil.zip");
+    writeZip(zip, outside.getAbsolutePath());
+
+    assertThrows(IOException.class, () -> CompressionUtil.unzipFile(target, zip, true));
+    assertFalse(outside.exists());
+  }
+
+  @Test
+  public void testGunzipNameOutsideDirectoryIsRejected() throws IOException {
+    File parent = createTempDirectory();
+    File target = new File(parent, "target");
+    assertTrue(target.mkdir());
+    File gz = new File(parent, "data.gz");
+    try (OutputStream out = new GZIPOutputStream(new FileOutputStream(gz))) {
+      out.write("data".getBytes(StandardCharsets.UTF_8));
+    }
+
+    assertThrows(
+        IOException.class, () -> CompressionUtil.ungzipFile(target, gz, "../evil.txt", false));
+    assertFalse(new File(parent, "evil.txt").exists());
+  }
+
+  @Test
+  public void testTargetFile() throws IOException {
+    File dir = createTempDirectory();
+    assertEquals(
+        new File(dir, "a/b.txt").getCanonicalFile(),
+        CompressionUtil.targetFile(dir, "a/b.txt").getCanonicalFile());
+    assertEquals(
+        new File(dir, "b.txt").getCanonicalFile(),
+        CompressionUtil.targetFile(dir, "a/../b.txt").getCanonicalFile());
+    assertThrows(IOException.class, () -> CompressionUtil.targetFile(dir, "../b.txt"));
+    assertThrows(IOException.class, () -> CompressionUtil.targetFile(dir, "/etc/passwd"));
+    assertThrows(IOException.class, () -> CompressionUtil.targetFile(dir, ""));
+  }
+
+  private static void writeZip(File zip, String... entryNames) throws IOException {
+    try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip))) {
+      for (String name : entryNames) {
+        out.putNextEntry(new ZipEntry(name));
+        out.write("data".getBytes(StandardCharsets.UTF_8));
+        out.closeEntry();
+      }
+    }
   }
 }
